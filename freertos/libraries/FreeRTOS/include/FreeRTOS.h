@@ -166,7 +166,7 @@ typedef portBASE_TYPE (*pdTASK_HOOK_CODE)( void * );
 #endif
 
 #ifndef configUSE_MUTEXES
-	#define configUSE_MUTEXES 0
+	#define configUSE_MUTEXES 1
 #endif
 
 #ifndef configUSE_TIMERS
@@ -231,7 +231,7 @@ typedef portBASE_TYPE (*pdTASK_HOOK_CODE)( void * );
 #endif
 
 #ifndef INCLUDE_xTaskGetCurrentTaskHandle
-	#define INCLUDE_xTaskGetCurrentTaskHandle 0
+	#define INCLUDE_xTaskGetCurrentTaskHandle 1
 #endif
 
 

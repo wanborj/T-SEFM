@@ -79,6 +79,7 @@ extern "C" {
 
 #include "mpu_wrappers.h"
 
+
 /**
  * Type by which queues are referenced.  For example, a call to xQueueCreate
  * returns (via a pointer parameter) an xQueueHandle variable that can then

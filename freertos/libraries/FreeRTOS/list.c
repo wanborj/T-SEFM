@@ -182,7 +182,7 @@ portTickType xValueOfInsertion;
 
 void vListRemove( xListItem *pxItemToRemove )
 {
-xList * pxList;
+    xList * pxList;
 
 	pxItemToRemove->pxNext->pxPrevious = pxItemToRemove->pxPrevious;
 	pxItemToRemove->pxPrevious->pxNext = pxItemToRemove->pxNext;
@@ -190,15 +190,22 @@ xList * pxList;
 	/* The list item knows which list it is in.  Obtain the list from the list
 	item. */
 	pxList = ( xList * ) pxItemToRemove->pvContainer;
-
 	/* Make sure the index is left pointing to a valid item. */
 	if( pxList->pxIndex == pxItemToRemove )
 	{
 		pxList->pxIndex = pxItemToRemove->pxPrevious;
 	}
+    
 
 	pxItemToRemove->pvContainer = NULL;
-	( pxList->uxNumberOfItems )--;
+    //send_byte('*');
+    //send_num(pxList->uxNumberOfItems);
+	(pxList->uxNumberOfItems)--;
+    //send_byte('#');
+    //send_num(pxList->uxNumberOfItems);
+    //send_byte('*');
+
+
 }
 /*-----------------------------------------------------------*/
 

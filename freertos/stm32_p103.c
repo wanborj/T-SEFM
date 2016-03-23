@@ -122,3 +122,46 @@ void enable_rs232(void)
     /* Enable the RS232 port. */
     USART_Cmd(USART2, ENABLE);
 }
+
+void send_byte(uint8_t b)
+{
+    while(USART_GetFlagStatus(USART2, USART_FLAG_TXE) == RESET);
+    
+    GPIOC->ODR ^= 0x00001000;
+
+    USART_SendData(USART2, b);
+}
+
+/**
+ *  can print a num which is smaller than 10
+ */
+
+void send_num(uint8_t b)
+{
+    send_byte(b+'0'); 
+}
+
+
+/* it's only used for debugging*/
+void helloworld(void )
+{
+    char * string = "hello,world\n\r";
+    int i = 0;
+    while(string[i] != '\0')
+    {
+        send_byte(string[i]);
+        i++;
+    }
+}
+
+void initialiseworld()
+{
+    char * string = "initialise world\n\r";
+    int i = 0;
+    while(string[i] != '\0')
+    {
+        send_byte(string[i]);
+        i++;
+    }
+    
+}

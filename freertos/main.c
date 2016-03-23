@@ -1,3 +1,13 @@
+/*
+* this application is used to try to exam the EventList mechanism.
+*
+* what this application can do is to print the "hello world! I am from China" in a periodic way.
+* The task to print the words is finished by one task which is composed of five S-servant include S-1,
+* S-2, S-3, S-4, S-5. They print the words in a specified order and in a collaborative way in a finite 
+* time duration.
+* */
+
+
 #define USE_STDPERIPH_DRIVER
 #include "stm32f10x.h"
 
@@ -6,243 +16,234 @@
 #include "task.h"
 #include "queue.h"
 #include "semphr.h"
-#include <string.h>
 
-static void setup_hardware();
+static void setup_hardware( void );
 
-volatile xQueueHandle serial_str_queue = NULL;
-volatile xSemaphoreHandle serial_tx_wait_sem = NULL;
-volatile xQueueHandle serial_rx_queue = NULL;
+#define NUMBEROFSERVANT 6 
 
-/* Queue structure used for passing messages. */
-typedef struct {
-	char str[100];
-} serial_str_msg;
+xSemaphoreHandle xBinarySemaphore[NUMBEROFSERVANT];  // the network topology
+xTaskHandle xTaskOfHandle[NUMBEROFSERVANT];         // record the handle of all S-Servant
+xList * pxCurrentReadyList;         // record the xEventReadyList that R-Servant transit event just now
 
-/* Queue structure used for passing characters. */
-typedef struct {
-	char ch;
-} serial_ch_msg;
-
-/* IRQ handler to handle USART2 interruptss (both transmit and receive
- * interrupts). */
-void USART2_IRQHandler()
+struct xParam
 {
-	static signed portBASE_TYPE xHigherPriorityTaskWoken;
-	serial_ch_msg rx_msg;
+    portBASE_TYPE xInFlag;
+    portBASE_TYPE xOutFlag;
+    char * string;
+};
 
-	/* If this interrupt is for a transmit... */
-	if (USART_GetITStatus(USART2, USART_IT_TXE) != RESET) {
-		/* "give" the serial_tx_wait_sem semaphore to notfiy processes
-		 * that the buffer has a spot free for the next byte.
-		 */
-		xSemaphoreGiveFromISR(serial_tx_wait_sem, &xHigherPriorityTaskWoken);
-
-		/* Diables the transmit interrupt. */
-		USART_ITConfig(USART2, USART_IT_TXE, DISABLE);
-		/* If this interrupt is for a receive... */
-	}
-	else if (USART_GetITStatus(USART2, USART_IT_RXNE) != RESET) {
-		/* Receive the byte from the buffer. */
-		rx_msg.ch = USART_ReceiveData(USART2);
-
-		/* Queue the received byte. */
-		if(!xQueueSendToBackFromISR(serial_rx_queue, &rx_msg, &xHigherPriorityTaskWoken)) {
-			/* If there was an error queueing the received byte,
-			 * freeze. */
-			while(1);
-		}
-	}
-	else {
-		/* Only transmit and receive interrupts should be enabled.
-		 * If this is another type of interrupt, freeze.
-		 */
-		while(1);
-	}
-
-	if (xHigherPriorityTaskWoken) {
-		taskYIELD();
-	}
-}
-
-void send_byte(char ch)
+void led_flash_task( void *pvParameters )
 {
-	/* Wait until the RS232 port can receive another byte (this semaphore
-	 * is "given" by the RS232 port interrupt when the buffer has room for
-	 * another byte.
-	 */
-	while (!xSemaphoreTake(serial_tx_wait_sem, portMAX_DELAY));
+    while(1) {
+        /* Toggle the LED. */
+        GPIOC->ODR = GPIOC->ODR ^ 0x00001000;
 
-	/* Send the byte and enable the transmit interrupt (it is disabled by
-	 * the interrupt).
-	 */
-	USART_SendData(USART2, ch);
-	USART_ITConfig(USART2, USART_IT_TXE, ENABLE);
-}
-
-char receive_byte()
-{
-	serial_ch_msg msg;
-
-	/* Wait for a byte to be queued by the receive interrupts handler. */
-	while (!xQueueReceive(serial_rx_queue, &msg, portMAX_DELAY));
-
-	return msg.ch;
-}
-
-void led_flash_task(void *pvParameters)
-{
-	while (1) {
-		/* Toggle the LED. */
-		GPIOC->ODR = GPIOC->ODR ^ 0x00001000;
-
-		/* Wait one second. */
-		vTaskDelay(100);
-	}
-}
-
-void rs232_xmit_msg_task(void *pvParameters)
-{
-	serial_str_msg msg;
-	int curr_char;
-
-	while (1) {
-		/* Read from the queue.  Keep trying until a message is
-		 * received.  This will block for a period of time (specified
-		 * by portMAX_DELAY). */
-		while (!xQueueReceive(serial_str_queue, &msg, portMAX_DELAY));
-
-		/* Write each character of the message to the RS232 port. */
-		curr_char = 0;
-		while (msg.str[curr_char] != '\0') {
-			send_byte(msg.str[curr_char]);
-			curr_char++;
-		}
-	}
+        /* Wait one second. */
+        vTaskDelay(100);
+    }
 }
 
 
-/* Repeatedly queues a string to be sent to the RS232.
- *   delay - the time to wait between sending messages.  A delay of 1 means
- *           wait 1/100th of a second.
- */
-void queue_str_task(const char *str, int delay)
+
+void vPrintString( const char * string)
 {
-	serial_str_msg msg;
-
-	/* Prepare the message to be queued. */
-	strcpy(msg.str, str);
-
-	while (1) {
-		/* Post the message.  Keep on trying until it is successful. */
-		while (!xQueueSendToBack(serial_str_queue, &msg,
-		       portMAX_DELAY));
-
-		/* Wait. */
-		vTaskDelay(delay);
-	}
+    int i = 0;
+    while(string[i] != '\0')
+    {
+        send_byte(string[i]);
+        i++;
+    }
 }
 
-void queue_str_task1(void *pvParameters)
+void vPrintNumber( const portBASE_TYPE num)
 {
-	queue_str_task("Hello 1\n", 200);
+    vPrintString("the number is :");
+    send_byte(num+'0');
+    send_byte('\n');
+    send_byte('\r');
 }
 
-void queue_str_task2(void *pvParameters)
+static void vServant( void * pvParameters )
 {
-	queue_str_task("Hello 2\n", 50);
+    portBASE_TYPE xInFlag = ((struct xParam *) pvParameters)->xInFlag;
+    portBASE_TYPE xOutFlag = ((struct xParam *) pvParameters)->xOutFlag;
+    xEventHandle pxEvent;
+    struct eventData sData;
+
+    char * string = ((struct xParam *) pvParameters)->string;
+
+    while(1)
+    {
+        xSemaphoreTake( xBinarySemaphore[xInFlag+1], portMAX_DELAY );
+        /* get event whose pxSource equals to xTaskOfHandle[xInFlag] from specified xEventReadyList */
+        
+        vPrintString("enter S-Servant+++++++++++++\n\r");
+        //vPrintNumber(xInFlag+1);
+        vEventReceive( &pxEvent, xTaskOfHandle[xInFlag], pxCurrentReadyList );
+
+        if( pxEvent == NULL )
+        {
+            vPrintString("pxEvent == NULL, there isn't right event in the xEventReadyList\n\r");
+            vTaskDelay(15/portTICK_RATE_MS);
+            continue;
+        }
+        //vPrintNumber(pxEvent->xData.xData);
+       /* read data */ 
+        sData.xData = (pxEvent->xData.xData) + 1;
+        //vPrintNumber(sData.xData);
+
+        /* delete the old event*/
+        vEventDelete(pxEvent);
+        /* create a new event and insert it into the xEventList*/
+        vEventCreate(xTaskOfHandle[xOutFlag], sData);
+        
+        //vPrintString( string );
+        //vTaskDelay(2000/portTICK_RATE_MS);
+        
+    }
 }
 
-void serial_readwrite_task(void *pvParameters)
+static void vActuator( void * pvParameters)
 {
-	serial_str_msg msg;
-	char ch;
-	int curr_char;
-	int done;
+    portBASE_TYPE xInFlag = ((struct xParam *) pvParameters)->xInFlag;
+    xEventHandle pxEvent = NULL;
 
-	/* Prepare the response message to be queued. */
-	strcpy(msg.str, "Got:");
+    while(1)
+    {
 
-	while (1) {
-		curr_char = 4;
-		done = 0;
-		do {
-			/* Receive a byte from the RS232 port (this call will
-			 * block). */
-			ch = receive_byte();
+        xSemaphoreTake(xBinarySemaphore[xInFlag+1], portMAX_DELAY);
 
-			/* If the byte is an end-of-line type character, then
-			 * finish the string and inidcate we are done.
-			 */
-			if ((ch == '\r') || (ch == '\n')) {
-				msg.str[curr_char] = '\n';
-				msg.str[curr_char+1] = '\0';
-				done = -1;
-				/* Otherwise, add the character to the
-				 * response string. */
-			}
-			else {
-				msg.str[curr_char++] = ch;
-			}
-		} while (!done);
+        vEventReceive( &pxEvent, xTaskOfHandle[xInFlag], pxCurrentReadyList);
 
-		/* Once we are done building the response string, queue the
-		 * response to be sent to the RS232 port.
-		 */
-		while (!xQueueSendToBack(serial_str_queue, &msg,
-		                         portMAX_DELAY));
-	}
+        if( pxEvent == NULL )
+        {
+            vTaskDelay(20/portTICK_RATE_MS);
+            continue;
+        }
+        //vPrintNumber( pxEvent->xData.xData);
+
+        vEventDelete( pxEvent );
+    }
 }
 
-int main()
+/*
+* function as the init Task in system. vPeriodicTask have the highest priority. It creates the first event to 
+* xEventList in system. After that, it Delay until another period.
+* */
+
+static void vPeriodicTask( void * pvParameters )
 {
-	init_led();
+    portTickType xLastWakeTime;
+    xLastWakeTime = xTaskGetTickCount();
 
-	init_button();
-	enable_button_interrupts();
+    /* create a data and initialise it */
+    struct eventData xData;
+    xData.xData = 1.0;
 
-	init_rs232();
-	enable_rs232_interrupts();
-	enable_rs232();
+    /* network parameter*/
+    portBASE_TYPE xInFlag = ((struct xParam *) pvParameters)->xInFlag;
+    portBASE_TYPE xOutFlag = ((struct xParam *) pvParameters)->xOutFlag;
 
-	/* Create the queue used by the serial task.  Messages for write to
-	 * the RS232. */
-	serial_str_queue = xQueueCreate(10, sizeof(serial_str_msg));
-	vSemaphoreCreateBinary(serial_tx_wait_sem);
-	serial_rx_queue = xQueueCreate(1, sizeof(serial_ch_msg));
+    /* trace information */
+    char * string = ((struct xParam *) pvParameters)->string;
 
-	/* Create a task to flash the LED. */
-	xTaskCreate(led_flash_task,
-	            (signed portCHAR *) "LED Flash",
-	            512 /* stack size */, NULL,
-	            tskIDLE_PRIORITY + 5, NULL);
+    while(1)
+    {
+        /* create the the first event item to trigger xTaskOfHandle[xOutFlag] and insert it into the xEventList*/
+        vEventCreate(xTaskOfHandle[xOutFlag], xData);
 
-	/* Create tasks to queue a string to be written to the RS232 port. */
-	xTaskCreate(queue_str_task1,
-	            (signed portCHAR *) "Serial Write 1",
-	            512 /* stack size */, NULL,
-	            tskIDLE_PRIORITY + 10, NULL );
-	xTaskCreate(queue_str_task2,
-	            (signed portCHAR *) "Serial Write 2",
-	            512 /* stack size */,
-	            NULL, tskIDLE_PRIORITY + 10, NULL);
+        vPrintString( "External Event!!!!!!!!!!!!!!!!!!!!!!\n\r");
+        //vPrintString(string);
+        //vPrintNumber(xData.xData);
 
-	/* Create a task to write messages from the queue to the RS232 port. */
-	xTaskCreate(rs232_xmit_msg_task,
-	            (signed portCHAR *) "Serial Xmit Str",
-	            512 /* stack size */, NULL, tskIDLE_PRIORITY + 2, NULL);
 
-	/* Create a task to receive characters from the RS232 port and echo
-	 * them back to the RS232 port. */
-	xTaskCreate(serial_readwrite_task,
-	            (signed portCHAR *) "Serial Read/Write",
-	            512 /* stack size */, NULL,
-	            tskIDLE_PRIORITY + 10, NULL);
+        vTaskDelayUntil(&xLastWakeTime, 2000/portTICK_RATE_MS);
+        xData.xData ++;
+    }
+}
 
-	/* Start running the tasks. */
-	vTaskStartScheduler();
+static void vR_Servant( void * pvParameters)
+{
+    xListItem * pxEventListItem;
+    portBASE_TYPE i;
+//    portBASE_TYPE targetServantNum;
+    xTaskHandle targetServantTCB;
 
-	return 0;
+
+    while(1)
+    {
+    
+        /*transit the highest event item from xEventList to the idlest xEvestReadyList*/
+        vEventListTransit( &pxEventListItem, &pxCurrentReadyList);
+
+        if ( pxEventListItem == NULL && pxCurrentReadyList == NULL)
+        {
+            vTaskDelay(10/portTICK_RATE_MS);
+            continue;
+        }
+
+        targetServantTCB = ((xEventHandle) pxEventListItem->pvOwner)->pxDestination;
+        if(targetServantTCB == NULL )
+        {
+            // there will be NULL after second round.
+            //helloworld();
+        }
+        vPrintString("enter R-Servant again #######\n\r");
+
+        for( i = 1; i < NUMBEROFSERVANT; ++i )
+        {
+
+            vTaskDelay(10/portTICK_RATE_MS);
+
+            /*the point has some problem here, these two points can be never same */
+            if( targetServantTCB == xTaskOfHandle[i])
+            {
+                vPrintString("sending semaphore to targetServantTCB------------\n\r");
+                vPrintNumber(i);
+                xSemaphoreGive( xBinarySemaphore[i] );
+                break;
+            }
+        }
+
+    }
+}
+
+int main(void)
+{
+    init_led();
+    init_rs232();
+    enable_rs232_interrupts();
+    enable_rs232();
+
+    portBASE_TYPE i;    
+    portCHAR str[NUMBEROFSERVANT][20] = {{"Servant 1 \n\r"},{"Servant 2 \n\r"},{"Servant 3 \n\r"},{"Servant 4 \n\r"},{"Actuator \n\r"},{"External event"}};
+
+    struct xParam pvParameters[NUMBEROFSERVANT];
+
+    for( i = 0; i < NUMBEROFSERVANT; i ++ )
+    {
+        pvParameters[i].string = str[i];
+        pvParameters[i].xInFlag = i;
+        pvParameters[i].xOutFlag = (i+2)%NUMBEROFSERVANT;
+
+        vSemaphoreCreateBinary(xBinarySemaphore[i]);
+
+        /* when created, it is initialised to 1*/
+        xSemaphoreTake(xBinarySemaphore[i], portMAX_DELAY);
+    }
+
+    xTaskCreate( vServant, "Servant No.1", 512 /* stack size */, (void *)&pvParameters[0], tskIDLE_PRIORITY + 2, &xTaskOfHandle[1]);
+    xTaskCreate( vServant, "Servant No.2", 512 /* stack size */, (void *)&pvParameters[1], tskIDLE_PRIORITY + 3, &xTaskOfHandle[2]);
+    xTaskCreate( vServant, "Servant No.3", 512 /* stack size */, (void *)&pvParameters[2], tskIDLE_PRIORITY + 4, &xTaskOfHandle[3]);
+    xTaskCreate( vServant, "Servant No.4", 512 /* stack size */, (void *)&pvParameters[3], tskIDLE_PRIORITY + 5, &xTaskOfHandle[4]);
+    xTaskCreate( vActuator, "Servant No.5", 512 /* stack size */, (void *)&pvParameters[4], tskIDLE_PRIORITY + 6,&xTaskOfHandle[5]);
+
+    xTaskCreate( vPeriodicTask, "periodic task", 512, (void *)&pvParameters[5], tskIDLE_PRIORITY + 10, &xTaskOfHandle[0]);
+    xTaskCreate( vR_Servant, "R Servant", 512, NULL, tskIDLE_PRIORITY + 1, NULL);
+    /* Start running the task. */
+    vTaskStartScheduler();
+
+    return 0;
 }
 
 void myTraceCreate      (){
@@ -254,6 +255,7 @@ void myTraceSwitchedIn  (){
 void myTraceSwitchedOut	(){
 }
 
+/*
 inline float myTraceGetTick(){
 	// 0xE000E014 -> Systick reload value
 	// 0xE000E018 -> Systick current value
@@ -263,7 +265,7 @@ inline float myTraceGetTick(){
 inline unsigned long myTraceGetTimeMillisecond(){
 	return (xTaskGetTickCountFromISR() + myTraceGetTick()) * 1000 / configTICK_RATE_HZ;
 }
-
-void vApplicationTickHook()
+*/
+void vApplicationTickHook( void )
 {
 }

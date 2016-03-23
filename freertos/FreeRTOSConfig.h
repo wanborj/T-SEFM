@@ -77,7 +77,7 @@
 #define configUSE_TICK_HOOK			1
 #define configCPU_CLOCK_HZ			( ( unsigned long ) 72000000 )	
 #define configTICK_RATE_HZ			( ( portTickType ) 100 )
-#define configMAX_PRIORITIES		( ( unsigned portBASE_TYPE ) 5 )
+#define configMAX_PRIORITIES		( ( unsigned portBASE_TYPE ) 20 )
 #define configMINIMAL_STACK_SIZE	( ( unsigned short ) 128 )
 #define configTOTAL_HEAP_SIZE		( ( size_t ) ( 17 * 1024 ) )
 #define configMAX_TASK_NAME_LEN		( 16 )
@@ -100,6 +100,11 @@ to exclude the API function. */
 #define INCLUDE_vTaskSuspend			1
 #define INCLUDE_vTaskDelayUntil			1
 #define INCLUDE_vTaskDelay				1
+
+/* including the configuration for SEFM*/
+#define INCLUDE_SEFM        1
+#define configMAX_RSERVANT_EXETIME  (10/portTICK_RATE_MS)    /*< R-Servant upper bound execution time is 10ms >*/
+#define configCPU_NUMBER    1
 
 /* This is the raw value as per the Cortex-M3 NVIC.  Values can be 255
 (lowest) to 0 (1?) (highest). */

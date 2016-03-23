@@ -107,7 +107,7 @@ struct xLIST_ITEM
 	portTickType xItemValue;				/*< The value being listed.  In most cases this is used to sort the list in descending order. */
 	volatile struct xLIST_ITEM * pxNext;	/*< Pointer to the next xListItem in the list. */
 	volatile struct xLIST_ITEM * pxPrevious;/*< Pointer to the previous xListItem in the list. */
-	void * pvOwner;							/*< Pointer to the object (normally a TCB) that contains the list item.  There is therefore a two way link between the object containing the list item and the list item itself. */
+	void * pvOwner;							/*< Pointer to the object (normally a TCB or eveECB) that contains the list item.  There is therefore a two way link between the object containing the list item and the list item itself. */
 	void * pvContainer;						/*< Pointer to the list in which this list item is placed (if any). */
 };
 typedef struct xLIST_ITEM xListItem;		/* For some reason lint wants this as two separate definitions. */
