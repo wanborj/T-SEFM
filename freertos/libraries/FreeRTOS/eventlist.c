@@ -145,8 +145,8 @@ static void prvInitialiseEventLists(void )
     }
 }
 
-/*
-portBASE_TYPE xCompareFunction( const struct timeStamp t1, const struct timeStamp t2 )
+
+static portBASE_TYPE xCompareFunction( const struct timeStamp t1, const struct timeStamp t2 )
 {
     if( t1.xTime < t2.xTime )
     {
@@ -162,12 +162,14 @@ portBASE_TYPE xCompareFunction( const struct timeStamp t1, const struct timeStam
 
     return pdFALSE;
 }
-*/
 
+
+/*
 static portBASE_TYPE xCompareFunction(const struct timeStamp t1, const struct timeStamp t2)
 {
     return pdTRUE;
 }
+*/
 
 xTaskHandle xEventGetpxSource( xEventHandle pxEvent )
 {
@@ -222,13 +224,11 @@ static xList * pxGetReadyList( void )
 }
 
 /* insert the event item to the xEventList according the sort algorithm.*/
+/*
 static void prvEventListGenericInsert( xListItem *pxNewListItem)
 {
     vListInsertEnd( &xEventList, pxNewListItem);
 }
-
-
-/*
 
 static void prvEventListGenericInsert( xListItem *pxNewListItem)
 {
@@ -238,7 +238,8 @@ static void prvEventListGenericInsert( xListItem *pxNewListItem)
     
     portBASE_TYPE flag = 0;
 
-    xTimeStampOfInsertion = ( (eveECB *) pxNewListItem->pvOwner)->xTimeStamp;
+    xTimeStampOfInsertion = xEventGetxTimeStamp( pxNewListItem->pvOwner );
+    //xTimeStampOfInsertion = ( (eveECB *) pxNewListItem->pvOwner)->xTimeStamp;
 
     //dose not take the time overflow into consideration yet.
     pxIterator = ( xListItem * ) &( pxList->xListEnd.pxNext );
@@ -252,7 +253,7 @@ static void prvEventListGenericInsert( xListItem *pxNewListItem)
     else
     {
         //do nothing, just find the approperiate position
-        for ( ; xCompareFunction( ( (exEventHandl) pxIterator->pvOwner)->xTimeStamp, xTimeStampOfInsertion); pxIterator = pxIterator->pxNext)
+        for ( ; xCompareFunction( ( (xEventHandle) pxIterator->pvOwner)->xTimeStamp, xTimeStampOfInsertion); pxIterator = pxIterator->pxNext)
         {
             //if flag == pxList->uxNumberOfItems, then the timestamp of newListItem is the biggest. It should be inserted into the end of the xEventList.
             flag ++;
@@ -269,36 +270,80 @@ static void prvEventListGenericInsert( xListItem *pxNewListItem)
     pxNewListItem->pxPrevious->pxNext = (volatile xListItem *) pxNewListItem;
     pxIterator->pxPrevious= (volatile xListItem *) pxNewListItem;
 
-    if ( pxNewListItem->pvContainer == &xEventList)
-    {
-        // successful.
-     //  helloworld(); 
-    }
-
-    //send_num(listCURRENT_LIST_LENGTH(&xEventList));
     ( pxList->uxNumberOfItems ) ++;
-    //send_num(listCURRENT_LIST_LENGTH(&xEventList));
 
     pxList->pxIndex = pxList->xListEnd.pxNext ;
-    if( pxList->pxIndex == pxList->xListEnd.pxNext )
+}
+
+*/
+static void prvEventListGenericInsert( xListItem *pxNewListItem )
+{
+    volatile xListItem *pxIterator;
+    struct timeStamp xTimeStampOfInsertion;
+    xList * pxList = &xEventList;
+
+    /* Insert the new list item into the list, sorted in ulListItem order. */
+    xTimeStampOfInsertion = xEventGetxTimeStamp(pxNewListItem->pvOwner);
+
+    /* If the list already contains a list item with the same item value then
+    the new list item should be placed after it.  This ensures that TCB's which
+    are stored in ready lists (all of which have the same ulListItem value)
+    get an equal share of the CPU.  However, if the xItemValue is the same as
+    the back marker the iteration loop below will not end.  This means we need
+    to guard against this by checking the value first and modifying the
+    algorithm slightly if necessary. */
+    if( xTimeStampOfInsertion.xTime == portMAX_DELAY )
     {
-        //successful.
-        //helloworld();
+        pxIterator = pxList->xListEnd.pxPrevious;
     }
-    if( xEventList.xListEnd.pxNext == pxNewListItem)
+    else
     {
-        //helloworld();
+        /* *** NOTE ***********************************************************
+        If you find your application is crashing here then likely causes are:
+        1) Stack overflow -
+        see http://www.freertos.org/Stacks-and-stack-overflow-checking.html
+        2) Incorrect interrupt priority assignment, especially on Cortex-M3
+        parts where numerically high priority values denote low actual
+        interrupt priories, which can seem counter intuitive.  See
+        configMAX_SYSCALL_INTERRUPT_PRIORITY on http://www.freertos.org/a00110.html
+        3) Calling an API function from within a critical section or when
+        the scheduler is suspended.
+        4) Using a queue or semaphore before it has been initialised or
+        before the scheduler has been started (are interrupts firing
+        before vTaskStartScheduler() has been called?).
+        See http://www.freertos.org/FAQHelp.html for more tips.
+        **********************************************************************/
+
+        taskENTER_CRITICAL();
+        for( pxIterator = ( xListItem * ) &( pxList->xListEnd ); xCompareFunction( xEventGetxTimeStamp( pxIterator->pxNext->pvOwner ), xTimeStampOfInsertion ); pxIterator = pxIterator->pxNext ) 
+        //for( pxIterator = ( xListItem * ) &( pxList->xListEnd ); pxIterator->pxNext->xItemValue <= xTimeStampOfInsertion; pxIterator = pxIterator->pxNext )
+        {
+            /* There is nothing to do here, we are just iterating to the
+            wanted insertion position. */
+        }
+        taskEXIT_CRITICAL();
     }
 
+    pxNewListItem->pxNext = pxIterator->pxNext;
+    pxNewListItem->pxNext->pxPrevious = ( volatile xListItem * ) pxNewListItem;
+    pxNewListItem->pxPrevious = pxIterator;
+    pxIterator->pxNext = ( volatile xListItem * ) pxNewListItem;
+
+    /* Remember which list the item is in.  This allows fast removal of the
+    item later. */
+    pxNewListItem->pvContainer = ( void * ) pxList;
+
+    ( pxList->uxNumberOfItems )++;
 }
-*/
+
+
 
 
 static void vListIntialiseEventItem( xEventHandle pvOwner, xListItem * pxNewEventItem)
 {
     /* set the pvOwner of the EventItem as a event*/
     listSET_LIST_ITEM_OWNER( pxNewEventItem, pvOwner );
-    pxNewEventItem->pvContainer = (void *) &xEventList;
+    //pxNewEventItem->pvContainer = (void *) &xEventList;
 }
 
 
@@ -331,12 +376,6 @@ void vEventGenericCreate( xTaskHandle pxDestination, struct eventData pdData)
 
         /*how to call this funciton: vEventListInsert( newListItem ). This function add the new item into the xEventList as default*/
         prvEventListGenericInsert( (xListItem *) &(pxNewEvent->xEventListItem));
-        if( pxNewEvent->xEventListItem.pvContainer == &xEventList )
-        {
-            //successful.
-            //helloworld();
-            //send_num(xEventList.uxNumberOfItems);
-        }
     
     }
     taskEXIT_CRITICAL();

@@ -169,7 +169,7 @@ static void vR_Servant( void * pvParameter)
 
         if ( pxEventListItem == NULL && pxCurrentReadyList == NULL)
         {
-            vTaskDelay(300/portTICK_RATE_MS);
+            vTaskDelay(30/portTICK_RATE_MS);
             continue;
         }
 
