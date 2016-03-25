@@ -141,11 +141,13 @@ void send_num(uint8_t b)
     send_byte(b+'0'); 
 }
 
+/*
+ * print a string
+ *
+ * */
 
-/* it's only used for debugging*/
-void helloworld(void )
+void vPrintString( const char * string)
 {
-    char * string = "hello,world\n\r";
     int i = 0;
     while(string[i] != '\0')
     {
@@ -154,14 +156,15 @@ void helloworld(void )
     }
 }
 
-void initialiseworld()
+/*
+ * print a number which is less than 10
+ *
+ * */
+
+void vPrintNumber( const long num)
 {
-    char * string = "initialise world\n\r";
-    int i = 0;
-    while(string[i] != '\0')
-    {
-        send_byte(string[i]);
-        i++;
-    }
-    
+    vPrintString("the number is :");
+    send_byte(num+'0');
+    send_byte('\n');
+    send_byte('\r');
 }

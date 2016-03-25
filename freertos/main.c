@@ -35,36 +35,7 @@ struct xParam
 struct xParam pvParameters[NUMBEROFSERVANT];
 
 
-void led_flash_task( void *pvParameter )
-{
-    while(1) {
-        /* Toggle the LED. */
-        GPIOC->ODR = GPIOC->ODR ^ 0x00001000;
 
-        /* Wait one second. */
-        vTaskDelay(100);
-    }
-}
-
-
-
-void vPrintString( const char * string)
-{
-    int i = 0;
-    while(string[i] != '\0')
-    {
-        send_byte(string[i]);
-        i++;
-    }
-}
-
-void vPrintNumber( const portBASE_TYPE num)
-{
-    vPrintString("the number is :");
-    send_byte(num+'0');
-    send_byte('\n');
-    send_byte('\r');
-}
 
 static void vServant( void * pvParameter )
 {
