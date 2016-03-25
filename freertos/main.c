@@ -75,7 +75,6 @@ static void vServant( void * pvParameter )
 
     while(1)
     {
-        vPrintString("this is S-Servant-----------\n\r");
         xSemaphoreTake( xBinarySemaphore[xInFlag+1], portMAX_DELAY );
         /* get event whose pxSource equals to xTaskOfHandle[xInFlag] from specified xEventReadyList */
         
@@ -114,7 +113,6 @@ static void vActuator( void * pvParameter)
         xSemaphoreTake(xBinarySemaphore[xInFlag+1], portMAX_DELAY);
 
         vEventReceive( &pxEvent, xTaskOfHandle[xInFlag], pxCurrentReadyList);
-        //helloworld();
 
         if( pxEvent == NULL )
         {
@@ -122,7 +120,6 @@ static void vActuator( void * pvParameter)
             continue;
         }
         xData = xEventGetxData( pxEvent );
-        vPrintNumber( xData.xData);
 
         vEventDelete( pxEvent );
     }
