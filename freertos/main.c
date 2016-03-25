@@ -16,6 +16,7 @@
 #include "task.h"
 #include "queue.h"
 #include "semphr.h"
+#include "eventlist.h"
 
 static void setup_hardware( void );
 
@@ -29,10 +30,12 @@ struct xParam
 {
     portBASE_TYPE xInFlag;
     portBASE_TYPE xOutFlag;
-    char * string;
 };
 
-void led_flash_task( void *pvParameters )
+struct xParam pvParameters[NUMBEROFSERVANT];
+
+
+void led_flash_task( void *pvParameter )
 {
     while(1) {
         /* Toggle the LED. */
@@ -63,22 +66,22 @@ void vPrintNumber( const portBASE_TYPE num)
     send_byte('\r');
 }
 
-static void vServant( void * pvParameters )
+static void vServant( void * pvParameter )
 {
-    portBASE_TYPE xInFlag = ((struct xParam *) pvParameters)->xInFlag;
-    portBASE_TYPE xOutFlag = ((struct xParam *) pvParameters)->xOutFlag;
+    portBASE_TYPE xInFlag = ((struct xParam *) pvParameter)->xInFlag;
+    portBASE_TYPE xOutFlag = ((struct xParam *) pvParameter)->xOutFlag;
     xEventHandle pxEvent;
     struct eventData sData;
 
-    char * string = ((struct xParam *) pvParameters)->string;
-
     while(1)
     {
+        vPrintString("this is S-Servant-----------\n\r");
         xSemaphoreTake( xBinarySemaphore[xInFlag+1], portMAX_DELAY );
         /* get event whose pxSource equals to xTaskOfHandle[xInFlag] from specified xEventReadyList */
         
         vPrintString("enter S-Servant+++++++++++++\n\r");
         //vPrintNumber(xInFlag+1);
+        // receive the event whose source Servant is xTaskOfHandle[xInFlag]
         vEventReceive( &pxEvent, xTaskOfHandle[xInFlag], pxCurrentReadyList );
 
         if( pxEvent == NULL )
@@ -87,26 +90,23 @@ static void vServant( void * pvParameters )
             vTaskDelay(15/portTICK_RATE_MS);
             continue;
         }
-        //vPrintNumber(pxEvent->xData.xData);
        /* read data */ 
-        sData.xData = (pxEvent->xData.xData) + 1;
+        sData= xEventGetxData(pxEvent);
+        sData.xData = sData.xData+ 1;
         //vPrintNumber(sData.xData);
 
         /* delete the old event*/
         vEventDelete(pxEvent);
-        /* create a new event and insert it into the xEventList*/
+        /* create a new event whose destination is xTaskOfHandle[xOutFlag] and insert it into the xEventList*/
         vEventCreate(xTaskOfHandle[xOutFlag], sData);
-        
-        //vPrintString( string );
-        //vTaskDelay(2000/portTICK_RATE_MS);
-        
     }
 }
 
-static void vActuator( void * pvParameters)
+static void vActuator( void * pvParameter)
 {
-    portBASE_TYPE xInFlag = ((struct xParam *) pvParameters)->xInFlag;
+    portBASE_TYPE xInFlag = ((struct xParam *) pvParameter)->xInFlag;
     xEventHandle pxEvent = NULL;
+    struct eventData xData;
 
     while(1)
     {
@@ -114,13 +114,15 @@ static void vActuator( void * pvParameters)
         xSemaphoreTake(xBinarySemaphore[xInFlag+1], portMAX_DELAY);
 
         vEventReceive( &pxEvent, xTaskOfHandle[xInFlag], pxCurrentReadyList);
+        //helloworld();
 
         if( pxEvent == NULL )
         {
             vTaskDelay(20/portTICK_RATE_MS);
             continue;
         }
-        //vPrintNumber( pxEvent->xData.xData);
+        xData = xEventGetxData( pxEvent );
+        vPrintNumber( xData.xData);
 
         vEventDelete( pxEvent );
     }
@@ -131,7 +133,7 @@ static void vActuator( void * pvParameters)
 * xEventList in system. After that, it Delay until another period.
 * */
 
-static void vPeriodicTask( void * pvParameters )
+static void vSensor( void * pvParameter )
 {
     portTickType xLastWakeTime;
     xLastWakeTime = xTaskGetTickCount();
@@ -141,58 +143,44 @@ static void vPeriodicTask( void * pvParameters )
     xData.xData = 1.0;
 
     /* network parameter*/
-    portBASE_TYPE xInFlag = ((struct xParam *) pvParameters)->xInFlag;
-    portBASE_TYPE xOutFlag = ((struct xParam *) pvParameters)->xOutFlag;
-
-    /* trace information */
-    char * string = ((struct xParam *) pvParameters)->string;
+    portBASE_TYPE xOutFlag = ((struct xParam *) pvParameter)->xOutFlag;
 
     while(1)
     {
         /* create the the first event item to trigger xTaskOfHandle[xOutFlag] and insert it into the xEventList*/
+        //vEventCreate(xTaskOfHandle[xOutFlag], xData);
         vEventCreate(xTaskOfHandle[xOutFlag], xData);
 
         vPrintString( "External Event!!!!!!!!!!!!!!!!!!!!!!\n\r");
-        //vPrintString(string);
-        //vPrintNumber(xData.xData);
-
 
         vTaskDelayUntil(&xLastWakeTime, 2000/portTICK_RATE_MS);
         xData.xData ++;
     }
 }
 
-static void vR_Servant( void * pvParameters)
+static void vR_Servant( void * pvParameter)
 {
     xListItem * pxEventListItem;
     portBASE_TYPE i;
 //    portBASE_TYPE targetServantNum;
     xTaskHandle targetServantTCB;
 
-
     while(1)
     {
-    
         /*transit the highest event item from xEventList to the idlest xEvestReadyList*/
         vEventListTransit( &pxEventListItem, &pxCurrentReadyList);
 
         if ( pxEventListItem == NULL && pxCurrentReadyList == NULL)
         {
-            vTaskDelay(10/portTICK_RATE_MS);
+            vTaskDelay(300/portTICK_RATE_MS);
             continue;
         }
 
-        targetServantTCB = ((xEventHandle) pxEventListItem->pvOwner)->pxDestination;
-        if(targetServantTCB == NULL )
-        {
-            // there will be NULL after second round.
-            //helloworld();
-        }
+        targetServantTCB = xEventGetpxDestination( pxEventListItem->pvOwner);
         vPrintString("enter R-Servant again #######\n\r");
 
         for( i = 1; i < NUMBEROFSERVANT; ++i )
         {
-
             vTaskDelay(10/portTICK_RATE_MS);
 
             /*the point has some problem here, these two points can be never same */
@@ -216,30 +204,44 @@ int main(void)
     enable_rs232();
 
     portBASE_TYPE i;    
-    portCHAR str[NUMBEROFSERVANT][20] = {{"Servant 1 \n\r"},{"Servant 2 \n\r"},{"Servant 3 \n\r"},{"Servant 4 \n\r"},{"Actuator \n\r"},{"External event"}};
-
-    struct xParam pvParameters[NUMBEROFSERVANT];
 
     for( i = 0; i < NUMBEROFSERVANT; i ++ )
     {
-        pvParameters[i].string = str[i];
-        pvParameters[i].xInFlag = i;
-        pvParameters[i].xOutFlag = (i+2)%NUMBEROFSERVANT;
+        // i == 0,  which is the external event
+        if ( i == 0 )
+            pvParameters[i].xInFlag = 0;
+        else
+            pvParameters[i].xInFlag = i-1;
+
+        // i == NUMBEROFSERVANT - 1, which is the actuator
+        if( i != (NUMBEROFSERVANT -1 ))
+            pvParameters[i].xOutFlag = (i+1);
+        else
+            pvParameters[i].xOutFlag = i;
+
+        //vPrintString("the in flag is:\n\r");
+        //send_num(pvParameters[i].xInFlag);
+
+        //vPrintString("the out flag is:\n\r");
+        //send_num(pvParameters[i].xOutFlag);
 
         vSemaphoreCreateBinary(xBinarySemaphore[i]);
 
-        /* when created, it is initialised to 1*/
+        /* when created, it is initialised to 1. So, we take it away.*/
         xSemaphoreTake(xBinarySemaphore[i], portMAX_DELAY);
     }
 
-    xTaskCreate( vServant, "Servant No.1", 512 /* stack size */, (void *)&pvParameters[0], tskIDLE_PRIORITY + 2, &xTaskOfHandle[1]);
-    xTaskCreate( vServant, "Servant No.2", 512 /* stack size */, (void *)&pvParameters[1], tskIDLE_PRIORITY + 3, &xTaskOfHandle[2]);
-    xTaskCreate( vServant, "Servant No.3", 512 /* stack size */, (void *)&pvParameters[2], tskIDLE_PRIORITY + 4, &xTaskOfHandle[3]);
-    xTaskCreate( vServant, "Servant No.4", 512 /* stack size */, (void *)&pvParameters[3], tskIDLE_PRIORITY + 5, &xTaskOfHandle[4]);
-    xTaskCreate( vActuator, "Servant No.5", 512 /* stack size */, (void *)&pvParameters[4], tskIDLE_PRIORITY + 6,&xTaskOfHandle[5]);
-
-    xTaskCreate( vPeriodicTask, "periodic task", 512, (void *)&pvParameters[5], tskIDLE_PRIORITY + 10, &xTaskOfHandle[0]);
     xTaskCreate( vR_Servant, "R Servant", 512, NULL, tskIDLE_PRIORITY + 1, NULL);
+
+    xTaskCreate( vSensor, "Sensor", 512, (void *)&pvParameters[0], tskIDLE_PRIORITY + 10, &xTaskOfHandle[0]);
+
+    xTaskCreate( vServant, "Servant No.1", 512 /* stack size */, (void *)&pvParameters[1], tskIDLE_PRIORITY + 2, &xTaskOfHandle[1]);
+    xTaskCreate( vServant, "Servant No.2", 512 /* stack size */, (void *)&pvParameters[2], tskIDLE_PRIORITY + 3, &xTaskOfHandle[2]);
+    xTaskCreate( vServant, "Servant No.3", 512 /* stack size */, (void *)&pvParameters[3], tskIDLE_PRIORITY + 4, &xTaskOfHandle[3]);
+    xTaskCreate( vServant, "Servant No.4", 512 /* stack size */, (void *)&pvParameters[4], tskIDLE_PRIORITY + 5, &xTaskOfHandle[4]);
+
+    xTaskCreate( vActuator, "Actuator", 512 /* stack size */, (void *)&pvParameters[5], tskIDLE_PRIORITY + 6,&xTaskOfHandle[5]);
+
     /* Start running the task. */
     vTaskStartScheduler();
 

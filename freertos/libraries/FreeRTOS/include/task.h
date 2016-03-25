@@ -133,33 +133,6 @@ typedef struct xTASK_PARAMTERS
 } xTaskParameters;
 
 
-/*
- * time stamp is used to mark the time to process corresponding event item. This can be used to reassigned the scheduling order of S-Servant
- * */
-struct timeStamp 
-{
-    portTickType xTime;             /*< the time to be proecessed >*/
-    portBASE_TYPE xMicroStep;            /*< the order produced by the relationship between S-Servant >*/
-    portBASE_TYPE xLevel;                /*< the order produced by topology sort which dosen't take the shared resource dependencies into consideration>*/
-};
-
-struct eventData
-{
-    /* data type can be changed here. Data type including portCHAR, portFLOAT, portLONG, portSHORT, portBASE_TYPE*/
-    portDOUBLE xData;
-};
-
-/* the struct of event item*/
-typedef struct eveEventControlBlock
-{
-    xTaskHandle pxSource;         /*< the S-Servant where the event item from >*/
-    xTaskHandle pxDestination;    /*< the S-Servant where the event item to >*/
-    struct timeStamp xTimeStamp;    /*< the time stamp used to sort the event item in the event list >*/
-    xListItem  xEventListItem;       /*< connect the eveECB to the xEventList by struct list>*/
-    struct eventData xData;
-}eveECB;
-
-typedef eveECB * xEventHandle;
 
 /*
  * Defines the priority used by the idle task.  This must not be modified.
@@ -1299,30 +1272,6 @@ signed portBASE_TYPE xTaskRemoveFromEventList( const xList * const pxEventList )
  */
 void vTaskSwitchContext( void ) PRIVILEGED_FUNCTION;
 
-/*
- * return the xStartTime of corresponding task
- * */
-portTickType xTaskGetxStartTime( xTaskHandle pxTCB );
-
-/*
- * return the xLet of corresponding task
- * */
-portTickType xTaskGetxLet( xTaskHandle pxTCB );
-
-/*
- * Return the handle of the calling task.
- */
-xTaskHandle xTaskGetCurrentTaskHandle( void ) PRIVILEGED_FUNCTION;
-
-/*
- * set the xStartTime of the corresponding task
- * */
-void xTaskSetxStartTime ( xTaskHandle pxTCB, portTickType xStartTime );
-
-/*
- * set the xLet of the corresponding task
- * */
-void xTaskSetxLet( xTaskHandle pxTCB, portTickType xLet );
 
 /*
  * Capture the current time status for future reference.
@@ -1371,67 +1320,38 @@ signed portBASE_TYPE xTaskGenericCreate( pdTASK_CODE pxTaskCode, const signed ch
 unsigned portBASE_TYPE uxTaskGetTaskNumber( xTaskHandle xTask );
 
 /*
+ * Return the handle of the calling task.
+ */
+xTaskHandle xTaskGetCurrentTaskHandle( void ) PRIVILEGED_FUNCTION;
+
+/*
  * Set the uxTCBNumber of the task referenced by the xTask parameter to
  * ucHandle.
  */
 void vTaskSetTaskNumber( xTaskHandle xTask, unsigned portBASE_TYPE uxHandle );
 
-/**************all the Macros List following are implemented in tasks.c to operating the event item*************/
+#if ( INCLUDE_SEFM == 1 )
+    /*
+     * return the xStartTime of corresponding task
+     * */
+    portTickType xTaskGetxStartTime( xTaskHandle pxTCB );
 
-/*
-* Create and event and send it into the xEventList.
-*
-* @param1: to which S-Servant will the event item send.
-* @param2: output of this S-Serant or the input for the destinate S-Servant
-*
-* */
+    /*
+     * return the xLet of corresponding task
+     * */
+    portTickType xTaskGetxLet( xTaskHandle pxTCB );
 
-#define vEventCreate( pxDestination, pvData)  vEventGenericCreate(pxDestination, pvData)
+    /*
+     * set the xStartTime of the corresponding task
+     * */
+    void xTaskSetxStartTime ( xTaskHandle pxTCB, portTickType xStartTime );
 
+    /*
+     * set the xLet of the corresponding task
+     * */
+    void xTaskSetxLet( xTaskHandle pxTCB, portTickType xLet );
+#endif
 
-/*
-* insert the specified event item to event list with specified sort algorithm -- xCompareFunction.
-* 
-* @param1: the event item will be inserted
-* */
-//#define vEventListInsert( pxNewListItem)    vEventListGenericInsert( pxNewListItem )
-
-/*
-* Remove the highest priority event from xEventList to one of the xEventReadyList which is get by 
-* a local funciton pxGetReadyList().
-*
-* @param1: return the highest priority event which is removed.
-* @param2: return the xEventReadyList where the event moved to.
-* */
-#define vEventListTransit( pxEventListItem, pxCurrentReadyList)     vEventListGenericTransit( pxEventListItem, pxCurrentReadyList)
-
-/*
- * get event item point from specified xEventReadyList.
- * S-Servant that is triggered to receive event from xEventReadyList, 
- * before that R-Servant must already transit the event from xEventList to corresponding xEventReadylist.
- *
- * @param1: return the point of the event item
- * @param2: select the event whose source S-Servant is pxSource
- * @param3: the xEventReadyList where receive event from
- * 
- *
- * return : return the specified event item
- * */
-
-#define vEventReceive( pxEvent, pxSource, pxList )  vEventGenericReceive( pxEvent, pxSource, pxList )
-
-/*
-*  Free the memeory of specified event.
-*
-*  @ the handler of corresponding event.
-* */
-#define vEventDelete( pxEvent )     vEventGenericDelete( pxEvent )
-
-
-void vEventGenericCreate( xTaskHandle pxDestination, struct eventData pvData);  
-void vEventListGenericTransit( xListItem ** pxEvent, xList ** pxList);
-void vEventGenericReceive( xEventHandle *pxEvent, xTaskHandle pxSource, xList * pxList );
-void vEventGenericDelete ( xEventHandle xEvent);
 
 #ifdef __cplusplus
 }
