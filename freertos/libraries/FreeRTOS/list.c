@@ -195,17 +195,9 @@ void vListRemove( xListItem *pxItemToRemove )
 	{
 		pxList->pxIndex = pxItemToRemove->pxPrevious;
 	}
-    
 
 	pxItemToRemove->pvContainer = NULL;
-    //send_byte('*');
-    //send_num(pxList->uxNumberOfItems);
 	(pxList->uxNumberOfItems)--;
-    //send_byte('#');
-    //send_num(pxList->uxNumberOfItems);
-    //send_byte('*');
-
-
 }
 /*-----------------------------------------------------------*/
 

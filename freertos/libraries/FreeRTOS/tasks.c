@@ -2494,12 +2494,12 @@ void vTaskExitCritical( void )
         return ((tskTCB *)pxTCB)->xLet;
     }
 
-    void xTaskSetxStartTime ( xTaskHandle pxTCB, portTickType xStartTime )
+    void vTaskSetxStartTime ( xTaskHandle pxTCB, portTickType xStartTime )
     {
         ((tskTCB *) pxTCB)->xStartTime = xStartTime; 
     }
 
-    void xTaskSetxLet( xTaskHandle pxTCB, portTickType xLet )
+    void vTaskSetxLet( xTaskHandle pxTCB, portTickType xLet )
     {
         ((tskTCB *) pxTCB)->xLet = xLet;
     }

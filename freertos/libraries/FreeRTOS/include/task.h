@@ -1344,12 +1344,12 @@ void vTaskSetTaskNumber( xTaskHandle xTask, unsigned portBASE_TYPE uxHandle );
     /*
      * set the xStartTime of the corresponding task
      * */
-    void xTaskSetxStartTime ( xTaskHandle pxTCB, portTickType xStartTime );
+    void vTaskSetxStartTime ( xTaskHandle pxTCB, portTickType xStartTime );
 
     /*
      * set the xLet of the corresponding task
      * */
-    void xTaskSetxLet( xTaskHandle pxTCB, portTickType xLet );
+    void vTaskSetxLet( xTaskHandle pxTCB, portTickType xLet );
 #endif
 
 
