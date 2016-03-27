@@ -338,11 +338,12 @@ int main(void)
 
     // S-Servant S-1
     pvParameters[1].xNumOfIn = 1;
-    pvParameters[1].xNumOfOut = 1;
+    pvParameters[1].xNumOfOut = 2;
 
     pvParameters[1].xInFlag[0] = 0;
     
     pvParameters[1].xOutFlag[0] = 2;
+    pvParameters[1].xOutFlag[1] = 3;
 
     // S-Servant S-2
     pvParameters[2].xNumOfIn = 1;
@@ -350,29 +351,30 @@ int main(void)
 
     pvParameters[2].xInFlag[0] = 1;
     
-    pvParameters[2].xOutFlag[0] = 3;
+    pvParameters[2].xOutFlag[0] = 4;
 
     // S-Servant S-3
     pvParameters[3].xNumOfIn = 1;
     pvParameters[3].xNumOfOut = 1;
 
-    pvParameters[3].xInFlag[0] = 2;
+    pvParameters[3].xInFlag[0] = 1;
     
-    pvParameters[3].xOutFlag[0] = 4;
+    pvParameters[3].xOutFlag[0] = 5;
 
     // S-Servant S-4
     pvParameters[4].xNumOfIn = 1;
     pvParameters[4].xNumOfOut = 1;
 
-    pvParameters[4].xInFlag[0] = 3;
+    pvParameters[4].xInFlag[0] = 2;
     
     pvParameters[4].xOutFlag[0] = 5;
 
     //actuator
-    pvParameters[5].xNumOfIn = 1;
+    pvParameters[5].xNumOfIn = 2;
     pvParameters[5].xNumOfOut = 0;
 
-    pvParameters[5].xInFlag[0] = 4;
+    pvParameters[5].xInFlag[0] = 3;
+    pvParameters[5].xInFlag[1] = 4;
 
     xTaskCreate( vR_Servant, "R Servant", 512, NULL, tskIDLE_PRIORITY + 1, &xTaskOfHandle[6]);
 
