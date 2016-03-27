@@ -278,7 +278,7 @@ static void vR_Servant( void * pvParameter)
 
         if( pxEventListItem == NULL && pxCurrentReadyList == NULL )
         {
-            vTaskDelay(20/portTICK_RATE_MS);
+            vTaskDelay(100/portTICK_RATE_MS);
             continue;
         }
 
@@ -338,12 +338,11 @@ int main(void)
 
     // S-Servant S-1
     pvParameters[1].xNumOfIn = 1;
-    pvParameters[1].xNumOfOut = 2;
+    pvParameters[1].xNumOfOut = 1;
 
     pvParameters[1].xInFlag[0] = 0;
     
     pvParameters[1].xOutFlag[0] = 2;
-    pvParameters[1].xOutFlag[1] = 3;
 
     // S-Servant S-2
     pvParameters[2].xNumOfIn = 1;
@@ -351,30 +350,29 @@ int main(void)
 
     pvParameters[2].xInFlag[0] = 1;
     
-    pvParameters[2].xOutFlag[0] = 4;
+    pvParameters[2].xOutFlag[0] = 3;
 
     // S-Servant S-3
     pvParameters[3].xNumOfIn = 1;
     pvParameters[3].xNumOfOut = 1;
 
-    pvParameters[3].xInFlag[0] = 1;
+    pvParameters[3].xInFlag[0] = 2;
     
-    pvParameters[3].xOutFlag[0] = 5;
+    pvParameters[3].xOutFlag[0] = 4;
 
     // S-Servant S-4
     pvParameters[4].xNumOfIn = 1;
     pvParameters[4].xNumOfOut = 1;
 
-    pvParameters[4].xInFlag[0] = 2;
+    pvParameters[4].xInFlag[0] = 3;
     
     pvParameters[4].xOutFlag[0] = 5;
 
     //actuator
-    pvParameters[5].xNumOfIn = 2;
+    pvParameters[5].xNumOfIn = 1;
     pvParameters[5].xNumOfOut = 0;
 
-    pvParameters[5].xInFlag[0] = 3;
-    pvParameters[5].xInFlag[1] = 4;
+    pvParameters[5].xInFlag[0] = 4;
 
     xTaskCreate( vR_Servant, "R Servant", 512, NULL, tskIDLE_PRIORITY + 1, &xTaskOfHandle[6]);
 
@@ -416,153 +414,4 @@ inline unsigned long myTraceGetTimeMillisecond(){
 void vApplicationTickHook( void )
 {
 }
-
-/*
-static void vServant_1( void * pvParameter )
-{
-    portBASE_TYPE xInFlag0 = ((struct xParam *) pvParameter)->xInFlag[0];
-    portBASE_TYPE xOutFlag0 = ((struct xParam *) pvParameter)->xOutFlag[0];
-    portBASE_TYPE xOutFlag1 = ((struct xParam *) pvParameter)->xOutFlag[1];
-    portBASE_TYPE xMyFlag = ((struct xParam *) pvParameter)->xMyFlag;
-    xEventHandle pxEvent;
-    portTickType xCurrentTime;
-    struct eventData sData;
-
-    while(1)
-    {
-        //xSemaphoreTake( xBinarySemaphore[xInFlag0+1], portMAX_DELAY );
-        xSemaphoreTakeAll( pvParameter );
-
-        // reset the xStartTime of current servant
-        xCurrentTime = xTaskGetTickCount();        
-        vTaskSetxStartTime( xTaskOfHandle[xInFlag0+1], xCurrentTime );
-        
-        vPrintString("enter S-Servant+++++++++++++\n\r");
-
-        // receive the event whose source Servant is xTaskOfHandle[xInFlag]
-        vEventReceive( &pxEvent, xTaskOfHandle[xInFlag0], pxCurrentReadyList );
-
-        if( pxEvent == NULL )
-        {
-            vPrintString("pxEvent == NULL, there isn't right event in the xEventReadyList\n\r");
-            vTaskDelay(15/portTICK_RATE_MS);
-            continue;
-        }
-       // read data
-        sData= xEventGetxData(pxEvent);
-        sData.xData = sData.xData+ 1;
-        //vPrintNumber(sData.xData);
-
-        // delete the old event
-        vEventDelete(pxEvent);
-        // create a new event whose destination is xTaskOfHandle[xOutFlag] and insert it into the xEventList
-        vEventCreate(xTaskOfHandle[xOutFlag0], sData);
-        vEventCreate(xTaskOfHandle[xOutFlag1], sData);
-    }
-
-}
-
-static void vServant( void * pvParameter )
-{
-    portBASE_TYPE xInFlag = ((struct xParam *) pvParameter)->xInFlag[0];
-    portBASE_TYPE xOutFlag = ((struct xParam *) pvParameter)->xOutFlag[0];
-    portTickType xCurrentTime;
-    xEventHandle pxEvent;
-    struct eventData sData;
-
-    while(1)
-    {
-        xSemaphoreTake( xBinarySemaphore[xInFlag+1], portMAX_DELAY );
-
-        // reset the xStartTime of current servant
-        xCurrentTime = xTaskGetTickCount();
-        vTaskSetxStartTime( xTaskOfHandle[xInFlag+1], xCurrentTime );
-        
-        
-        vPrintString("enter S-Servant+++++++++++++\n\r");
-        //vPrintNumber(xInFlag+1);
-        // receive the event whose source Servant is xTaskOfHandle[xInFlag]
-        vEventReceive( &pxEvent, xTaskOfHandle[xInFlag], pxCurrentReadyList );
-
-        if( pxEvent == NULL )
-        {
-            vPrintString("pxEvent == NULL, there isn't right event in the xEventReadyList\n\r");
-            vTaskDelay(15/portTICK_RATE_MS);
-            continue;
-        }
-       // read data 
-        sData= xEventGetxData(pxEvent);
-        sData.xData = sData.xData+ 1;
-        //vPrintNumber(sData.xData);
-
-        // delete the old event
-        vEventDelete(pxEvent);
-       // create a new event whose destination is xTaskOfHandle[xOutFlag] and insert it into the xEventList
-        vEventCreate(xTaskOfHandle[xOutFlag], sData);
-    }
-}
-
-static void vActuator( void * pvParameter)
-{
-    portBASE_TYPE xInFlag = ((struct xParam *) pvParameter)->xInFlag[0];
-    xEventHandle pxEvent = NULL;
-    portTickType xCurrentTime;
-    struct eventData xData;
-
-    while(1)
-    {
-
-        xSemaphoreTake(xBinarySemaphore[xInFlag+1], portMAX_DELAY);
-
-        // reset the xStartTime of current s-servant
-        xCurrentTime = xTaskGetTickCount();
-        //vTaskSetxStartTime( xTaskOfhandle[xInFlag] )
-
-        vEventReceive( &pxEvent, xTaskOfHandle[xInFlag], pxCurrentReadyList);
-
-        if( pxEvent == NULL )
-        {
-            vTaskDelay(20/portTICK_RATE_MS);
-            continue;
-        }
-        xData = xEventGetxData( pxEvent );
-
-        vEventDelete( pxEvent );
-    }
-}
-
-*/
-
-/*
-* function as the init Task in system. vPeriodicTask have the highest priority. It creates the first event to 
-* xEventList in system. After that, it Delay until another period.
-* */
-
-/*
-static void vSensor( void * pvParameter )
-{
-    portTickType xLastWakeTime;
-    xLastWakeTime = xTaskGetTickCount();
-
-    // create a data and initialise it 
-    struct eventData xData;
-    xData.xData = 1.0;
-
-    // network parameter
-    portBASE_TYPE xOutFlag = ((struct xParam *) pvParameter)->xOutFlag;
-
-    while(1)
-    {
-        // create the the first event item to trigger xTaskOfHandle[xOutFlag] and insert it into the xEventList
-        //vEventCreate(xTaskOfHandle[xOutFlag], xData);
-        vEventCreate(xTaskOfHandle[xOutFlag], xData);
-
-        vPrintString( "External Event!!!!!!!!!!!!!!!!!!!!!!\n\r");
-
-        vTaskDelayUntil(&xLastWakeTime, 2000/portTICK_RATE_MS);
-        xData.xData ++;
-    }
-}
-*/
-
 

@@ -362,14 +362,7 @@ void vEventGenericCreate( xTaskHandle pxDestination, struct eventData pdData)
 /* An API to transfer the Event Item from xEventList to one of the xEventReadyList*/
 void vEventListGenericTransit( xListItem ** pxEventListItem, xList ** pxCurrentReadyList)
 {
-    // get the first event of the xEventList.
-    *pxEventListItem = (xListItem *)xEventList.xListEnd.pxNext;
-    struct timeStamp xTimeStamp = xEventGetxTimeStamp((xEventHandle) (*pxEventListItem)->pvOwner);
-    portTickType xCurrentTime;
-
-    xCurrentTime = xTaskGetTickCount();
-    //if( listLIST_IS_EMPTY(&xEventList) )
-    if( listLIST_IS_EMPTY(&xEventList) && xTimeStamp.xTime <= xCurrentTime)
+    if( listLIST_IS_EMPTY(&xEventList) )
     {
         *pxEventListItem  = NULL;
         *pxCurrentReadyList = NULL;
@@ -377,13 +370,29 @@ void vEventListGenericTransit( xListItem ** pxEventListItem, xList ** pxCurrentR
     }
         
     taskENTER_CRITICAL();
-    
+
+    // get the first event of the xEventList.  
+    *pxEventListItem = (xListItem *)xEventList.xListEnd.pxNext;
     *pxCurrentReadyList = pxGetReadyList();
-    
-    /* remove pxListItem from xEventList */ 
-    vListRemove(*pxEventListItem);
-    /* insert the pxListItem into the specified pxList */
-    vListInsertEnd(*pxCurrentReadyList, *pxEventListItem);
+
+    struct timeStamp xTimeStamp = xEventGetxTimeStamp((xEventHandle) (*pxEventListItem)->pvOwner);
+    portTickType xCurrentTime;
+    xCurrentTime = xTaskGetTickCount();
+
+
+    if( xTimeStamp.xTime > xCurrentTime)
+    {
+        // not time yet
+        *pxEventListItem  = NULL;
+        *pxCurrentReadyList = NULL;
+    }
+    else
+    {
+        /* remove pxListItem from xEventList */ 
+        vListRemove(*pxEventListItem);
+        /* insert the pxListItem into the specified pxList */
+        vListInsertEnd(*pxCurrentReadyList, *pxEventListItem);
+    }
 
     taskEXIT_CRITICAL();
 }
@@ -416,7 +425,7 @@ void vEventGenericReceive( xEventHandle * pxEvent, xTaskHandle pxSource, xList *
         if( xEventGetpxSource((xEventHandle) pxFlag->pvOwner) == pxSource && xEventGetpxDestination((xEventHandle) pxFlag->pvOwner) == pxCurrentTCBLocal )
         {
             *pxEvent = pxFlag->pvOwner;
-            vListRemove((xListItem *) pxFlag);
+            vListRemove((xListItem *)pxFlag);
             taskEXIT_CRITICAL();
             return;
         }
@@ -426,7 +435,7 @@ void vEventGenericReceive( xEventHandle * pxEvent, xTaskHandle pxSource, xList *
     if( xEventGetpxSource((xEventHandle) pxFlag->pvOwner) == pxSource && xEventGetpxDestination((xEventHandle) pxFlag->pvOwner) == pxCurrentTCBLocal )
     {
         *pxEvent = pxFlag->pvOwner;
-        vListRemove((xListItem *) pxFlag);
+        vListRemove((xListItem *)pxFlag);
         taskEXIT_CRITICAL();
         return;
     }
