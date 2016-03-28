@@ -225,11 +225,12 @@ static xList * pxGetReadyList( void )
 }
 
 /* insert the event item to the xEventList according the sort algorithm.*/
-
+/*
 static void prvEventListGenericInsert( xListItem *pxNewListItem)
 {
     vListInsertEnd( &xEventList, pxNewListItem);
 }
+*/
 /*
 static void prvEventListGenericInsert( xListItem *pxNewListItem)
 {
@@ -278,7 +279,6 @@ static void prvEventListGenericInsert( xListItem *pxNewListItem)
 
 */
 
-/*
 static void prvEventListGenericInsert( xListItem *pxNewListItem )
 {
     volatile xListItem *pxIterator;
@@ -294,8 +294,11 @@ static void prvEventListGenericInsert( xListItem *pxNewListItem )
     else
     {
         taskENTER_CRITICAL();
+        // There must already be a End Flag Event with max timeStamp in xEventList.
+        // The End Flag Event can be the last Event to be processed, and new events
+        // are inserted before it in xEventList.
+        // The End Flag Event has been inserted when xEventList is initialised.
         for( pxIterator = ( xListItem * ) &( pxList->xListEnd ); xCompareFunction( xEventGetxTimeStamp( pxIterator->pxNext->pvOwner ), xTimeStampOfInsertion ); pxIterator = pxIterator->pxNext ) 
-        //for( pxIterator = ( xListItem * ) &( pxList->xListEnd ); pxIterator->pxNext->xItemValue <= xTimeStampOfInsertion; pxIterator = pxIterator->pxNext )
         {
         }
         taskEXIT_CRITICAL();
@@ -310,8 +313,6 @@ static void prvEventListGenericInsert( xListItem *pxNewListItem )
 
     ( pxList->uxNumberOfItems )++;
 }
-
-*/
 
 
 
@@ -334,6 +335,19 @@ void vEventGenericCreate( xTaskHandle pxDestination, struct eventData pdData)
     {
         IS_FIRST_EVENT = 0;
         prvInitialiseEventLists();
+
+        // Creating an End FLag Event and insert into the end of xEventList.
+        eveECB * pxEndFlagEvent = (eveECB *) pvPortMalloc( sizeof( eveECB ) );
+        if( pxEndFlagEvent != NULL )
+        {
+           // pxEndFlagEvent->pxSource = pxEndFlagEvent->pxDestination = NULL;
+            // there may be some problem here because of this assignment way
+            pxEndFlagEvent->xTimeStamp.xTime = portMAX_DELAY;
+            pxEndFlagEvent->xTimeStamp.xMicroStep = portMAX_DELAY;
+            pxEndFlagEvent->xTimeStamp.xLevel = portMAX_DELAY;
+            vListIntialiseEventItem( pxEndFlagEvent, (xListItem *) & pxEndFlagEvent->xEventListItem );
+            vListInsertEnd(&xEventList, &pxEndFlagEvent->xEventListItem); 
+        }
     }
 
     xTaskHandle pxCurrentTCBLocal = xTaskGetCurrentTaskHandle();
@@ -362,7 +376,9 @@ void vEventGenericCreate( xTaskHandle pxDestination, struct eventData pdData)
 /* An API to transfer the Event Item from xEventList to one of the xEventReadyList*/
 void vEventListGenericTransit( xListItem ** pxEventListItem, xList ** pxCurrentReadyList)
 {
-    if( listLIST_IS_EMPTY(&xEventList) )
+    //if( listLIST_IS_EMPTY(&xEventList) )
+    // if there is only End Flag Event in xEventList, then return NULL.
+    if( listCURRENT_LIST_LENGTH(&xEventList) == 1 )
     {
         *pxEventListItem  = NULL;
         *pxCurrentReadyList = NULL;
