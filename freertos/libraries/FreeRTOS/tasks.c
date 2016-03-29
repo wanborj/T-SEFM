@@ -157,15 +157,6 @@ PRIVILEGED_DATA static xList * volatile pxDelayedTaskList ;				/*< Points to the
 PRIVILEGED_DATA static xList * volatile pxOverflowDelayedTaskList;		/*< Points to the delayed task list currently being used to hold tasks that have overflowed the current tick count. */
 PRIVILEGED_DATA static xList xPendingReadyList;							/*< Tasks that have been readied while the scheduler was suspended.  They will be moved to the ready queue when the scheduler is resumed. */
 
-#if ( INCLUDE_SEFM == 1 )
-
-
-    PRIVILEGED_DATA static  xList xEventList;                            /*< Event List is used to store the event item in a specific order which sended or received by S-Servant.>*/
-    PRIVILEGED_DATA static xList xEventReadyList[configCPU_NUMBER];                       /*< Event list is used to store the events that are no business of sequence>*/
-    static volatile unsigned portBASE_TYPE xEventSerialNumber       = (portBASE_TYPE)0;       /* used to set the level of timestamp in event */
-
-#endif
-
 #if ( INCLUDE_vTaskDelete == 1 )
 
 	PRIVILEGED_DATA static xList xTasksWaitingTermination;				/*< Tasks that have been deleted - but the their memory not yet freed. */
@@ -308,28 +299,6 @@ portTickType xItemValue;																\
  * see if the parameter is NULL and returns a pointer to the appropriate TCB.
  */
 #define prvGetTCBFromHandle( pxHandle ) ( ( ( pxHandle ) == NULL ) ? ( tskTCB * ) pxCurrentTCB : ( tskTCB * ) ( pxHandle ) )
-
-void vEventListRemove(xListItem *pxItemToRemove);
-static void prvEventListGenericInsert( xListItem * pxNewListItem) PRIVILEGED_FUNCTION;
-/* 
- * compare the two timestamp with a specified sort algorithm.
- *
- * @param1: timestamp one
- * @param2: timestamp two
- * */
-static portBASE_TYPE xCompareFunction( const struct timeStamp t1, const struct timeStamp t2 );
-
-/*
- * initialise the timestamp. Setting the xtime, xMicrostep, and xLevel.
- *
- * @param1: the point to the event item
- * */
-static void vInitialiseTimeStamp( xEventHandle pxNewEvent);
-
-/*
- * initialise the eventItem and ready for the insertion. Set the pvOwner and Container which is the member of List Item.
- * **/
-static void vListIntialiseEventItem( xEventHandle pvOwner, xListItem * pxNewEventItem);
 
 /* Callback function prototypes. --------------------------*/
 extern void vApplicationStackOverflowHook( xTaskHandle *pxTask, signed char *pcTaskName );
@@ -2073,7 +2042,6 @@ static void prvInitialiseTCBVariables( tskTCB *pxTCB, const signed char * const 
 static void prvInitialiseTaskLists( void )
 {
     unsigned portBASE_TYPE uxPriority;
-    portBASE_TYPE xCPU;
 
 	for( uxPriority = ( unsigned portBASE_TYPE ) 0U; uxPriority < configMAX_PRIORITIES; uxPriority++ )
 	{
@@ -2084,19 +2052,6 @@ static void prvInitialiseTaskLists( void )
 	vListInitialise( ( xList * ) &xDelayedTaskList2 );
 	vListInitialise( ( xList * ) &xPendingReadyList );
 
-    #if ( INCLUDE_SEFM == 1 )
-    {
-        //initialiseworld();
-        vListInitialise( ( xList * ) &xEventList );
-        //send_num(listCURRENT_LIST_LENGTH(&xEventList));        
-        /* init the xEventReadyList[configCPU_NUMBER]. */
-        for ( xCPU = 0; xCPU < configCPU_NUMBER; xCPU ++ )
-        {
-            vListInitialise( (xList * ) & xEventReadyList[xCPU] );
-        }
-        
-    }
-    #endif
 
 	#if ( INCLUDE_vTaskDelete == 1 )
 	{
@@ -2379,39 +2334,6 @@ tskTCB *pxNewTCB;
 #endif
 
 
-/*-----------------------------------------------------------*/
-
-#if ( INCLUDE_SEFM == 1 )
-    
-portTickType xTaskGetxStartTime ( xTaskHandle pxTCB )
-{
-    return ((tskTCB *) pxTCB)->xStartTime;
-}
-
-portTickType xTaskGetxLet ( xTaskHandle pxTCB )
-{
-    return ((tskTCB *) pxTCB)->xLet;
-}
-
-void xTaskSetxStartTime ( xTaskHandle pxTCB, portTickType xStartTime )
-{
-    taskENTER_CRITICAL();
-
-    ((tskTCB *) pxTCB)->xStartTime = xStartTime;
-
-    taskEXIT_CRITICAL();
-}
-
-void xTaskSetxLet ( xTaskHandle pxTCB , portTickType xLet )
-{
-    taskENTER_CRITICAL();
-
-    ((tskTCB *) pxTCB)->xLet = xLet;
-
-    taskEXIT_CRITICAL();
-}
-
-#endif
 
 /*-----------------------------------------------------------*/
 
@@ -2560,271 +2482,28 @@ void vTaskExitCritical( void )
 #endif
 /*-----------------------------------------------------------*/
 
+#if ( INCLUDE_SEFM == 1)
 
-/*
-portBASE_TYPE xCompareFunction( const struct timeStamp t1, const struct timeStamp t2 )
-{
-    if( t1.xTime < t2.xTime )
+    portTickType xTaskGetxStartTime( xTaskHandle pxTCB )
     {
-        return pdTRUE;
-    }
-    else if ( t1.xTime == t2.xTime)
-    {
-        if( t1.xLevel < t2.xLevel )
-        {
-            return pdTRUE;
-        }
+        return ((tskTCB *)pxTCB)->xStartTime;
     }
 
-    return pdFALSE;
-}
-*/
+    portTickType xTaskGetxLet( xTaskHandle pxTCB )
+    {
+        return ((tskTCB *)pxTCB)->xLet;
+    }
 
-static portBASE_TYPE xCompareFunction(const struct timeStamp t1, const struct timeStamp t2)
-{
-    return pdTRUE;
-}
+    void vTaskSetxStartTime ( xTaskHandle pxTCB, portTickType xStartTime )
+    {
+        ((tskTCB *) pxTCB)->xStartTime = xStartTime; 
+    }
 
-static void vInitialiseTimeStamp( xEventHandle pxNewEvent )
-{
+    void vTaskSetxLet( xTaskHandle pxTCB, portTickType xLet )
+    {
+        ((tskTCB *) pxTCB)->xLet = xLet;
+    }
 
-    /* get the current task TCB handler*/
-    xTaskHandle pxCurrentTCBLocal = xTaskGetCurrentTaskHandle();
-
-    /*set the time of this event to be processed */
-    pxNewEvent->xTimeStamp.xTime = xTaskGetxStartTime(pxCurrentTCBLocal) + xTaskGetxLet(pxCurrentTCBLocal) + configMAX_RSERVANT_EXETIME;
-
-    /*the microstep is not used now*/
-
-    /* set the level of timestamp according to the topology sort result*/
-    pxNewEvent->xTimeStamp.xLevel = xEventSerialNumber;
-
-    xEventSerialNumber++;
-}
-
-static void prvEventListGenericInsert( xListItem *pxNewListItem)
-{
-    vListInsertEnd( &xEventList, pxNewListItem);
-}
-
-
-/*
-
-static void prvEventListGenericInsert( xListItem *pxNewListItem)
-{
-    volatile xListItem * pxIterator;
-    struct timeStamp xTimeStampOfInsertion;
-    xList * pxList = (xList *)pxNewListItem->pvContainer;
     
-    portBASE_TYPE flag = 0;
-
-    xTimeStampOfInsertion = ( (xEventHandle) pxNewListItem->pvOwner)->xTimeStamp;
-
-    //dose not take the time overflow into consideration yet.
-    pxIterator = ( xListItem * ) &( pxList->xListEnd.pxNext );
-
-
-    //bug here is a big problem. the point will be a mess
-    if( listLIST_IS_EMPTY( pxList ))
-    {
-        // there is no event in the event list now, then insert the newEventItem into the end of the xEventList. 
-    }
-    else
-    {
-        //do nothing, just find the approperiate position
-        for ( ; xCompareFunction( ( (xEventHandle) pxIterator->pvOwner)->xTimeStamp, xTimeStampOfInsertion); pxIterator = pxIterator->pxNext)
-        {
-            //if flag == pxList->uxNumberOfItems, then the timestamp of newListItem is the biggest. It should be inserted into the end of the xEventList.
-            flag ++;
-            if ( flag == pxList->uxNumberOfItems )
-            {
-                pxIterator = pxIterator->pxNext;
-                break;
-            }
-        }
-    }
-
-    pxNewListItem->pxNext = pxIterator;
-    pxNewListItem->pxPrevious = pxIterator->pxPrevious;
-    pxNewListItem->pxPrevious->pxNext = (volatile xListItem *) pxNewListItem;
-    pxIterator->pxPrevious= (volatile xListItem *) pxNewListItem;
-
-    if ( pxNewListItem->pvContainer == &xEventList)
-    {
-        // successful.
-     //  helloworld(); 
-    }
-
-    //send_num(listCURRENT_LIST_LENGTH(&xEventList));
-    ( pxList->uxNumberOfItems ) ++;
-    //send_num(listCURRENT_LIST_LENGTH(&xEventList));
-
-    pxList->pxIndex = pxList->xListEnd.pxNext ;
-    if( pxList->pxIndex == pxList->xListEnd.pxNext )
-    {
-        //successful.
-        //helloworld();
-    }
-    if( xEventList.xListEnd.pxNext == pxNewListItem)
-    {
-        //helloworld();
-    }
-
-}
-*/
-
-
-static void vListIntialiseEventItem( xEventHandle pvOwner, xListItem * pxNewEventItem)
-{
-    /* set the pvOwner of the EventItem as a event*/
-    listSET_LIST_ITEM_OWNER( pxNewEventItem, pvOwner );
-    pxNewEventItem->pvContainer = (void *) &xEventList;
-}
-
-
-void vEventGenericCreate( xTaskHandle pxDestination, struct eventData pdData)
-{
-    xEventHandle pxNewEvent;
-
-    /* using the pxCurrentTCB, current task should not be changed */
-    taskENTER_CRITICAL();
-
-    xTaskHandle pxCurrentTCBLocal = xTaskGetCurrentTaskHandle();
-    pxNewEvent = (xEventHandle) pvPortMalloc( sizeof( eveECB ));
-    if ( pxNewEvent != NULL )
-    {
-        pxNewEvent->pxSource = pxCurrentTCBLocal;
-        pxNewEvent->pxDestination = pxDestination;
-
-        /* the time realtive functions are not work now */
-        //vInitialiseTimeStamp( pxCurrentTCB, pxNewEvent);
-
-        vListIntialiseEventItem( pxNewEvent, (xListItem *) &pxNewEvent->xEventListItem );
-
-        pxNewEvent->xData = pdData;
-
-        /*how to call this funciton: vEventListInsert( newListItem ). This function add the new item into the xEventList as default*/
-        prvEventListGenericInsert( (xListItem *) &(pxNewEvent->xEventListItem));
-        if( pxNewEvent->xEventListItem.pvContainer == &xEventList )
-        {
-            //successful.
-            //helloworld();
-        }
-    
-    }
-    taskEXIT_CRITICAL();
-
-}
-
-xList * pxGetReadyList( void )
-{
-    return &xEventReadyList[0];
-}
-
-void vEventListRemove(xListItem *pxItemToRemove)
-{
-
-}
-
-/* An API to transfer the Event Item from xEventList to one of the xEventReadyList*/
-void vEventListGenericTransit( xListItem ** pxEventListItem, xList ** pxCurrentReadyList)
-{
-    taskENTER_CRITICAL();
-    
-    if( !listLIST_IS_EMPTY(&xEventList) ) 
-    {
-        *pxCurrentReadyList = pxGetReadyList();
-
-        /* get the event from xEventList */
-        //*test = (xListItem *) (xEventList.pxIndex);
-        *pxEventListItem = (xListItem *)xEventList.xListEnd.pxNext;
-        if((*pxEventListItem)->pvContainer == (void *)&xEventList)
-        {
-            //successful.
-            //helloworld();
-        }
-        
-        /* remove pxListItem from xEventList */ 
-        //send_byte('+');
-        //send_num(((xList *)(*pxEventListItem)->pvContainer)->uxNumberOfItems);
-        //send_num(xEventList.uxNumberOfItems);
-        vListRemove(*pxEventListItem);
-        //send_byte('-');
-        //send_byte('-');
-        //send_byte('-');
-        //send_num(((xList *)(*pxEventListItem)->pvContainer)->uxNumberOfItems);
-       // send_num(xEventList.uxNumberOfItems);
-        //send_byte('+');
-        //send_byte('\n');
-        //send_byte('\r');
-        /* insert the pxListItem into the specified pxList */
-        vListInsertEnd(*pxCurrentReadyList, *pxEventListItem);
-        //send_num((*pxCurrentReadyList)->uxNumberOfItems);
-        //send_byte(' ');
-        //send_byte(' ');
-    }
-    else
-    {
-        *pxEventListItem = NULL;
-        *pxCurrentReadyList = NULL;
-    }
-
-    taskEXIT_CRITICAL();
-}
-
-void vEventGenericReceive( xEventHandle * pxEvent, xTaskHandle pxSource, xList * pxList )
-{
-    xList * const pxConstList = pxList; 
-    if (pxList == &xEventReadyList[0])
-    {
-        //successful.
-        //helloworld();
-    }
-
-    if( pxList->uxNumberOfItems == 0 )
-    {
-        *pxEvent = NULL;
-        return;
-    }
-
-    volatile xListItem * pxFlag = pxConstList->xListEnd.pxNext;
-
-
-    taskENTER_CRITICAL();
-
-    xTaskHandle pxCurrentTCBLocal = xTaskGetCurrentTaskHandle();
-
-    /* look up in the specified xEventReadyList. */
-    for(; pxFlag != (xListItem *) ( pxConstList->xListEnd.pxPrevious); pxFlag = pxFlag->pxNext)
-    {
-        if ( ((xEventHandle) pxFlag->pvOwner)->pxSource == pxSource && ((xEventHandle) pxFlag->pvOwner)->pxDestination == pxCurrentTCBLocal )
-        {
-            //helloworld();
-            *pxEvent = pxFlag->pvOwner;
-            vListRemove((xListItem *) pxFlag);
-        }
-    }
-
-    /* we can't forget the last one item of the list. */
-    if ( ( (xEventHandle) pxFlag->pvOwner)->pxSource == pxSource && ((xEventHandle) pxFlag->pvOwner)->pxDestination == pxCurrentTCBLocal )
-    {
-        *pxEvent = pxFlag->pvOwner;
-        vListRemove((xListItem *) pxFlag);
-
-    }
-    else
-    {
-        // cannot find the specified event.
-        *pxEvent = NULL;
-    }
-
-    taskEXIT_CRITICAL();
-}
-
-void vEventGenericDelete( xEventHandle xEvent)
-{
-    taskENTER_CRITICAL();
-    vPortFree( xEvent );
-    taskEXIT_CRITICAL();
-}
+#endif
 
