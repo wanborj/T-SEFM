@@ -60,6 +60,20 @@ static void xSemaphoreTakeAll( void * pvParameter )
 }
 */
 
+/* Occupied CPU until the output time of current Servant */
+static void vTaskDelayLET()
+{
+    xTaskHandle pxTaskCurrentTCBLocal = xTaskGetCurrentTaskHandle();
+    portTickType xStartTime = xTaskGetxStartTime( pxTaskCurrentTCBLocal );
+    portTickType xOutputTime = xTaskGetxLet( pxTaskCurrentTCBLocal ) + xStartTime;
+    portTickType xCurrentTime = xTaskGetTickCount();
+
+    while( xCurrentTime <  xOutputTime)
+    {
+        xCurrentTime = xTaskGetTickCount();
+    }
+}
+
 /*
  * This function is used in normal S-Servant or actuator, while shouldn't be in sensor.
 * pending for waiting all the source servant finishing execution.
@@ -182,6 +196,8 @@ static void vSensor( void * pvParameter )
 
         vPrintString( "External Event!!!!!!!!!!!!!!!!!!!!!!\n\r");
 
+        vTaskDelayLET();
+
         // sleep for 2 sec, which means that period of this task is 2 sec.
         vTaskDelayUntil(&xLastWakeTime, 2000/portTICK_RATE_MS);
     }
@@ -219,6 +235,7 @@ static void vActuator( void * pvParameter )
         vPrintString( " This is the Actuator!----------------------\n\r" );
 
         vEventDeleteAll( pvMyParameter, pxEvent );
+        vTaskDelayLET();
     }
 }
 
@@ -261,6 +278,7 @@ static void vServant( void * pvParameter )
         vEventDeleteAll( pvMyParameter, pxEvent );        
 
         vEventCreateAll( pvMyParameter, xDatas );
+        vTaskDelayLET();
     }
 }
 
