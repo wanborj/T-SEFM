@@ -1,6 +1,6 @@
 /*
     FreeRTOS V7.1.1 - Copyright (C) 2012 Real Time Engineers Ltd.
-
+	
 
     ***************************************************************************
      *                                                                       *
@@ -64,91 +64,38 @@
     the SafeRTOS brand: http://www.SafeRTOS.com.
 */
 
-
-#ifndef SERVANT_H
-#define SERVANT_H
-#include "stm32f10x.h"
-
-#include "queue.h"
-#include "semphr.h"
-#include "task.h"
 #include "app.h"
-#include "FreeRTOSConfig.h"
-#include "FreeRTOS.h"
 
-
-#define NUMBEROFSERVANT 6 
-#define MAXOUTDEGREE 10   // network max in degree of every S-servant
-#define MAXINDEGREE 10  // network max out degree of every s-servant
-
-//portBASE_TYPE NUMBEROFSERVANT = 6;
-
-
-typedef void(* pvServantFunType)(xEventHandle *);
-/*
-* It is used to record the topology and basic time information of servant
-* */
-struct xParam
+void s_1(xEventHandle * pxEventArray)
 {
-    /* the topology of system */
-    portBASE_TYPE xMyFlag;     // the flag of current servant
-    portBASE_TYPE xNumOfIn;    // the number of source servants
-    portBASE_TYPE xNumOfOut;   // the number of destination servants
-    portBASE_TYPE xInFlag[MAXINDEGREE];  // the flags of source servants
-    portBASE_TYPE xOutFlag[MAXOUTDEGREE]; // the flags of destination servants
-    /* the basic time of servant */
-    portTickType xLet;
-    /* the implementation of current servant */
-    pvServantFunType xFp;
-};
+    vPrintString("S-1\n\r");
+}
 
+void s_2(xEventHandle * pxEventArray)
+{
+    vPrintString("S-2\n\r");
+}
 
-/*
- * create semaphores for every S-Servant. 
- * Each S-Servant are pending for specified semaphores. Once corresponding 
- * semaphores occurs, the S-Servant will be triggered to execute.
- * */
-void vSemaphoreInitialise();
+void s_3(xEventHandle * pxEventArray)
+{
+    vPrintString("S-3\n\r");
+}
 
-/*
- * Initialise the paramter which will be send to each S-Servant. And
- * initialise the topology of all the S-Servant in system according to the relation table of S-Servant.
- * */
-void vParameterInitialise();
+void s_4(xEventHandle * pxEventArray)
+{
+    vPrintString("S-4\n\r");
+}
 
-/* Occupied CPU until the output time of current Servant for keep LET semantics. */
-void vTaskDelayLET();
+void s_5(xEventHandle * pxEventArray)
+{
+    vPrintString("S-5\n\r");
+}
 
-/*
- * This function is used in normal S-Servant or actuator, while shouldn't be in sensor.
-* pending for waiting all the source servant finishing execution.
-* Then receive the events from xEventReadyList.
-*
-* @param pvParameter is the parameter from programmer
-* @param pxEvent is an inout parameter which is used to transit the event from source servant
-* */
-void vEventReceiveAll( void * pvParameter, xEventHandle * pxEvent );
+void s_6(xEventHandle * pxEventArray)
+{
+    vPrintString("S-6\n\r");
+}
 
-/* delete all the events which are received from source servants*/ 
-void vEventDeleteAll( void * pvParameter, xEventHandle * pxEvent );
+// assigned the point of function into specified position of xServantTable.
+pvServantFunType xServantTable[NUMBEROFSERVANT] = {&s_1, &s_2, &s_3, &s_4, &s_5, &s_6};
 
-/*
-* This function is used in Sensor or normal S-Servant, while shouldn't be in Actuator.
-* create all events which are used to transit information for destination servants.
-*
-* @param pvParamter is the parameter from programmer, which can be used to know the topology of task.
-* @param xDatas are the data which will be add to the events for destination servant.
-*
-* */
-void vEventCreateAll( void * pvParameter, struct eventData * xDatas );
-
-void vSensor( void * pvParameter );
-
-void vActuator( void * pvParameter );
-
-void vServant( void * pvParameter );
-
-void vR_Servant( void * pvParameter );
-
-
-#endif
