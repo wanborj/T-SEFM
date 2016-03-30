@@ -1,3 +1,0 @@
-1. the semantics of logical execution time are inconsistent
-2. the communication method of R-Servant isn't right because we should trigger new S-Servant to execution without analyzing the relationship between S-Servant.
-3. the organization of task is not complete yet
