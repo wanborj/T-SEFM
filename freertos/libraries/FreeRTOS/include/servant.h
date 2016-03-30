@@ -98,6 +98,8 @@ struct xParam
 
 void vSemaphoreInitialise();
 
+void vRelationInitialise();
+
 /* Occupied CPU until the output time of current Servant */
 void vTaskDelayLET();
 

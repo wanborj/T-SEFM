@@ -81,7 +81,11 @@ xList * pxCurrentReadyList;         // record the xEventReadyList that R-Servant
 
 extern xSemaphoreHandle xBinarySemaphore[NUMBEROFSERVANT];  // the network topology
 extern xTaskHandle xTaskOfHandle[NUMBEROFSERVANT+1];         // record the handle of all S-Servant, the last one is for debugging R-Servant 
+extern portBASE_TYPE xRelation[NUMBEROFSERVANT][NUMBEROFSERVANT]; // record the relationship among servants excluding R-Servant
+extern portTickType xLetOfServant[NUMBEROFSERVANT];  // ms
+extern struct xParam pvParameters[NUMBEROFSERVANT];
 
+/* create all semaphores which are used to triggered s-servant */
 void vSemaphoreInitialise()
 {
     portBASE_TYPE i;
@@ -92,7 +96,88 @@ void vSemaphoreInitialise()
         /* when created, it is initialised to 1. So, we take it away.*/
         xSemaphoreTake(xBinarySemaphore[i], portMAX_DELAY);
     }
+}
 
+/*
+ * Set all the parameters of S-Servants.
+ *
+ * */
+void vRelationInitialise()
+{
+    portBASE_TYPE i, j;
+       
+    for( i = 0; i < NUMBEROFSERVANT; ++ i )
+    {
+        pvParameters[i].xMyFlag = i;
+        pvParameters[i].xNumOfIn = 0;
+        pvParameters[i].xNumOfOut = 0;
+        pvParameters[i].xLet = xLetOfServant[i]/portTICK_RATE_MS;
+    }
+
+    for( i = 0; i < NUMBEROFSERVANT; ++ i )
+    {
+        for( j = 0; j < NUMBEROFSERVANT; ++ j )
+        {
+            if( xRelation[i][j] == 1 )
+            {
+                pvParameters[i].xOutFlag[pvParameters[i].xNumOfOut] = j;
+                pvParameters[i].xNumOfOut ++;
+
+                pvParameters[j].xInFlag[pvParameters[j].xNumOfIn] = i;
+                pvParameters[j].xNumOfIn ++;
+            }
+        }
+    }
+
+
+    /* set the topology of a task */
+    /*
+    // sensor
+    pvParameters[0].xNumOfIn = 0;
+    pvParameters[0].xNumOfOut = 1;
+
+    pvParameters[0].xOutFlag[0] = 1;
+
+    // S-Servant S-1
+    pvParameters[1].xNumOfIn = 1;
+    pvParameters[1].xNumOfOut = 2;
+
+    pvParameters[1].xInFlag[0] = 0;
+    
+    pvParameters[1].xOutFlag[0] = 2;
+    pvParameters[1].xOutFlag[1] = 3;
+
+    // S-Servant S-2
+    pvParameters[2].xNumOfIn = 1;
+    pvParameters[2].xNumOfOut = 1;
+
+    pvParameters[2].xInFlag[0] = 1;
+    
+    pvParameters[2].xOutFlag[0] = 4;
+
+    // S-Servant S-3
+    pvParameters[3].xNumOfIn = 1;
+    pvParameters[3].xNumOfOut = 1;
+
+    pvParameters[3].xInFlag[0] = 1;
+    
+    pvParameters[3].xOutFlag[0] = 5;
+
+    // S-Servant S-4
+    pvParameters[4].xNumOfIn = 1;
+    pvParameters[4].xNumOfOut = 1;
+
+    pvParameters[4].xInFlag[0] = 2;
+    
+    pvParameters[4].xOutFlag[0] = 5;
+
+    //actuator
+    pvParameters[5].xNumOfIn = 2;
+    pvParameters[5].xNumOfOut = 0;
+
+    pvParameters[5].xInFlag[0] = 3;
+    pvParameters[5].xInFlag[1] = 4;
+    */
 }
 
 void vTaskDelayLET()

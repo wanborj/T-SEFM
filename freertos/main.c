@@ -26,6 +26,18 @@ struct xParam pvParameters[NUMBEROFSERVANT];
 xSemaphoreHandle xBinarySemaphore[NUMBEROFSERVANT];  // the network topology
 xTaskHandle xTaskOfHandle[NUMBEROFSERVANT+1];         // record the handle of all S-Servant, the last one is for debugging R-Servant
 
+// record the relationship among servants excluding R-Servant
+portBASE_TYPE xRelation[NUMBEROFSERVANT][NUMBEROFSERVANT] = { 0, 1, 0, 0, 0, 0,
+                                                              0, 0, 1, 1, 0, 0,
+                                                              0, 0, 0, 0, 1, 0,
+                                                              0, 0, 0, 0, 0, 1,
+                                                              0, 0, 0, 0, 0, 1,
+                                                              0, 0, 0, 0, 0, 0};
+
+// the LET of all S-Servant
+portTickType xLetOfServant[NUMBEROFSERVANT] = { 100, 100, 100, 100, 100, 100 };
+
+
 /*
 struct xParam
 {
@@ -34,6 +46,7 @@ struct xParam
     portBASE_TYPE xNumOfOut;   // the number of destination servants
     portBASE_TYPE xInFlag[MAXINDEGREE];  // the flags of source servants
     portBASE_TYPE xOutFlag[MAXOUTDEGREE]; // the flags of destination servants
+    portTickType xLet; // the xLet of current servant
 }; */
 
 int main(void)
@@ -45,60 +58,8 @@ int main(void)
 
     portBASE_TYPE i;    
 
-    for( i = 0; i < NUMBEROFSERVANT; ++ i )
-    {
-        pvParameters[i].xMyFlag = i;
-        pvParameters[i].xLet = 100/portTICK_RATE_MS;
-    }
-
-    /* set the topology of a task */
-    // sensor
-    pvParameters[0].xNumOfIn = 0;
-    pvParameters[0].xNumOfOut = 1;
-
-    pvParameters[0].xOutFlag[0] = 1;
-
-    // S-Servant S-1
-    pvParameters[1].xNumOfIn = 1;
-    pvParameters[1].xNumOfOut = 2;
-
-    pvParameters[1].xInFlag[0] = 0;
-    
-    pvParameters[1].xOutFlag[0] = 2;
-    pvParameters[1].xOutFlag[1] = 3;
-
-    // S-Servant S-2
-    pvParameters[2].xNumOfIn = 1;
-    pvParameters[2].xNumOfOut = 1;
-
-    pvParameters[2].xInFlag[0] = 1;
-    
-    pvParameters[2].xOutFlag[0] = 4;
-
-    // S-Servant S-3
-    pvParameters[3].xNumOfIn = 1;
-    pvParameters[3].xNumOfOut = 1;
-
-    pvParameters[3].xInFlag[0] = 1;
-    
-    pvParameters[3].xOutFlag[0] = 5;
-
-    // S-Servant S-4
-    pvParameters[4].xNumOfIn = 1;
-    pvParameters[4].xNumOfOut = 1;
-
-    pvParameters[4].xInFlag[0] = 2;
-    
-    pvParameters[4].xOutFlag[0] = 5;
-
-    //actuator
-    pvParameters[5].xNumOfIn = 2;
-    pvParameters[5].xNumOfOut = 0;
-
-    pvParameters[5].xInFlag[0] = 3;
-    pvParameters[5].xInFlag[1] = 4;
-
     vSemaphoreInitialise();
+    vRelationInitialise();
 
     xTaskCreate( vR_Servant, "R Servant", 512, NULL, tskIDLE_PRIORITY + 1, &xTaskOfHandle[6]);
 
