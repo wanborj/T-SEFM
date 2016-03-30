@@ -76,14 +76,19 @@
 #include "semphr.h"
 #include "eventlist.h"
 #include "servant.h"
+#include "app.h"
 
 xList * pxCurrentReadyList;         // record the xEventReadyList that R-Servant transit event just now
+struct xParam pvParameters[NUMBEROFSERVANT];
 
-extern xSemaphoreHandle xBinarySemaphore[NUMBEROFSERVANT];  // the network topology
+extern xSemaphoreHandle xBinarySemaphore[NUMBEROFSERVANT];  // the semaphores which are used to trigger new servant to execute
 extern xTaskHandle xTaskOfHandle[NUMBEROFSERVANT+1];         // record the handle of all S-Servant, the last one is for debugging R-Servant 
-extern portBASE_TYPE xRelation[NUMBEROFSERVANT][NUMBEROFSERVANT]; // record the relationship among servants excluding R-Servant
-extern portTickType xLetOfServant[NUMBEROFSERVANT];  // ms
-extern struct xParam pvParameters[NUMBEROFSERVANT];
+// record the relationship among servants excluding R-Servant
+extern portBASE_TYPE xRelation[NUMBEROFSERVANT][NUMBEROFSERVANT] ;
+// the LET of all S-Servant
+extern portTickType xLetOfServant[NUMBEROFSERVANT] ;
+// In app.c, this is used to sepcify the function of Servant
+extern pvServantFunType xServantTable[NUMBEROFSERVANT];
 
 /* create all semaphores which are used to triggered s-servant */
 void vSemaphoreInitialise()
@@ -102,18 +107,21 @@ void vSemaphoreInitialise()
  * Set all the parameters of S-Servants.
  *
  * */
-void vRelationInitialise()
+void vParameterInitialise()
 {
     portBASE_TYPE i, j;
        
+    // initialise the member of pvParameters
     for( i = 0; i < NUMBEROFSERVANT; ++ i )
     {
         pvParameters[i].xMyFlag = i;
         pvParameters[i].xNumOfIn = 0;
         pvParameters[i].xNumOfOut = 0;
         pvParameters[i].xLet = xLetOfServant[i]/portTICK_RATE_MS;
+        pvParameters[i].xFp = xServantTable[i];
     }
 
+    // set the xOut/InFlag and xNumOfOut/In of pvParameters according to the relation table
     for( i = 0; i < NUMBEROFSERVANT; ++ i )
     {
         for( j = 0; j < NUMBEROFSERVANT; ++ j )
@@ -128,56 +136,6 @@ void vRelationInitialise()
             }
         }
     }
-
-
-    /* set the topology of a task */
-    /*
-    // sensor
-    pvParameters[0].xNumOfIn = 0;
-    pvParameters[0].xNumOfOut = 1;
-
-    pvParameters[0].xOutFlag[0] = 1;
-
-    // S-Servant S-1
-    pvParameters[1].xNumOfIn = 1;
-    pvParameters[1].xNumOfOut = 2;
-
-    pvParameters[1].xInFlag[0] = 0;
-    
-    pvParameters[1].xOutFlag[0] = 2;
-    pvParameters[1].xOutFlag[1] = 3;
-
-    // S-Servant S-2
-    pvParameters[2].xNumOfIn = 1;
-    pvParameters[2].xNumOfOut = 1;
-
-    pvParameters[2].xInFlag[0] = 1;
-    
-    pvParameters[2].xOutFlag[0] = 4;
-
-    // S-Servant S-3
-    pvParameters[3].xNumOfIn = 1;
-    pvParameters[3].xNumOfOut = 1;
-
-    pvParameters[3].xInFlag[0] = 1;
-    
-    pvParameters[3].xOutFlag[0] = 5;
-
-    // S-Servant S-4
-    pvParameters[4].xNumOfIn = 1;
-    pvParameters[4].xNumOfOut = 1;
-
-    pvParameters[4].xInFlag[0] = 2;
-    
-    pvParameters[4].xOutFlag[0] = 5;
-
-    //actuator
-    pvParameters[5].xNumOfIn = 2;
-    pvParameters[5].xNumOfOut = 0;
-
-    pvParameters[5].xInFlag[0] = 3;
-    pvParameters[5].xInFlag[1] = 4;
-    */
 }
 
 void vTaskDelayLET()
@@ -262,15 +220,12 @@ void vSensor( void * pvParameter )
     /* store the paramter into stack of servant */
     void * pvMyParameter = pvParameter;
 
-    /* get the number of destination servants */
     portBASE_TYPE NUM = ((struct xParam *) pvMyParameter)->xNumOfOut;
-
-    /* get the flag of current servant*/
     portBASE_TYPE xMyFlag = ((struct xParam *) pvMyParameter)->xMyFlag;
-
-    /* get the LET of current servant */
     portTickType xLet = ((struct xParam *) pvMyParameter)->xLet;
-    /* set the LET of current servant */
+    pvServantFunType xMyFun = ((struct xParam *) pvMyParameter)->xFp;
+
+    /* set the LET of Servant */
     vTaskSetxLet(xTaskOfHandle[xMyFlag], xLet);
     
     /* create data for destination servants and initialise them */
@@ -285,13 +240,10 @@ void vSensor( void * pvParameter )
         xCurrentTime = xTaskGetTickCount();
         vTaskSetxStartTime( xTaskOfHandle[xMyFlag], xCurrentTime );
 
-        /* Here are processing code used to init the environment data*/
-        // coding...
-
         // create events for all destination servants of this sensor.
         vEventCreateAll( pvMyParameter, xDatas );
 
-        vPrintString( "\n\r\n\rExternal Event!!!!!!!!!!!!!!!!!!!!!!\n\r");
+        xMyFun( NULL, 0, xDatas, NUM);
 
         vTaskDelayLET();
 
@@ -314,10 +266,11 @@ void vActuator( void * pvParameter )
     void * pvMyParameter = pvParameter;
     portBASE_TYPE NUM = ((struct xParam *) pvMyParameter)->xNumOfIn;
     portBASE_TYPE xMyFlag = ((struct xParam *) pvMyParameter)->xMyFlag;
+    pvServantFunType xMyFun = ((struct xParam *) pvMyParameter)->xFp;
 
     xEventHandle pxEvent[NUM];
 
-    struct eventData xData;
+    //struct eventData xData[];
 
     /* get the LET of current servant */
     portTickType xLet = ((struct xParam *) pvMyParameter)->xLet;
@@ -328,9 +281,7 @@ void vActuator( void * pvParameter )
     {
         vEventReceiveAll( pvMyParameter, pxEvent );
 
-        /* here are the processing code with pxEvent */
-        // coding...
-        vPrintString( " This is the Actuator\n\r" );
+        xMyFun( pxEvent, NUM, NULL, 0 );
 
         vEventDeleteAll( pvMyParameter, pxEvent );
         vTaskDelayLET();
@@ -352,6 +303,7 @@ void vServant( void * pvParameter )
     portBASE_TYPE xNumOfIn = ((struct xParam *) pvMyParameter)->xNumOfIn;
     portBASE_TYPE xNumOfOut = ((struct xParam *) pvMyParameter)->xNumOfOut;
     portBASE_TYPE xMyFlag = ((struct xParam *) pvMyParameter)->xMyFlag;
+    pvServantFunType xMyFun = ((struct xParam *) pvMyParameter)->xFp;
 
     xEventHandle pxEvent[xNumOfIn];
     struct eventData xDatas[xNumOfOut];
@@ -373,9 +325,7 @@ void vServant( void * pvParameter )
             xDatas[i].xData = (portDOUBLE)xMyFlag;
         }
 
-        vPrintString( "This is S-Servant " );
-        send_num( xMyFlag );
-        vPrintString("\n\r");
+        xMyFun(pxEvent, xNumOfIn, xDatas, xNumOfOut);
         
         vEventDeleteAll( pvMyParameter, pxEvent );        
 

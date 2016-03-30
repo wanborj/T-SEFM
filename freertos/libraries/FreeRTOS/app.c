@@ -1,6 +1,6 @@
 /*
     FreeRTOS V7.1.1 - Copyright (C) 2012 Real Time Engineers Ltd.
-
+	
 
     ***************************************************************************
      *                                                                       *
@@ -64,82 +64,62 @@
     the SafeRTOS brand: http://www.SafeRTOS.com.
 */
 
-
-#ifndef SERVANT_H
-#define SERVANT_H
+#define USE_STDPERIPH_DRIVER
 #include "stm32f10x.h"
 
+/* Scheduler includes. */
+#include "FreeRTOS.h"
+#include "task.h"
+#include "list.h"
 #include "queue.h"
 #include "semphr.h"
-#include "task.h"
 #include "app.h"
-#include "FreeRTOSConfig.h"
-#include "FreeRTOS.h"
 
-/*
-* It is used to record the topology and basic time information of servant
-* */
-struct xParam
+xSemaphoreHandle xBinarySemaphore[NUMBEROFSERVANT];  // the semaphores which are used to trigger new servant to execute
+xTaskHandle xTaskOfHandle[NUMBEROFSERVANT+1];         // record the handle of all S-Servant, the last one is for debugging R-Servant 
+
+// the LET of all S-Servant
+portTickType xLetOfServant[NUMBEROFSERVANT] = { 100, 100, 100, 100, 100, 100 };
+// record the relationship among servants excluding R-Servant
+portBASE_TYPE xRelation[NUMBEROFSERVANT][NUMBEROFSERVANT] = { 0, 1, 0, 0, 0, 0,
+                                                              0, 0, 1, 1, 0, 0,
+                                                              0, 0, 0, 0, 1, 0,
+                                                              0, 0, 0, 0, 0, 1,
+                                                              0, 0, 0, 0, 0, 1,
+                                                              0, 0, 0, 0, 0, 0};
+
+
+/* the function */
+void s_0(xEventHandle * pxEventArray, portBASE_TYPE NumOfEvent, struct eventData * pxDataArray, portBASE_TYPE NumOfData)
 {
-    /* the topology of system */
-    portBASE_TYPE xMyFlag;     // the flag of current servant
-    portBASE_TYPE xNumOfIn;    // the number of source servants
-    portBASE_TYPE xNumOfOut;   // the number of destination servants
-    portBASE_TYPE xInFlag[MAXINDEGREE];  // the flags of source servants
-    portBASE_TYPE xOutFlag[MAXOUTDEGREE]; // the flags of destination servants
-    /* the basic time of servant */
-    portTickType xLet;
-    /* the implementation of current servant */
-    pvServantFunType xFp;
-};
+    vPrintString("S-0\n\r");
+}
 
+void s_1(xEventHandle * pxEventArray, portBASE_TYPE NumOfEvent, struct eventData * pxDataArray, portBASE_TYPE NumOfData)
+{
+    vPrintString("S-1\n\r");
+}
 
-/*
- * create semaphores for every S-Servant. 
- * Each S-Servant are pending for specified semaphores. Once corresponding 
- * semaphores occurs, the S-Servant will be triggered to execute.
- * */
-void vSemaphoreInitialise();
+void s_2(xEventHandle * pxEventArray, portBASE_TYPE NumOfEvent, struct eventData * pxDataArray, portBASE_TYPE NumOfData)
+{
+    vPrintString("S-2\n\r");
+}
 
-/*
- * Initialise the paramter which will be send to each S-Servant. And
- * initialise the topology of all the S-Servant in system according to the relation table of S-Servant.
- * */
-void vParameterInitialise();
+void s_3(xEventHandle * pxEventArray, portBASE_TYPE NumOfEvent, struct eventData * pxDataArray, portBASE_TYPE NumOfData)
+{
+    vPrintString("S-3\n\r");
+}
 
-/* Occupied CPU until the output time of current Servant for keep LET semantics. */
-void vTaskDelayLET();
+void s_4(xEventHandle * pxEventArray, portBASE_TYPE NumOfEvent, struct eventData * pxDataArray, portBASE_TYPE NumOfData)
+{
+    vPrintString("S-4\n\r");
+}
 
-/*
- * This function is used in normal S-Servant or actuator, while shouldn't be in sensor.
-* pending for waiting all the source servant finishing execution.
-* Then receive the events from xEventReadyList.
-*
-* @param pvParameter is the parameter from programmer
-* @param pxEvent is an inout parameter which is used to transit the event from source servant
-* */
-void vEventReceiveAll( void * pvParameter, xEventHandle * pxEvent );
+void s_5(xEventHandle * pxEventArray, portBASE_TYPE NumOfEvent, struct eventData * pxDataArray, portBASE_TYPE NumOfData)
+{
+    vPrintString("S-5\n\r");
+}
 
-/* delete all the events which are received from source servants*/ 
-void vEventDeleteAll( void * pvParameter, xEventHandle * pxEvent );
+// assigned the point of function into specified position of xServantTable.
+pvServantFunType xServantTable[NUMBEROFSERVANT] = {&s_0, &s_1, &s_2, &s_3, &s_4, &s_5};
 
-/*
-* This function is used in Sensor or normal S-Servant, while shouldn't be in Actuator.
-* create all events which are used to transit information for destination servants.
-*
-* @param pvParamter is the parameter from programmer, which can be used to know the topology of task.
-* @param xDatas are the data which will be add to the events for destination servant.
-*
-* */
-void vEventCreateAll( void * pvParameter, struct eventData * xDatas );
-
-void vSensor( void * pvParameter );
-
-void vActuator( void * pvParameter );
-
-void vServant( void * pvParameter );
-
-void vR_Servant( void * pvParameter );
-
-
-#endif

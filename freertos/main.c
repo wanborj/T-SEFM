@@ -18,24 +18,16 @@
 #include "semphr.h"
 #include "eventlist.h"
 #include "servant.h"
+#include "app.h"
 
 static void setup_hardware( void );
 
-struct xParam pvParameters[NUMBEROFSERVANT];
+extern struct xParam pvParameters[NUMBEROFSERVANT];
 
-xSemaphoreHandle xBinarySemaphore[NUMBEROFSERVANT];  // the network topology
-xTaskHandle xTaskOfHandle[NUMBEROFSERVANT+1];         // record the handle of all S-Servant, the last one is for debugging R-Servant
-
-// record the relationship among servants excluding R-Servant
-portBASE_TYPE xRelation[NUMBEROFSERVANT][NUMBEROFSERVANT] = { 0, 1, 0, 0, 0, 0,
-                                                              0, 0, 1, 1, 0, 0,
-                                                              0, 0, 0, 0, 1, 0,
-                                                              0, 0, 0, 0, 0, 1,
-                                                              0, 0, 0, 0, 0, 1,
-                                                              0, 0, 0, 0, 0, 0};
-
-// the LET of all S-Servant
-portTickType xLetOfServant[NUMBEROFSERVANT] = { 100, 100, 100, 100, 100, 100 };
+//extern xSemaphoreHandle xBinarySemaphore[NUMBEROFSERVANT];  // the network topology
+extern xTaskHandle xTaskOfHandle[NUMBEROFSERVANT+1];         // record the handle of all S-Servant, the last one is for debugging R-Servant
+//extern portBASE_TYPE xRelation[NUMBEROFSERVANT][NUMBEROFSERVANT]; // record the relationship among servants excluding R-Servant
+//extern portTickType xLetOfServant[NUMBEROFSERVANT];  // ms
 
 
 /*
@@ -47,6 +39,7 @@ struct xParam
     portBASE_TYPE xInFlag[MAXINDEGREE];  // the flags of source servants
     portBASE_TYPE xOutFlag[MAXOUTDEGREE]; // the flags of destination servants
     portTickType xLet; // the xLet of current servant
+    pvServantFunType xFp;  // the implementation of current Servant
 }; */
 
 int main(void)
@@ -57,9 +50,9 @@ int main(void)
     enable_rs232();
 
     vSemaphoreInitialise();
-    vRelationInitialise();
+    vParameterInitialise();
 
-    xTaskCreate( vR_Servant, "R Servant", 512, NULL, tskIDLE_PRIORITY + 1, &xTaskOfHandle[6]);
+    xTaskCreate( vR_Servant, "R-Servant", 512, NULL, tskIDLE_PRIORITY + 1, &xTaskOfHandle[6]);
 
     xTaskCreate( vSensor, "Sensor Servant", 512, (void *)&pvParameters[0], tskIDLE_PRIORITY + 10, &xTaskOfHandle[0]);
 
