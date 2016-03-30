@@ -38,6 +38,7 @@ main.bin: main.c
 		\
 		$(FREERTOS_SRC)/croutine.c \
 		$(FREERTOS_SRC)/eventlist.c\
+		$(FREERTOS_SRC)/servant.c\
 		$(FREERTOS_SRC)/list.c \
 		$(FREERTOS_SRC)/queue.c \
 		$(FREERTOS_SRC)/tasks.c \
