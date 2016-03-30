@@ -68,23 +68,23 @@
 #define APP_H
 
 
-#define USE_STDPERIPH_DRIVER
-#include "stm32f10x.h"
-
-/* Scheduler includes. */
-#include "FreeRTOS.h"
-#include "task.h"
-#include "list.h"
-#include "queue.h"
-#include "semphr.h"
 #include "eventlist.h"
-#include "servant.h"
 
-void s_1(xEventHandle *);
-void s_2(xEventHandle *);
-void s_3(xEventHandle *);
-void s_4(xEventHandle *);
-void s_5(xEventHandle *);
-void s_5(xEventHandle *);
+
+#define NUMBEROFSERVANT 6 
+
+/* pvParameters[NUMBEROFSERVANT] */
+#define MAXOUTDEGREE 10   // network max in degree of every S-servant
+#define MAXINDEGREE 10  // network max out degree of every s-servant
+
+typedef void(* pvServantFunType)(xEventHandle * pxEventArray, portBASE_TYPE NumOfEvent, struct eventData * pxDataArray, portBASE_TYPE NumOfData);
+
+void s_0(xEventHandle * pxEventArray, portBASE_TYPE NumOfEvent, struct eventData * pxDataArray, portBASE_TYPE NumOfData) ;
+void s_1(xEventHandle * pxEventArray, portBASE_TYPE NumOfEvent, struct eventData * pxDataArray, portBASE_TYPE NumOfData) ;
+void s_2(xEventHandle * pxEventArray, portBASE_TYPE NumOfEvent, struct eventData * pxDataArray, portBASE_TYPE NumOfData) ;
+void s_3(xEventHandle * pxEventArray, portBASE_TYPE NumOfEvent, struct eventData * pxDataArray, portBASE_TYPE NumOfData) ;
+void s_4(xEventHandle * pxEventArray, portBASE_TYPE NumOfEvent, struct eventData * pxDataArray, portBASE_TYPE NumOfData) ;
+void s_5(xEventHandle * pxEventArray, portBASE_TYPE NumOfEvent, struct eventData * pxDataArray, portBASE_TYPE NumOfData) ;
+
 
 #endif

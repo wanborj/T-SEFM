@@ -76,15 +76,6 @@
 #include "FreeRTOSConfig.h"
 #include "FreeRTOS.h"
 
-
-#define NUMBEROFSERVANT 6 
-#define MAXOUTDEGREE 10   // network max in degree of every S-servant
-#define MAXINDEGREE 10  // network max out degree of every s-servant
-
-//portBASE_TYPE NUMBEROFSERVANT = 6;
-
-
-typedef void(* pvServantFunType)(xEventHandle *);
 /*
 * It is used to record the topology and basic time information of servant
 * */

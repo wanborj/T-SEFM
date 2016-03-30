@@ -18,15 +18,16 @@
 #include "semphr.h"
 #include "eventlist.h"
 #include "servant.h"
+#include "app.h"
 
 static void setup_hardware( void );
 
 extern struct xParam pvParameters[NUMBEROFSERVANT];
 
-extern xSemaphoreHandle xBinarySemaphore[NUMBEROFSERVANT];  // the network topology
+//extern xSemaphoreHandle xBinarySemaphore[NUMBEROFSERVANT];  // the network topology
 extern xTaskHandle xTaskOfHandle[NUMBEROFSERVANT+1];         // record the handle of all S-Servant, the last one is for debugging R-Servant
-extern portBASE_TYPE xRelation[NUMBEROFSERVANT][NUMBEROFSERVANT]; // record the relationship among servants excluding R-Servant
-extern portTickType xLetOfServant[NUMBEROFSERVANT];  // ms
+//extern portBASE_TYPE xRelation[NUMBEROFSERVANT][NUMBEROFSERVANT]; // record the relationship among servants excluding R-Servant
+//extern portTickType xLetOfServant[NUMBEROFSERVANT];  // ms
 
 
 /*
@@ -51,7 +52,7 @@ int main(void)
     vSemaphoreInitialise();
     vParameterInitialise();
 
-    xTaskCreate( vR_Servant, "R Servant", 512, NULL, tskIDLE_PRIORITY + 1, &xTaskOfHandle[6]);
+    xTaskCreate( vR_Servant, "R-Servant", 512, NULL, tskIDLE_PRIORITY + 1, &xTaskOfHandle[6]);
 
     xTaskCreate( vSensor, "Sensor Servant", 512, (void *)&pvParameters[0], tskIDLE_PRIORITY + 10, &xTaskOfHandle[0]);
 

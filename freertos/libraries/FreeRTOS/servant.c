@@ -79,21 +79,14 @@
 #include "app.h"
 
 xList * pxCurrentReadyList;         // record the xEventReadyList that R-Servant transit event just now
-
-xSemaphoreHandle xBinarySemaphore[NUMBEROFSERVANT];  // the network topology
-xTaskHandle xTaskOfHandle[NUMBEROFSERVANT+1];         // record the handle of all S-Servant, the last one is for debugging R-Servant 
 struct xParam pvParameters[NUMBEROFSERVANT];
+
+extern xSemaphoreHandle xBinarySemaphore[NUMBEROFSERVANT];  // the semaphores which are used to trigger new servant to execute
+extern xTaskHandle xTaskOfHandle[NUMBEROFSERVANT+1];         // record the handle of all S-Servant, the last one is for debugging R-Servant 
 // record the relationship among servants excluding R-Servant
-portBASE_TYPE xRelation[NUMBEROFSERVANT][NUMBEROFSERVANT] = { 0, 1, 0, 0, 0, 0,
-                                                              0, 0, 1, 1, 0, 0,
-                                                              0, 0, 0, 0, 1, 0,
-                                                              0, 0, 0, 0, 0, 1,
-                                                              0, 0, 0, 0, 0, 1,
-                                                              0, 0, 0, 0, 0, 0};
+extern portBASE_TYPE xRelation[NUMBEROFSERVANT][NUMBEROFSERVANT] ;
 // the LET of all S-Servant
-portTickType xLetOfServant[NUMBEROFSERVANT] = { 100, 100, 100, 100, 100, 100 };
-
-
+extern portTickType xLetOfServant[NUMBEROFSERVANT] ;
 // In app.c, this is used to sepcify the function of Servant
 extern pvServantFunType xServantTable[NUMBEROFSERVANT];
 
@@ -250,7 +243,7 @@ void vSensor( void * pvParameter )
         // create events for all destination servants of this sensor.
         vEventCreateAll( pvMyParameter, xDatas );
 
-        xMyFun( NULL );
+        xMyFun( NULL, 0, xDatas, NUM);
 
         vTaskDelayLET();
 
@@ -277,7 +270,7 @@ void vActuator( void * pvParameter )
 
     xEventHandle pxEvent[NUM];
 
-    struct eventData xData;
+    //struct eventData xData[];
 
     /* get the LET of current servant */
     portTickType xLet = ((struct xParam *) pvMyParameter)->xLet;
@@ -288,7 +281,7 @@ void vActuator( void * pvParameter )
     {
         vEventReceiveAll( pvMyParameter, pxEvent );
 
-        xMyFun( pxEvent );
+        xMyFun( pxEvent, NUM, NULL, 0 );
 
         vEventDeleteAll( pvMyParameter, pxEvent );
         vTaskDelayLET();
@@ -332,7 +325,7 @@ void vServant( void * pvParameter )
             xDatas[i].xData = (portDOUBLE)xMyFlag;
         }
 
-        xMyFun(pxEvent);
+        xMyFun(pxEvent, xNumOfIn, xDatas, xNumOfOut);
         
         vEventDeleteAll( pvMyParameter, pxEvent );        
 

@@ -64,38 +64,62 @@
     the SafeRTOS brand: http://www.SafeRTOS.com.
 */
 
+#define USE_STDPERIPH_DRIVER
+#include "stm32f10x.h"
+
+/* Scheduler includes. */
+#include "FreeRTOS.h"
+#include "task.h"
+#include "list.h"
+#include "queue.h"
+#include "semphr.h"
 #include "app.h"
 
-void s_1(xEventHandle * pxEventArray)
+xSemaphoreHandle xBinarySemaphore[NUMBEROFSERVANT];  // the semaphores which are used to trigger new servant to execute
+xTaskHandle xTaskOfHandle[NUMBEROFSERVANT+1];         // record the handle of all S-Servant, the last one is for debugging R-Servant 
+
+// the LET of all S-Servant
+portTickType xLetOfServant[NUMBEROFSERVANT] = { 100, 100, 100, 100, 100, 100 };
+// record the relationship among servants excluding R-Servant
+portBASE_TYPE xRelation[NUMBEROFSERVANT][NUMBEROFSERVANT] = { 0, 1, 0, 0, 0, 0,
+                                                              0, 0, 1, 1, 0, 0,
+                                                              0, 0, 0, 0, 1, 0,
+                                                              0, 0, 0, 0, 0, 1,
+                                                              0, 0, 0, 0, 0, 1,
+                                                              0, 0, 0, 0, 0, 0};
+
+
+/* the function */
+void s_0(xEventHandle * pxEventArray, portBASE_TYPE NumOfEvent, struct eventData * pxDataArray, portBASE_TYPE NumOfData)
+{
+    vPrintString("S-0\n\r");
+}
+
+void s_1(xEventHandle * pxEventArray, portBASE_TYPE NumOfEvent, struct eventData * pxDataArray, portBASE_TYPE NumOfData)
 {
     vPrintString("S-1\n\r");
 }
 
-void s_2(xEventHandle * pxEventArray)
+void s_2(xEventHandle * pxEventArray, portBASE_TYPE NumOfEvent, struct eventData * pxDataArray, portBASE_TYPE NumOfData)
 {
     vPrintString("S-2\n\r");
 }
 
-void s_3(xEventHandle * pxEventArray)
+void s_3(xEventHandle * pxEventArray, portBASE_TYPE NumOfEvent, struct eventData * pxDataArray, portBASE_TYPE NumOfData)
 {
     vPrintString("S-3\n\r");
 }
 
-void s_4(xEventHandle * pxEventArray)
+void s_4(xEventHandle * pxEventArray, portBASE_TYPE NumOfEvent, struct eventData * pxDataArray, portBASE_TYPE NumOfData)
 {
     vPrintString("S-4\n\r");
 }
 
-void s_5(xEventHandle * pxEventArray)
+void s_5(xEventHandle * pxEventArray, portBASE_TYPE NumOfEvent, struct eventData * pxDataArray, portBASE_TYPE NumOfData)
 {
     vPrintString("S-5\n\r");
 }
 
-void s_6(xEventHandle * pxEventArray)
-{
-    vPrintString("S-6\n\r");
-}
-
 // assigned the point of function into specified position of xServantTable.
-pvServantFunType xServantTable[NUMBEROFSERVANT] = {&s_1, &s_2, &s_3, &s_4, &s_5, &s_6};
+pvServantFunType xServantTable[NUMBEROFSERVANT] = {&s_0, &s_1, &s_2, &s_3, &s_4, &s_5};
 
