@@ -96,11 +96,21 @@ struct xParam
     portTickType xLet;
 };
 
+
+/*
+ * create semaphores for every S-Servant. 
+ * Each S-Servant are pending for specified semaphores. Once corresponding 
+ * semaphores occurs, the S-Servant will be triggered to execute.
+ * */
 void vSemaphoreInitialise();
 
+/*
+ * Initialise the paramter which will be send to each S-Servant. And
+ * initialise the topology of all the S-Servant in system according to the relation table of S-Servant.
+ * */
 void vRelationInitialise();
 
-/* Occupied CPU until the output time of current Servant */
+/* Occupied CPU until the output time of current Servant for keep LET semantics. */
 void vTaskDelayLET();
 
 /*

@@ -56,21 +56,19 @@ int main(void)
     enable_rs232_interrupts();
     enable_rs232();
 
-    portBASE_TYPE i;    
-
     vSemaphoreInitialise();
     vRelationInitialise();
 
     xTaskCreate( vR_Servant, "R Servant", 512, NULL, tskIDLE_PRIORITY + 1, &xTaskOfHandle[6]);
 
-    xTaskCreate( vSensor, "Sensor", 512, (void *)&pvParameters[0], tskIDLE_PRIORITY + 10, &xTaskOfHandle[0]);
+    xTaskCreate( vSensor, "Sensor Servant", 512, (void *)&pvParameters[0], tskIDLE_PRIORITY + 10, &xTaskOfHandle[0]);
 
     xTaskCreate( vServant, "Servant No.1", 512 /* stack size */, (void *)&pvParameters[1], tskIDLE_PRIORITY + 6, &xTaskOfHandle[1]);
     xTaskCreate( vServant, "Servant No.2", 512 /* stack size */, (void *)&pvParameters[2], tskIDLE_PRIORITY + 5, &xTaskOfHandle[2]);
     xTaskCreate( vServant, "Servant No.3", 512 /* stack size */, (void *)&pvParameters[3], tskIDLE_PRIORITY + 4, &xTaskOfHandle[3]);
     xTaskCreate( vServant, "Servant No.4", 512 /* stack size */, (void *)&pvParameters[4], tskIDLE_PRIORITY + 3, &xTaskOfHandle[4]);
 
-    xTaskCreate( vActuator, "Actuator", 512 /* stack size */, (void *)&pvParameters[5], tskIDLE_PRIORITY + 2,&xTaskOfHandle[5]);
+    xTaskCreate( vActuator, "Actuator Servant", 512 /* stack size */, (void *)&pvParameters[5], tskIDLE_PRIORITY + 2,&xTaskOfHandle[5]);
 
     /* Start running the task. */
     vTaskStartScheduler();

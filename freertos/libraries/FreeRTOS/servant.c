@@ -199,15 +199,11 @@ void vEventReceiveAll( void * pvParameter, xEventHandle *pxEvent )
     portBASE_TYPE i ;
 
     portBASE_TYPE NUM = ((struct xParam *) pvParameter)->xNumOfIn;
-    portBASE_TYPE xFlags[NUM]; 
+    portBASE_TYPE xInFlag[NUM]; 
     portBASE_TYPE xMyFlag = ((struct xParam *) pvParameter)->xMyFlag;
     portTickType xCurrentTime;
-    
-    for( i = 0; i < NUM; i++ )
-    {
-        // waiting for all semaphores. Here, the number of Semaphore are equal to the number of source servant
-        xSemaphoreTake( xBinarySemaphore[xMyFlag],portMAX_DELAY );
-    }
+   
+    xSemaphoreTake( xBinarySemaphore[xMyFlag],portMAX_DELAY );
 
     xCurrentTime = xTaskGetTickCount(); 
     vTaskSetxStartTime( xTaskOfHandle[xMyFlag], xCurrentTime );
@@ -215,10 +211,10 @@ void vEventReceiveAll( void * pvParameter, xEventHandle *pxEvent )
     for( i = 0; i < NUM; i ++ )
     {
         // get all the in flag
-        xFlags[i] = ((struct xParam *) pvParameter)->xInFlag[i];
+        xInFlag[i] = ((struct xParam *) pvParameter)->xInFlag[i];
         // receive all events which are created by source servants and return 
         // them back to current Servant through the inout point
-        vEventReceive( &pxEvent[i], xTaskOfHandle[xFlags[i]], pxCurrentReadyList );
+        vEventReceive( &pxEvent[i], xTaskOfHandle[xInFlag[i]], pxCurrentReadyList );
     }
 }
 
@@ -295,7 +291,7 @@ void vSensor( void * pvParameter )
         // create events for all destination servants of this sensor.
         vEventCreateAll( pvMyParameter, xDatas );
 
-        vPrintString( "External Event!!!!!!!!!!!!!!!!!!!!!!\n\r");
+        vPrintString( "\n\r\n\rExternal Event!!!!!!!!!!!!!!!!!!!!!!\n\r");
 
         vTaskDelayLET();
 
@@ -334,7 +330,7 @@ void vActuator( void * pvParameter )
 
         /* here are the processing code with pxEvent */
         // coding...
-        vPrintString( " This is the Actuator!----------------------\n\r" );
+        vPrintString( " This is the Actuator\n\r" );
 
         vEventDeleteAll( pvMyParameter, pxEvent );
         vTaskDelayLET();
@@ -377,7 +373,9 @@ void vServant( void * pvParameter )
             xDatas[i].xData = (portDOUBLE)xMyFlag;
         }
 
-        vPrintString( "This is S-Servant!################\n\r" );
+        vPrintString( "This is S-Servant " );
+        send_num( xMyFlag );
+        vPrintString("\n\r");
         
         vEventDeleteAll( pvMyParameter, pxEvent );        
 
@@ -388,14 +386,20 @@ void vServant( void * pvParameter )
 
 void vR_Servant( void * pvParameter)
 {
-    portBASE_TYPE i;
+    portBASE_TYPE i, j, xInFlag, xCount;
 
     xListItem * pxEventListItem;
-    xTaskHandle targetServantTCB;
+    xTaskHandle destinationTCB, sourceTCB;
 
     while(1)
     {
-        /*transit the highest event item from xEventList to the idlest xEvestReadyList*/
+        /*
+         * transit the event item, whose timestamp equals to current Tick Count, 
+         * from xEventList to the idlest xEvestReadyList
+         *
+         * There is a bug here. Under the multicore platform, the "pxCurrentReadyList" is an exclusive 
+         * variable which should be used in critical section.
+         * */
         vEventListTransit( &pxEventListItem, &pxCurrentReadyList);
 
         if( pxEventListItem == NULL && pxCurrentReadyList == NULL )
@@ -404,18 +408,58 @@ void vR_Servant( void * pvParameter)
             continue;
         }
 
-        targetServantTCB = xEventGetpxDestination( pxEventListItem->pvOwner);
-        vPrintString("enter R-Servant again #######\n\r");
+        destinationTCB = xEventGetpxDestination( pxEventListItem->pvOwner);
+        sourceTCB = xEventGetpxSource( pxEventListItem->pvOwner );
+        xCount = 0;
 
-        for( i = 1; i < NUMBEROFSERVANT; ++i )
+        // find the handler of destination S-Servant
+        for( i = 0; i < NUMBEROFSERVANT; ++i )
         {
-            /*the point has some problem here, these two points can be never same */
-            if( targetServantTCB == xTaskOfHandle[i])
+            // the xTaskOfHandle[i] is the destination S-Servant
+            if( destinationTCB == xTaskOfHandle[i])
             {
-                vPrintString("sending semaphore to targetServantTCB------------\n\r");
-                xSemaphoreGive( xBinarySemaphore[i] );
                 break;
             }
         }
+
+        // set the corresponding relation into 2.
+        for( j = 0; j < pvParameters[i].xNumOfIn; ++ j )
+        {
+            xInFlag = pvParameters[i].xInFlag[j];
+            if( xTaskOfHandle[ xInFlag ] == sourceTCB ) 
+            {
+                if( xRelation[ xInFlag ][i] == 2 )
+                {
+                    vPrintString(" Error! There is already an event which is not proceed yet!\n\r");
+                    break;
+                }
+                else
+                {
+                    xRelation[ xInFlag ][i] = 2;
+                }
+            }
+
+            // counting the numbers of 2.
+            if( xRelation[ xInFlag ][i] == 2 )
+            {
+                xCount ++;
+            }
+        }
+
+        // if the numbers of 2 equals to the xNumofIn of destination S-Servant, then the destination S-servant 
+        // should be triggered to execute.
+        if( xCount == pvParameters[i].xNumOfIn )
+        {
+            vPrintString("sending semaphore to targetServantTCB------------\n\r");
+            // set all the relations whose destination S-Servant is xTaskOfHandle[i] to 1.
+            for( j = 0; j < pvParameters[i].xNumOfIn; ++ j )
+            {
+                xInFlag = pvParameters[i].xInFlag[j];
+                xRelation[ xInFlag ][i] = 1;
+            }
+
+            xSemaphoreGive( xBinarySemaphore[i] );
+        }
+        
     }
 }
