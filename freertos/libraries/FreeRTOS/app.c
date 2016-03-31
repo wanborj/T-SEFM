@@ -78,48 +78,133 @@
 xSemaphoreHandle xBinarySemaphore[NUMBEROFSERVANT];  // the semaphores which are used to trigger new servant to execute
 xTaskHandle xTaskOfHandle[NUMBEROFSERVANT+1];         // record the handle of all S-Servant, the last one is for debugging R-Servant 
 
-// the LET of all S-Servant
+// the LET of all S-Servant (ms)
 portTickType xLetOfServant[NUMBEROFSERVANT] = { 100, 100, 100, 100, 100, 100 };
 // record the relationship among servants excluding R-Servant
-portBASE_TYPE xRelation[NUMBEROFSERVANT][NUMBEROFSERVANT] = { 0, 1, 0, 0, 0, 0,
-                                                              0, 0, 1, 1, 0, 0,
-                                                              0, 0, 0, 0, 1, 0,
-                                                              0, 0, 0, 0, 0, 1,
-                                                              0, 0, 0, 0, 0, 1,
-                                                              0, 0, 0, 0, 0, 0};
-
-
-/* the function */
-void s_0(xEventHandle * pxEventArray, portBASE_TYPE NumOfEvent, struct eventData * pxDataArray, portBASE_TYPE NumOfData)
+/*
+struct sparseRelation
 {
-    vPrintString("S-0\n\r");
+    portBASE_TYPE xInFlag;  // source servant
+    portBASE_TYPE xOutFlag; // destination servant
+    portBASE_TYPE xFlag;  // 1 means relation exist but without event, 2 means that there is a event
+};
+struct xRelationship
+{
+    portBASE_TYPE xNumOfRelation;   // the real number of relations
+    struct sparseRelation xRelation[MAXRELATION];  // the number of effective relations among servant
+};
+*/
+struct xRelationship xRelations = 
+{
+    11,
+    {
+        {0, 1, 1},
+        {1, 5, 1},
+        {2, 4, 1},
+        {4, 3, 1},
+        {5, 6, 1},
+        {6, 7, 1},
+        {7, 2, 1},
+        {8, 9, 1},
+        {9,10, 1},
+        {10,11,1},
+        {11, 6,1},
+    }
+};
+
+// T1, test_ppm_task, 
+void s_0(xEventHandle * pxEventArray, portBASE_TYPE NumOfEvent, struct eventData * pxDataArray, portBASE_TYPE NumOfData) 
+{
+    
 }
 
-void s_1(xEventHandle * pxEventArray, portBASE_TYPE NumOfEvent, struct eventData * pxDataArray, portBASE_TYPE NumOfData)
+// T2, send_data_to_autopilot_task
+void s_1(xEventHandle * pxEventArray, portBASE_TYPE NumOfEvent, struct eventData * pxDataArray, portBASE_TYPE NumOfData) 
 {
-    vPrintString("S-1\n\r");
+
 }
 
-void s_2(xEventHandle * pxEventArray, portBASE_TYPE NumOfEvent, struct eventData * pxDataArray, portBASE_TYPE NumOfData)
+// T3, check_mega128_values_task
+void s_2(xEventHandle * pxEventArray, portBASE_TYPE NumOfEvent, struct eventData * pxDataArray, portBASE_TYPE NumOfData) 
 {
-    vPrintString("S-2\n\r");
+    
 }
 
-void s_3(xEventHandle * pxEventArray, portBASE_TYPE NumOfEvent, struct eventData * pxDataArray, portBASE_TYPE NumOfData)
+// T4, servo_transmit
+void s_3(xEventHandle * pxEventArray, portBASE_TYPE NumOfEvent, struct eventData * pxDataArray, portBASE_TYPE NumOfData) 
 {
-    vPrintString("S-3\n\r");
+
 }
 
+// T5, check_failsafe_task
 void s_4(xEventHandle * pxEventArray, portBASE_TYPE NumOfEvent, struct eventData * pxDataArray, portBASE_TYPE NumOfData)
 {
-    vPrintString("S-4\n\r");
+    
 }
 
-void s_5(xEventHandle * pxEventArray, portBASE_TYPE NumOfEvent, struct eventData * pxDataArray, portBASE_TYPE NumOfData)
+// T6, radio_control_task
+void s_5(xEventHandle * pxEventArray, portBASE_TYPE NumOfEvent, struct eventData * pxDataArray, portBASE_TYPE NumOfData) 
 {
-    vPrintString("S-5\n\r");
+
+}
+
+
+// T7, stablization_task
+void s_6(xEventHandle * pxEventArray, portBASE_TYPE NumOfEvent, struct eventData * pxDataArray, portBASE_TYPE NumOfData) 
+{
+    
+}
+
+// T8, link_fbw_send
+void s_7(xEventHandle * pxEventArray, portBASE_TYPE NumOfEvent, struct eventData * pxDataArray, portBASE_TYPE NumOfData) 
+{
+
+}
+
+// T9, receive_gps_data_task
+void s_8(xEventHandle * pxEventArray, portBASE_TYPE NumOfEvent, struct eventData * pxDataArray, portBASE_TYPE NumOfData) 
+{
+    
+}
+
+// T10, navigation_task
+void s_9(xEventHandle * pxEventArray, portBASE_TYPE NumOfEvent, struct eventData * pxDataArray, portBASE_TYPE NumOfData) 
+{
+
+}
+
+// T11, altitude_control_task
+void s_10(xEventHandle * pxEventArray, portBASE_TYPE NumOfEvent, struct eventData * pxDataArray, portBASE_TYPE NumOfData) 
+{
+    
+}
+
+// T12, climb_control_task
+void s_11(xEventHandle * pxEventArray, portBASE_TYPE NumOfEvent, struct eventData * pxDataArray, portBASE_TYPE NumOfData)
+{
+
+}
+
+// T13, reporting_task
+void s_12(xEventHandle * pxEventArray, portBASE_TYPE NumOfEvent, struct eventData * pxDataArray, portBASE_TYPE NumOfData) 
+{
+    
 }
 
 // assigned the point of function into specified position of xServantTable.
-pvServantFunType xServantTable[NUMBEROFSERVANT] = {&s_0, &s_1, &s_2, &s_3, &s_4, &s_5};
-
+pvServantFunType xServantTable[NUMBEROFSERVANT] = 
+{
+    &s_0, 
+    &s_1,
+    &s_2,
+    &s_3,
+    &s_4,
+    &s_5,
+    &s_6,
+    &s_7,
+    &s_8,
+    &s_9,
+    &s_10, 
+    &s_11,
+    &s_12
+};
