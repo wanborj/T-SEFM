@@ -84,11 +84,15 @@ struct xParam pvParameters[NUMBEROFSERVANT];
 extern xSemaphoreHandle xBinarySemaphore[NUMBEROFSERVANT];  // the semaphores which are used to trigger new servant to execute
 extern xTaskHandle xTaskOfHandle[NUMBEROFSERVANT+1];         // record the handle of all S-Servant, the last one is for debugging R-Servant 
 // record the relationship among servants excluding R-Servant
-extern portBASE_TYPE xRelation[NUMBEROFSERVANT][NUMBEROFSERVANT] ;
+//extern portBASE_TYPE xRelation[NUMBEROFSERVANT][NUMBEROFSERVANT] ;
+// the new xRelation table which is implemeted with sparse matrix
+extern struct xRelationship xRelations; 
+
 // the LET of all S-Servant
 extern portTickType xLetOfServant[NUMBEROFSERVANT] ;
 // In app.c, this is used to sepcify the function of Servant
 extern pvServantFunType xServantTable[NUMBEROFSERVANT];
+
 
 /* create all semaphores which are used to triggered s-servant */
 void vSemaphoreInitialise()
@@ -109,7 +113,8 @@ void vSemaphoreInitialise()
  * */
 void vParameterInitialise()
 {
-    portBASE_TYPE i, j;
+    portBASE_TYPE i;
+    portBASE_TYPE xSource, xDest;
        
     // initialise the member of pvParameters
     for( i = 0; i < NUMBEROFSERVANT; ++ i )
@@ -122,6 +127,8 @@ void vParameterInitialise()
     }
 
     // set the xOut/InFlag and xNumOfOut/In of pvParameters according to the relation table
+    // old edition
+    /*
     for( i = 0; i < NUMBEROFSERVANT; ++ i )
     {
         for( j = 0; j < NUMBEROFSERVANT; ++ j )
@@ -135,6 +142,19 @@ void vParameterInitialise()
                 pvParameters[j].xNumOfIn ++;
             }
         }
+    }
+    */
+    // new edition with sparse matrix relation table
+    for( i = 0; i < xRelations.xNumOfRelation; ++ i )
+    {
+        xSource = xRelations.xRelation[i].xInFlag;
+        xDest   = xRelations.xRelation[i].xOutFlag;
+
+        pvParameters[xSource].xOutFlag[pvParameters[xSource].xNumOfOut] = xDest;
+        pvParameters[xSource].xNumOfOut ++;
+
+        pvParameters[xDest].xInFlag[pvParameters[xDest].xNumOfIn] = xSource;
+        pvParameters[xDest].xNumOfIn ++;
     }
 }
 
@@ -336,7 +356,9 @@ void vServant( void * pvParameter )
 
 void vR_Servant( void * pvParameter)
 {
-    portBASE_TYPE i, j, xInFlag, xCount;
+    portBASE_TYPE i, j;
+    portBASE_TYPE xSource, xDest;
+    portBASE_TYPE HAVE_TO_SEND_SEMAPHORE; // could the semaphore be sent? 1 means yes , 0 means no
 
     xListItem * pxEventListItem;
     xTaskHandle destinationTCB, sourceTCB;
@@ -360,8 +382,63 @@ void vR_Servant( void * pvParameter)
 
         destinationTCB = xEventGetpxDestination( pxEventListItem->pvOwner);
         sourceTCB = xEventGetpxSource( pxEventListItem->pvOwner );
-        xCount = 0;
+        HAVE_TO_SEND_SEMAPHORE = 1;
 
+
+        vPrintString("semaphore check\n\r");
+
+        for( i = 0; i < xRelations.xNumOfRelation; ++ i )
+        {
+            xSource = xRelations.xRelation[i].xInFlag;
+            xDest   = xRelations.xRelation[i].xOutFlag;
+
+            if( destinationTCB == xTaskOfHandle[xDest] )
+            {
+                // find the right relation
+                if( sourceTCB == xTaskOfHandle[xSource] )
+                {
+                    if( xRelations.xRelation[i].xFlag == 2 )
+                    {
+                        vPrintString("Error: This event has arrived!!\n\r") ;
+                        vEventDelete( (xEventHandle) pxEventListItem->pvOwner );
+                    }
+                    else
+                    {
+                        xRelations.xRelation[i].xFlag = 2;
+                    }
+
+                }
+                // find other relation which is relative to destinationtcb
+                else
+                {
+                    // waiting for an events that is not arriving yet
+                    if( xRelations.xRelation[i].xFlag == 1 )
+                    {
+                        HAVE_TO_SEND_SEMAPHORE = 0;
+                    }
+                }
+            }
+        }
+
+        if( HAVE_TO_SEND_SEMAPHORE )
+        {
+            vPrintString("sending semaphore to targetServantTCB------------\n\r");
+            // set all the relations whose destination S-Servant is xTaskOfHandle[i] to 1.
+            for( i = 0; i < xRelations.xNumOfRelation; ++ i )
+            {
+                xDest = xRelations.xRelation[i].xOutFlag;
+                if( destinationTCB == xTaskOfHandle[xDest] )
+                {
+                    xRelations.xRelation[i].xFlag = 1;
+                    // record the number of destinationtcb in xTaskOfHandle array.
+                    j = xDest;
+                }
+            }
+            // send semaphore to destinationtcb
+            xSemaphoreGive( xBinarySemaphore[j] );
+        }
+
+        /*
         // find the handler of destination S-Servant
         for( i = 0; i < NUMBEROFSERVANT; ++i )
         {
@@ -375,9 +452,11 @@ void vR_Servant( void * pvParameter)
         // set the corresponding relation into 2.
         for( j = 0; j < pvParameters[i].xNumOfIn; ++ j )
         {
+            // choose the right source TCB
             xInFlag = pvParameters[i].xInFlag[j];
             if( xTaskOfHandle[ xInFlag ] == sourceTCB ) 
             {
+                // old edition
                 if( xRelation[ xInFlag ][i] == 2 )
                 {
                     vPrintString(" Error! There is already an event which is not proceed yet!\n\r");
@@ -410,6 +489,6 @@ void vR_Servant( void * pvParameter)
 
             xSemaphoreGive( xBinarySemaphore[i] );
         }
-        
+        */
     }
 }

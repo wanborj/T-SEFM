@@ -71,11 +71,24 @@
 #include "eventlist.h"
 
 
-#define NUMBEROFSERVANT 6 
-
+#define NUMBEROFSERVANT 14
+#define MAXRELATION NUMBEROFSERVANT 
 /* pvParameters[NUMBEROFSERVANT] */
 #define MAXOUTDEGREE 10   // network max in degree of every S-servant
 #define MAXINDEGREE 10  // network max out degree of every s-servant
+
+struct sparseRelation
+{
+    portBASE_TYPE xInFlag;  // source servant
+    portBASE_TYPE xOutFlag; // destination servant
+    portBASE_TYPE xFlag;  // 1 means relation exist but without event, 2 means that there is a event
+};
+
+struct xRelationship
+{
+    portBASE_TYPE xNumOfRelation;   // the real number of relations
+    struct sparseRelation xRelation[MAXRELATION];  // the number of effective relations among servant
+};
 
 typedef void(* pvServantFunType)(xEventHandle * pxEventArray, portBASE_TYPE NumOfEvent, struct eventData * pxDataArray, portBASE_TYPE NumOfData);
 
@@ -85,6 +98,15 @@ void s_2(xEventHandle * pxEventArray, portBASE_TYPE NumOfEvent, struct eventData
 void s_3(xEventHandle * pxEventArray, portBASE_TYPE NumOfEvent, struct eventData * pxDataArray, portBASE_TYPE NumOfData) ;
 void s_4(xEventHandle * pxEventArray, portBASE_TYPE NumOfEvent, struct eventData * pxDataArray, portBASE_TYPE NumOfData) ;
 void s_5(xEventHandle * pxEventArray, portBASE_TYPE NumOfEvent, struct eventData * pxDataArray, portBASE_TYPE NumOfData) ;
+void s_6(xEventHandle * pxEventArray, portBASE_TYPE NumOfEvent, struct eventData * pxDataArray, portBASE_TYPE NumOfData) ;
+void s_7(xEventHandle * pxEventArray, portBASE_TYPE NumOfEvent, struct eventData * pxDataArray, portBASE_TYPE NumOfData) ;
+void s_8(xEventHandle * pxEventArray, portBASE_TYPE NumOfEvent, struct eventData * pxDataArray, portBASE_TYPE NumOfData) ;
+void s_9(xEventHandle * pxEventArray, portBASE_TYPE NumOfEvent, struct eventData * pxDataArray, portBASE_TYPE NumOfData) ;
+void s_10(xEventHandle * pxEventArray, portBASE_TYPE NumOfEvent, struct eventData * pxDataArray, portBASE_TYPE NumOfData) ;
+void s_11(xEventHandle * pxEventArray, portBASE_TYPE NumOfEvent, struct eventData * pxDataArray, portBASE_TYPE NumOfData) ;
+void s_12(xEventHandle * pxEventArray, portBASE_TYPE NumOfEvent, struct eventData * pxDataArray, portBASE_TYPE NumOfData) ;
+void s_13(xEventHandle * pxEventArray, portBASE_TYPE NumOfEvent, struct eventData * pxDataArray, portBASE_TYPE NumOfData) ;
+
 
 
 #endif
