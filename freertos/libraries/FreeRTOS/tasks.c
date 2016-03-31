@@ -1063,6 +1063,7 @@ void vTaskStartScheduler( void )
 {
 portBASE_TYPE xReturn;
 
+
 	/* Add the idle task at the lowest priority. */
 	#if ( INCLUDE_xTaskGetIdleTaskHandle == 1 )
 	{
@@ -1077,11 +1078,14 @@ portBASE_TYPE xReturn;
 	}
 	#endif
 
+
+
 	#if ( configUSE_TIMERS == 1 )
 	{
 		if( xReturn == pdPASS )
 		{
 			xReturn = xTimerCreateTimerTask();
+            
 		}
 	}
 	#endif
@@ -1096,6 +1100,7 @@ portBASE_TYPE xReturn;
 
 		STEPPING THROUGH HERE USING A DEBUGGER CAN CAUSE BIG PROBLEMS IF THE
 		DEBUGGER ALLOWS INTERRUPTS TO BE PROCESSED. */
+
 		portDISABLE_INTERRUPTS();
 
 		xSchedulerRunning = pdTRUE;

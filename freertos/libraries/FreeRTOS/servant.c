@@ -384,12 +384,15 @@ void vR_Servant( void * pvParameter)
         sourceTCB = xEventGetpxSource( pxEventListItem->pvOwner );
         HAVE_TO_SEND_SEMAPHORE = 1;
 
+
+        vPrintString("semaphore check\n\r");
+
         for( i = 0; i < xRelations.xNumOfRelation; ++ i )
         {
             xSource = xRelations.xRelation[i].xInFlag;
             xDest   = xRelations.xRelation[i].xOutFlag;
 
-            if( destinationTCB == xTaskOfHandle[xDest] && sourceTCB == xTaskOfHandle[xSource] )
+            if( destinationTCB == xTaskOfHandle[xDest] )
             {
                 // find the right relation
                 if( sourceTCB == xTaskOfHandle[xSource] )

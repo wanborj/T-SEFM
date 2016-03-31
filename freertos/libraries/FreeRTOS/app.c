@@ -79,7 +79,23 @@ xSemaphoreHandle xBinarySemaphore[NUMBEROFSERVANT];  // the semaphores which are
 xTaskHandle xTaskOfHandle[NUMBEROFSERVANT+1];         // record the handle of all S-Servant, the last one is for debugging R-Servant 
 
 // the LET of all S-Servant (ms)
-portTickType xLetOfServant[NUMBEROFSERVANT] = { 100, 100, 100, 100, 100, 100 };
+portTickType xLetOfServant[NUMBEROFSERVANT] = 
+{ 
+    20,    // s_0
+    20,    // s_1
+    20,    // s_2
+    20,    // s_3 
+    20,    // s_4 
+    20,    // s_5
+    20,    // s_6
+    20,    // s_7
+    20,    // s_8
+    20,    // s_9
+    20,    // s_10
+    20,    // s_11
+    20,    // s_12
+    20,    // s_13
+};
 // record the relationship among servants excluding R-Servant
 /*
 struct sparseRelation
@@ -96,25 +112,25 @@ struct xRelationship
 */
 struct xRelationship xRelations = 
 {
-    11,
+    10,
     {
         {0, 1, 1},
         {1, 5, 1},
         {2, 4, 1},
         {4, 3, 1},
-        {5, 6, 1},
         {6, 7, 1},
         {7, 2, 1},
         {8, 9, 1},
         {9,10, 1},
         {10,11,1},
-        {11, 6,1},
+        {12,13,1}
     }
 };
 
 // T1, test_ppm_task, 
 void s_0(xEventHandle * pxEventArray, portBASE_TYPE NumOfEvent, struct eventData * pxDataArray, portBASE_TYPE NumOfData) 
 {
+    vPrintString("s_0\n\r");
     
 }
 
@@ -122,30 +138,35 @@ void s_0(xEventHandle * pxEventArray, portBASE_TYPE NumOfEvent, struct eventData
 void s_1(xEventHandle * pxEventArray, portBASE_TYPE NumOfEvent, struct eventData * pxDataArray, portBASE_TYPE NumOfData) 
 {
 
+    vPrintString("s_1\n\r");
 }
 
 // T3, check_mega128_values_task
 void s_2(xEventHandle * pxEventArray, portBASE_TYPE NumOfEvent, struct eventData * pxDataArray, portBASE_TYPE NumOfData) 
 {
     
+    vPrintString("s_2\n\r");
 }
 
 // T4, servo_transmit
 void s_3(xEventHandle * pxEventArray, portBASE_TYPE NumOfEvent, struct eventData * pxDataArray, portBASE_TYPE NumOfData) 
 {
 
+    vPrintString("s_3\n\r");
 }
 
 // T5, check_failsafe_task
 void s_4(xEventHandle * pxEventArray, portBASE_TYPE NumOfEvent, struct eventData * pxDataArray, portBASE_TYPE NumOfData)
 {
     
+    vPrintString("s_4\n\r");
 }
 
 // T6, radio_control_task
 void s_5(xEventHandle * pxEventArray, portBASE_TYPE NumOfEvent, struct eventData * pxDataArray, portBASE_TYPE NumOfData) 
 {
 
+    vPrintString("s_5\n\r");
 }
 
 
@@ -153,42 +174,56 @@ void s_5(xEventHandle * pxEventArray, portBASE_TYPE NumOfEvent, struct eventData
 void s_6(xEventHandle * pxEventArray, portBASE_TYPE NumOfEvent, struct eventData * pxDataArray, portBASE_TYPE NumOfData) 
 {
     
+    vPrintString("s_6\n\r");
 }
 
 // T8, link_fbw_send
 void s_7(xEventHandle * pxEventArray, portBASE_TYPE NumOfEvent, struct eventData * pxDataArray, portBASE_TYPE NumOfData) 
 {
 
+    vPrintString("s_7\n\r");
 }
 
 // T9, receive_gps_data_task
 void s_8(xEventHandle * pxEventArray, portBASE_TYPE NumOfEvent, struct eventData * pxDataArray, portBASE_TYPE NumOfData) 
 {
     
+    vPrintString("s_8\n\r");
 }
 
 // T10, navigation_task
 void s_9(xEventHandle * pxEventArray, portBASE_TYPE NumOfEvent, struct eventData * pxDataArray, portBASE_TYPE NumOfData) 
 {
 
+    vPrintString("s_9\n\r");
 }
 
 // T11, altitude_control_task
 void s_10(xEventHandle * pxEventArray, portBASE_TYPE NumOfEvent, struct eventData * pxDataArray, portBASE_TYPE NumOfData) 
 {
     
+    vPrintString("s_10\n\r");
 }
 
 // T12, climb_control_task
 void s_11(xEventHandle * pxEventArray, portBASE_TYPE NumOfEvent, struct eventData * pxDataArray, portBASE_TYPE NumOfData)
 {
 
+    vPrintString("s_11\n\r");
 }
 
 // T13, reporting_task
 void s_12(xEventHandle * pxEventArray, portBASE_TYPE NumOfEvent, struct eventData * pxDataArray, portBASE_TYPE NumOfData) 
 {
     
+    vPrintString("s_12\n\r");
+}
+
+// T14, NULL, do as the actuator of task 4
+void s_13(xEventHandle * pxEventArray, portBASE_TYPE NumOfEvent, struct eventData * pxDataArray, portBASE_TYPE NumOfData) 
+{
+    
+    vPrintString("s_13\n\r");
 }
 
 // assigned the point of function into specified position of xServantTable.
@@ -206,5 +241,6 @@ pvServantFunType xServantTable[NUMBEROFSERVANT] =
     &s_9,
     &s_10, 
     &s_11,
-    &s_12
+    &s_12,
+    &s_13
 };

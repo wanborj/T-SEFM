@@ -71,7 +71,7 @@
 #include "eventlist.h"
 
 
-#define NUMBEROFSERVANT 13
+#define NUMBEROFSERVANT 14
 #define MAXRELATION NUMBEROFSERVANT 
 /* pvParameters[NUMBEROFSERVANT] */
 #define MAXOUTDEGREE 10   // network max in degree of every S-servant
@@ -105,6 +105,7 @@ void s_9(xEventHandle * pxEventArray, portBASE_TYPE NumOfEvent, struct eventData
 void s_10(xEventHandle * pxEventArray, portBASE_TYPE NumOfEvent, struct eventData * pxDataArray, portBASE_TYPE NumOfData) ;
 void s_11(xEventHandle * pxEventArray, portBASE_TYPE NumOfEvent, struct eventData * pxDataArray, portBASE_TYPE NumOfData) ;
 void s_12(xEventHandle * pxEventArray, portBASE_TYPE NumOfEvent, struct eventData * pxDataArray, portBASE_TYPE NumOfData) ;
+void s_13(xEventHandle * pxEventArray, portBASE_TYPE NumOfEvent, struct eventData * pxDataArray, portBASE_TYPE NumOfData) ;
 
 
 
