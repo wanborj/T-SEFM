@@ -385,7 +385,7 @@ void vR_Servant( void * pvParameter)
         HAVE_TO_SEND_SEMAPHORE = 1;
 
 
-        vPrintString("semaphore check\n\r");
+      //  vPrintString("semaphore check\n\r");
 
         for( i = 0; i < xRelations.xNumOfRelation; ++ i )
         {

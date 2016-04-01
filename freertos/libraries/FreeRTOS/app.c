@@ -131,7 +131,7 @@ struct xRelationship xRelations =
 void s_0(xEventHandle * pxEventArray, portBASE_TYPE NumOfEvent, struct eventData * pxDataArray, portBASE_TYPE NumOfData) 
 {
     vPrintString("s_0\n\r");
-    
+    test_ppm_task(); // link_autopilot.h
 }
 
 // T2, send_data_to_autopilot_task
@@ -139,6 +139,7 @@ void s_1(xEventHandle * pxEventArray, portBASE_TYPE NumOfEvent, struct eventData
 {
 
     vPrintString("s_1\n\r");
+    send_data_to_autopilot_task(); // link_autopilot.h
 }
 
 // T3, check_mega128_values_task
@@ -146,6 +147,7 @@ void s_2(xEventHandle * pxEventArray, portBASE_TYPE NumOfEvent, struct eventData
 {
     
     vPrintString("s_2\n\r");
+    check_mega128_values_task(); // link_autopilot.h
 }
 
 // T4, servo_transmit
@@ -153,6 +155,7 @@ void s_3(xEventHandle * pxEventArray, portBASE_TYPE NumOfEvent, struct eventData
 {
 
     vPrintString("s_3\n\r");
+    servo_transmit();  // servo.h
 }
 
 // T5, check_failsafe_task
@@ -160,6 +163,7 @@ void s_4(xEventHandle * pxEventArray, portBASE_TYPE NumOfEvent, struct eventData
 {
     
     vPrintString("s_4\n\r");
+    check_failsafe_task(); // link_autopilot.h
 }
 
 // T6, radio_control_task
@@ -167,6 +171,11 @@ void s_5(xEventHandle * pxEventArray, portBASE_TYPE NumOfEvent, struct eventData
 {
 
     vPrintString("s_5\n\r");
+    if( link_fbw_receive_complete ) // link_fbw.h
+    {
+        link_fbw_receive_complete = FALSE;
+        radio_control_task(); //autopilot.h
+    }
 }
 
 
@@ -175,6 +184,7 @@ void s_6(xEventHandle * pxEventArray, portBASE_TYPE NumOfEvent, struct eventData
 {
     
     vPrintString("s_6\n\r");
+    stabilisation_task(); //autopilot.h
 }
 
 // T8, link_fbw_send
@@ -182,6 +192,7 @@ void s_7(xEventHandle * pxEventArray, portBASE_TYPE NumOfEvent, struct eventData
 {
 
     vPrintString("s_7\n\r");
+    link_fbw_send(); // link_fbw.h
 }
 
 // T9, receive_gps_data_task
@@ -189,6 +200,14 @@ void s_8(xEventHandle * pxEventArray, portBASE_TYPE NumOfEvent, struct eventData
 {
     
     vPrintString("s_8\n\r");
+    if ( gps_msg_received )  // gps.h
+    {
+        parse_gps_msg(); // gps.h
+        send_gps_pos(); // autopilot.h
+        send_radIR(); // autopilot.h
+        send_takeOff(); // autopilot.h
+    }
+
 }
 
 // T10, navigation_task
@@ -196,6 +215,10 @@ void s_9(xEventHandle * pxEventArray, portBASE_TYPE NumOfEvent, struct eventData
 {
 
     vPrintString("s_9\n\r");
+    // have to create a file whose name is main.h
+    navigation_update(); // main.c 
+    send_nav_values(); // main.c
+    course_run();  // main.c
 }
 
 // T11, altitude_control_task
@@ -203,6 +226,8 @@ void s_10(xEventHandle * pxEventArray, portBASE_TYPE NumOfEvent, struct eventDat
 {
     
     vPrintString("s_10\n\r");
+    altitude_control_task(); // main.c
+
 }
 
 // T12, climb_control_task
@@ -210,6 +235,7 @@ void s_11(xEventHandle * pxEventArray, portBASE_TYPE NumOfEvent, struct eventDat
 {
 
     vPrintString("s_11\n\r");
+    climb_control_task(); // main.c
 }
 
 // T13, reporting_task
@@ -217,6 +243,17 @@ void s_12(xEventHandle * pxEventArray, portBASE_TYPE NumOfEvent, struct eventDat
 {
     
     vPrintString("s_12\n\r");
+ // main.c
+    send_boot();
+    send_attitude();
+    send_adc();
+    send_settings();
+    send_desired();
+    send_bat();
+    send_climb();
+    send_mode();
+    send_debug();
+    send_nav_ref();
 }
 
 // T14, NULL, do as the actuator of task 4
