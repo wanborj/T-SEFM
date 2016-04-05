@@ -23,4 +23,15 @@ void enable_rs232_interrupts(void);
 
 void enable_rs232(void);
 
+//void send_byte(uint8_t b);
+
+//void send_num(uint8_t b);
+
+void vPrintString(const char * );
+
+void vPrintNumber( const long num );
+
+
+
+
 #endif /* __STM32_P103_H */

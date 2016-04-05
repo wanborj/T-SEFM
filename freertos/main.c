@@ -51,24 +51,18 @@ int main(void)
     enable_rs232();
 
     vSemaphoreInitialise();
-    //vPrintString("semaphore initialise\n\r");
     vParameterInitialise();
-    //vPrintString("parametere initialise\n\r");
 
-    xTaskCreate( vR_Servant, "R-Servant", 512, NULL, tskIDLE_PRIORITY + 1, &xTaskOfHandle[NUMBEROFSERVANT]);
+    xTaskCreate( vR_Servant, "R-Servant", SERVANT_STACK_SIZE, NULL, tskIDLE_PRIORITY + 1, &xTaskOfHandle[NUMBEROFSERVANT]);
 
     // task 1, 25ms, including s_0, s_1, s_5
-///*
     xTaskCreate( vSensor, "Sensor s_0", SERVANT_STACK_SIZE, (void *)&pvParameters[0], tskIDLE_PRIORITY + 10, &xTaskOfHandle[0]);
 
     xTaskCreate( vServant, "Servant s_1", SERVANT_STACK_SIZE, (void *)&pvParameters[1], tskIDLE_PRIORITY + 10, &xTaskOfHandle[1]);
 
     xTaskCreate( vActuator, "Actuator s_5", SERVANT_STACK_SIZE, (void *)&pvParameters[5], tskIDLE_PRIORITY + 10,&xTaskOfHandle[5]);
- // */
 
     // task 2, 50ms, including s_6, s_7, s_2, s_4, s_3
-
-///*
     xTaskCreate( vSensor, "Sensor s_6", SERVANT_STACK_SIZE, (void *)&pvParameters[6], tskIDLE_PRIORITY + 8, &xTaskOfHandle[6]);
 
     xTaskCreate( vServant, "Servant s_7", SERVANT_STACK_SIZE, (void *)&pvParameters[7], tskIDLE_PRIORITY + 8, &xTaskOfHandle[7]);
@@ -77,25 +71,20 @@ int main(void)
 
     xTaskCreate( vActuator, "Actuator s_3", SERVANT_STACK_SIZE, (void *)&pvParameters[3], tskIDLE_PRIORITY + 8,&xTaskOfHandle[3]);
 
- //*/
     // task 3, 250ms, including s_8, s_9, s_10, s_11
-
-///*
     xTaskCreate( vSensor, "Sensor s_8", SERVANT_STACK_SIZE, (void *)&pvParameters[8], tskIDLE_PRIORITY + 4, &xTaskOfHandle[8]);
 
     xTaskCreate( vServant, "Servant s_9", SERVANT_STACK_SIZE, (void *)&pvParameters[9], tskIDLE_PRIORITY + 4, &xTaskOfHandle[9]);
     xTaskCreate( vServant, "Servant s_10", SERVANT_STACK_SIZE, (void *)&pvParameters[10], tskIDLE_PRIORITY + 4, &xTaskOfHandle[10]);
 
     xTaskCreate( vActuator, "Actuator s_11", SERVANT_STACK_SIZE, (void *)&pvParameters[11], tskIDLE_PRIORITY + 4,&xTaskOfHandle[11]);
- // */
-    // task 4, 100ms, including s_12, s_13
 
-///*
+
+    // task 4, 100ms, including s_12, s_13
     xTaskCreate( vSensor, "Sensor s_12", SERVANT_STACK_SIZE, (void *)&pvParameters[12], tskIDLE_PRIORITY + 6, &xTaskOfHandle[12]);
 
     xTaskCreate( vActuator, "Actuator -s_13", SERVANT_STACK_SIZE, (void *)&pvParameters[13], tskIDLE_PRIORITY + 6,&xTaskOfHandle[13]);
     
- //*/
 
     /* Start running the task. */
     vTaskStartScheduler();
