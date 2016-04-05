@@ -49,11 +49,11 @@ GPS_FLAGS=-DUBX
 ifdef PAPABENCH_SINGLE
 SINGLE_SOURCES = \
 	../fly_by_wire/adc_fbw.c \
-	../fly_by_wire/ppm.c \
-	../fly_by_wire/spi_fbw.c \
-	../fly_by_wire/main_fbw.c \
-	../fly_by_wire/servo.c \
-	../fly_by_wire/uart_fbw.c
+	../fly_by_wire/ppm.o \
+	../fly_by_wire/spi_fbw.o \
+	../fly_by_wire/main_fbw.o \
+	../fly_by_wire/servo.o \
+	../fly_by_wire/uart_fbw.o
 endif
 
 $(TARGET).srcs = \
@@ -90,7 +90,7 @@ warn_conf :
 
 
 .depend : $(VARINCLUDE)/messages.h $(VARINCLUDE)/flight_plan.h  $(VARINCLUDE)/ubx_protocol.h  $(VARINCLUDE)/inflight_calib.h $(VARINCLUDE)/airframe.h  $(VARINCLUDE)/radio.h 
-main.o : $(VARINCLUDE)/messages.h
+main_auto.o : $(VARINCLUDE)/messages.h
 nav.o : $(VARINCLUDE)/flight_plan.h
 gps_ubx.o : $(VARINCLUDE)/ubx_protocol.h
 if_calib.o : $(VARINCLUDE)/inflight_calib.h

@@ -27,7 +27,6 @@
  */
 #include <inttypes.h>
 #include <math.h>
-#include </home/wanbo/program/freertos-plus/freertos/stm32_p103.h>
 
 #include "link_autopilot.h"
 
@@ -137,7 +136,6 @@ else {}
 
 //#endif
 }
-
 
 /** \fn inline uint8_t pprz_mode_update( void )
  *  \brief Update paparazzi mode
@@ -270,6 +268,9 @@ uint8_t ticks_last_est; // 20Hz
 #define PERIODIC_SEND_DESIRED() DOWNLINK_SEND_DESIRED(&desired_roll, &desired_pitch, &desired_x, &desired_y, &desired_altitude);
 #define PERIODIC_SEND_PITCH() DOWNLINK_SEND_PITCH(&ir_pitch, &ir_pitch_neutral, &ir_gain);
 
+// Added by Wanbo
+extern const int32_t utm_east0;
+extern const int32_t utm_north0;
 #define PERIODIC_SEND_NAVIGATION_REF()  DOWNLINK_SEND_NAVIGATION_REF(&utm_east0, &utm_north0);
 
 #ifdef RADIO_CALIB
@@ -468,7 +469,9 @@ void climb_control_task(void)
  */
 
 /*Modified by SunnyBeike*/
+#define PAPABENCH_SINGLE
 #ifdef PAPABENCH_SINGLE
+#endif 
 
 /*
 #ifdef PAPABENCH_SINGLE
@@ -479,31 +482,33 @@ void climb_control_task(void)
 	static uint8_t _1Hz   = 0;
 #endif
 */
+
+// delete by Wanbo
+/*
 extern	uint8_t _20Hz;
 extern	uint8_t _1Hz;
+/*
 #endif
 /*End Sunny*/
 
+// deleted by Wanbo
+/*
 void periodic_task( void ) {
   static uint8_t _10Hz   = 0;
   static uint8_t _4Hz   = 0;
   static uint8_t t = 0;
 
   estimator_t += PERIOD;
-/*Commentes by SunnyBeike*/
-/*
+//Commentes by SunnyBeike
   _20Hz++;
   if (_20Hz>=3) _20Hz=0;
-*/
   _10Hz++;
   if (_10Hz>=6) _10Hz=0;
   _4Hz++;
   if (_4Hz>=15) _4Hz=0;
-/*
   _1Hz++;
   if (_1Hz>=61) _1Hz=0;
-*/  
-/*End Sunny*/
+//End Sunny
   if (!_10Hz) {
     stage_time_ds = stage_time_ds + .1;
   }
@@ -517,7 +522,7 @@ void periodic_task( void ) {
     if (vsupply < LOW_BATTERY) t++; else t = 0;
     low_battery |= (t >= LOW_BATTERY_DELAY);
   }
-/*#ifdef WITH_SWITCH
+//#ifdef WITH_SWITCH
   switch(_4Hz) {
   case 0:
     estimator_propagate_state();
@@ -544,17 +549,17 @@ void periodic_task( void ) {
   default:
     fatal_error_nb++;
   }
-#else */
+#else
 if (_4Hz == 0)
 {
     estimator_propagate_state();
-    /*navigation_task */
+    //navigation_task
 	//vPrintString("T_10 navigation_task start! \n"); //SunnyBeike
     navigation_update();
     send_nav_values();
     course_run();
 	//vPrintString("T_10 navigation_task end! \n"); //SunnyBeike
-    /*end navigation*/
+    //end navigation
     altitude_control_task();
     climb_control_task();
 }
@@ -567,7 +572,7 @@ else if (_20Hz == 1)
     odd++;
     if (odd & 0x01)
     {
-	/*reporting_task()*/
+	//reporting_task()
 	//vPrintString("T_13 reporting_task start! \n"); //SunnyBeike
 
 	send_boot();
@@ -593,6 +598,7 @@ else
     fatal_error_nb++;
 //#endif
 }
+*/
 
 void stabilisation_task(void)
 {

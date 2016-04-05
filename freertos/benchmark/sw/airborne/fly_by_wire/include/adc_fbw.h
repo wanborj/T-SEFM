@@ -35,16 +35,16 @@
 #include <inttypes.h>
 
 
-#define NB_ADC 8
+#define FBW_NB_ADC 8
 
 /* Array containing the last measured value */
-extern uint16_t		adc_samples[ NB_ADC ];
+extern uint16_t		fbw_adc_samples[ FBW_NB_ADC ];
 
-void adc_init( void );
+void fbw_adc_init( void );
 
 #define AV_NB_SAMPLE 0x20
 
-struct adc_buf {
+struct fbw_adc_buf {
   uint16_t sum;
   uint16_t values[AV_NB_SAMPLE];
   uint8_t  head;
@@ -53,7 +53,7 @@ struct adc_buf {
 /* Facility to store last values in a circular buffer for a specific
    channel: allocate a (struct adc_buf) and register it with the following
    function */
-void adc_buf_channel(uint8_t adc_channel, struct adc_buf* s);
+void fbw_adc_buf_channel(uint8_t adc_channel, struct fbw_adc_buf* s);
 
 
 #endif /* CTL_BRD_V1_2 || CTL_BRD_V1_2 */

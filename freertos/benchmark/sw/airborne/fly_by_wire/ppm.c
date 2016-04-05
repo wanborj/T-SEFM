@@ -57,7 +57,7 @@ volatile bool_t ppm_valid;
     
   
 #define RestartPpmCycle() { state = 0;  sync_start = TCNT2; return; }
-#define PAPABENCH_SINGLE 1 // added by Wanbo
+#define PAPABENCH_SINGLE // added by Wanbo
 #ifdef PAPABENCH_SINGLE
 	SIGNAL(SIG_SPM_READY)
 #else

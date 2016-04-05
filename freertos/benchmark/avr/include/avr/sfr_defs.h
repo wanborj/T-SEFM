@@ -117,7 +117,7 @@
 #ifdef __ASSEMBLER__
 #define _SFR_ASM_COMPAT 1
 #endif
-#include "sfr_offset.h" //SunnyBeike
+//#include "sfr_offset.h" //SunnyBeike
 
 #ifndef __ASSEMBLER__
 /* These only work in C programs.  */
@@ -133,7 +133,7 @@
 /* Define as 0 before including this file for compatibility with old asm
    sources that don't subtract __SFR_OFFSET from symbolic I/O addresses.  */
 //#define __SFR_OFFSET 0x20
-#define __SFR_OFFSET sfr_offset
+#define __SFR_OFFSET 0x20
 #endif
 //Commented by SunnyBeike
 //#if (__SFR_OFFSET != 0) && (__SFR_OFFSET != 0x20)
@@ -158,7 +158,9 @@
 
 #else  /* !_SFR_ASM_COMPAT */
 
+//uint8_t sfr_offset[128];
 #define __SFR_OFFSET sfr_offset // Added by SunnyBeike
+#define __SFR_OFFSET 0x20001000 // Added by SunnyBeike
 
 
 #define _SFR_MEM8(mem_addr) _MMIO_BYTE(mem_addr + __SFR_OFFSET)	//SunnyBeike

@@ -134,23 +134,25 @@ struct xRelationship xRelations =
 };
 
 /* the extern function of PapaBench */
-extern navigation_update();
-extern send_nav_values();
-extern course_run();
-extern altitude_control_task();
-extern climb_control_task();
+extern void  navigation_update();
+extern void  send_nav_values();
+extern void  course_run();
+extern void  altitude_control_task();
+extern void  climb_control_task();
+       
+extern void  send_boot();
+extern void  send_attitude();
+extern void  send_adc();
+extern void  send_settings();
+extern void  send_desired();
+extern void  send_bat();
+extern void  send_climb();
+extern void  send_mode();
+extern void  send_debug();
+extern void  send_nav_ref();
 
-extern send_boot();
-extern send_attitude();
-extern send_adc();
-extern send_settings();
-extern send_desired();
-extern send_bat();
-extern send_climb();
-extern send_mode();
-extern send_debug();
-extern send_nav_ref();
-
+#define SUNNYBEIKE 1
+#ifdef SUNNYBEIKE
 // T1, test_ppm_task, 
 void s_0(xEventHandle * pxEventArray, portBASE_TYPE NumOfEvent, struct eventData * pxDataArray, portBASE_TYPE NumOfData) 
 {
@@ -187,7 +189,7 @@ void s_4(xEventHandle * pxEventArray, portBASE_TYPE NumOfEvent, struct eventData
 {
     
     vPrintString("s_4\n\r");
-    check_failsafe_task(); // link_autopilot.h
+    //check_failsafe_task(); // link_autopilot.h
 }
 
 // T6, radio_control_task
@@ -195,11 +197,13 @@ void s_5(xEventHandle * pxEventArray, portBASE_TYPE NumOfEvent, struct eventData
 {
 
     vPrintString("s_5\n\r");
+    /*
     if( link_fbw_receive_complete ) // link_fbw.h
     {
         link_fbw_receive_complete = FALSE;
         radio_control_task(); //autopilot.h
     }
+    */
 }
 
 
@@ -208,7 +212,7 @@ void s_6(xEventHandle * pxEventArray, portBASE_TYPE NumOfEvent, struct eventData
 {
     
     vPrintString("s_6\n\r");
-    stabilisation_task(); //autopilot.h
+    //stabilisation_task(); //autopilot.h
 }
 
 // T8, link_fbw_send
@@ -216,7 +220,7 @@ void s_7(xEventHandle * pxEventArray, portBASE_TYPE NumOfEvent, struct eventData
 {
 
     vPrintString("s_7\n\r");
-    link_fbw_send(); // link_fbw.h
+    //link_fbw_send(); // link_fbw.h
 }
 
 // T9, receive_gps_data_task
@@ -224,6 +228,7 @@ void s_8(xEventHandle * pxEventArray, portBASE_TYPE NumOfEvent, struct eventData
 {
     
     vPrintString("s_8\n\r");
+    /*
     if ( gps_msg_received )  // gps.h
     {
         parse_gps_msg(); // gps.h
@@ -231,6 +236,7 @@ void s_8(xEventHandle * pxEventArray, portBASE_TYPE NumOfEvent, struct eventData
         send_radIR(); // autopilot.h
         send_takeOff(); // autopilot.h
     }
+    */
 
 }
 
@@ -240,9 +246,11 @@ void s_9(xEventHandle * pxEventArray, portBASE_TYPE NumOfEvent, struct eventData
 
     vPrintString("s_9\n\r");
     // have to create a file whose name is main.h
+    /*
     navigation_update(); // main.c 
     send_nav_values(); // main.c
     course_run();  // main.c
+    */
 }
 
 // T11, altitude_control_task
@@ -250,7 +258,7 @@ void s_10(xEventHandle * pxEventArray, portBASE_TYPE NumOfEvent, struct eventDat
 {
     
     vPrintString("s_10\n\r");
-    altitude_control_task(); // main.c
+    //altitude_control_task(); // main.c
 
 }
 
@@ -259,7 +267,7 @@ void s_11(xEventHandle * pxEventArray, portBASE_TYPE NumOfEvent, struct eventDat
 {
 
     vPrintString("s_11\n\r");
-    climb_control_task(); // main.c
+    //climb_control_task(); // main.c
 }
 
 // T13, reporting_task
@@ -268,6 +276,7 @@ void s_12(xEventHandle * pxEventArray, portBASE_TYPE NumOfEvent, struct eventDat
     
     vPrintString("s_12\n\r");
  // main.c
+    /*
     send_boot();
     send_attitude();
     send_adc();
@@ -278,6 +287,7 @@ void s_12(xEventHandle * pxEventArray, portBASE_TYPE NumOfEvent, struct eventDat
     send_mode();
     send_debug();
     send_nav_ref();
+    */
 }
 
 // T14, NULL, do as the actuator of task 4
@@ -286,6 +296,7 @@ void s_13(xEventHandle * pxEventArray, portBASE_TYPE NumOfEvent, struct eventDat
     
     vPrintString("s_13\n\r");
 }
+#endif
 
 // assigned the point of function into specified position of xServantTable.
 pvServantFunType xServantTable[NUMBEROFSERVANT] = 

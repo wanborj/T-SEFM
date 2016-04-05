@@ -65,7 +65,7 @@ UISP_FLAGS	= $(ISP_FLAGS)
 #
 
 
-CFLAGS = \
+#CFLAGS = \
 	-W -Wall \
 	$(ATMEL_INCLUDES) \
 	$(INCLUDES) \
@@ -76,14 +76,27 @@ CFLAGS = \
 	-nostdinc \
 	$(ARCH_CFLAGS) \
 	$(USER_CFLAGS)
+
+
+# modified by Wanbo
+CFLAGS = \
+	-W -Wall \
+	$(ATMEL_INCLUDES) \
+	$(INCLUDES) \
+	-Wall \
+	-Wstrict-prototypes	\
+	$(LOCAL_CFLAGS)	\
+	-O0	\
+	-nostdinc 
+
 ifdef PAPABENCH_SINGLE
 CFLAGS += -DPAPABENCH_SINGLE
 endif
 	
 
+#$(ARCH_LDFLAGS)
 LDFLAGS = \
 	$(ARCH_STDFLAGS) \
-	$(ARCH_LDFLAGS) \
 	$(USER_LDLFLAGS)
 
 #

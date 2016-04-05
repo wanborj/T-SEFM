@@ -40,8 +40,8 @@
 
 #ifndef CTL_BRD_V1_1
 #include "adc_fbw.h"
-struct adc_buf vsupply_adc_buf;
-struct adc_buf vservos_adc_buf;
+struct fbw_adc_buf vsupply_adc_buf;
+struct fbw_adc_buf vservos_adc_buf;
 #endif
 
 uint8_t mode;
@@ -109,7 +109,9 @@ void send_data_to_autopilot_task(void)
 	//vPrintString("T_2 send_data_to_autopilot_task end! \n"); //SunnyBeike
 
 }
-
+// deleted by Wanbo
+/*
+#define PAPABENCH_SINGLE
 #ifdef PAPABENCH_SINGLE
 	extern uint8_t _1Hz;
 	extern uint8_t _20Hz;
@@ -117,6 +119,7 @@ void send_data_to_autopilot_task(void)
 	static uint8_t _1Hz;
 	static uint8_t _20Hz;
 #endif
+*/
 
 void fbw_init(void) {
   uart_init_tx();
@@ -134,6 +137,8 @@ void fbw_init(void) {
   //sei(); //FN
 }
 
+// delete by Wanbo
+/*
 void fbw_schedule(void) {
 	if (time_since_last_mega128 < STALLED_TIME)
 		time_since_last_mega128++;
@@ -150,6 +155,7 @@ void fbw_schedule(void) {
 	if (_20Hz >= 3) 
 		servo_transmit();
 }
+*/
 //Commentes by Wanbo
 /*
 #ifndef PAPABENCH_SINGLE

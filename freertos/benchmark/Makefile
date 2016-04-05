@@ -51,10 +51,8 @@ PAPABENCH_FLAGS=PAPABENCH_SINGLE=yes
 FBW_FLAGS=PAPABENCH_NOLINK=yes
 endif
 
-# modified by Wanbo
 # Rules
-# all : fbw ap 
-all : ap
+all : fbw ap 
 
 configure : configurator
 	PAPARAZZI_DIR=`pwd` $(CONFIGURATOR)/configurator

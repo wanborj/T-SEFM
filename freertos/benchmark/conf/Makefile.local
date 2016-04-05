@@ -12,7 +12,7 @@ CONF=arm-none-eabi  #wanbo
 
 # Tools
 CC		= $(ARCH)gcc
-#LD		= $(ARCH)ld
+LD		= $(ARCH)ld
 SIZE	= $(ARCH)size
 OBJCOPY	= $(ARCH)objcopy
 OBJDUMP = $(ARCH)objdump -d
