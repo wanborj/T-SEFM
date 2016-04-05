@@ -22,14 +22,15 @@
  *
  */
 #include <avr/interrupt.h>
+#include </home/wanbo/program/freertos-plus/freertos/stm32_p103.h>
 #include "std.h"
 
-#include "timer.h"
+#include "timer_auto.h"
 #include "modem.h"
 #include "adc.h"
 #include "airframe.h"
 #include "autopilot.h"
-#include "spi.h"
+#include "spi_auto.h"
 #include "link_fbw.h"
 #include "gps.h"
 #include "nav.h"
@@ -72,7 +73,7 @@ int main( void )
 		fbw_init();
 #	endif
 	
-	printf("Init done \n");
+	//vPrintString("Init done \n");
   /* start interrupt task */
   //sei(); /*Fadia*/
 
@@ -83,7 +84,7 @@ int main( void )
       init_cpt--;
   }
 
-	printf("timeout \n");
+	//vPrintString("timeout \n");
   /*  enter mainloop */
   while( 1 ) {
 
@@ -94,10 +95,10 @@ int main( void )
 
     if(timer_periodic()) {
       periodic_task();
-	printf("periodic_task end \n");
+	//vPrintString("periodic_task end \n");
 #		if PAPABENCH_SINGLE
 			fbw_schedule();
-			printf("fbw_schedule end \n");
+			//vPrintString("fbw_schedule end \n");
 #		endif
 	}
 	//added by SunnyBeike
@@ -107,18 +108,18 @@ int main( void )
     if (gps_msg_received) 
     {
 	/*receive_gps_data_task()*/
-	printf("T_9 receive_gps_data_task start! \n"); //SunnyBeike
+	//vPrintString("T_9 receive_gps_data_task start! \n"); //SunnyBeike
 	parse_gps_msg();
 	send_gps_pos();
         send_radIR();
         send_takeOff();
-	printf("T_9 receive_gps_data_task end! \n"); //SunnyBeike
+	//vPrintString("T_9 receive_gps_data_task end! \n"); //SunnyBeike
 
     }
     if (link_fbw_receive_complete) {
       link_fbw_receive_complete = FALSE;
       radio_control_task();
-			printf("radio_control_task end \n");
+			//vPrintString("radio_control_task end \n");
     }
 	/*Added by SunnyBeike*/
 	  if (_20Hz>=3) _20Hz=0;

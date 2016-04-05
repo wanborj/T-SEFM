@@ -24,7 +24,7 @@
 #include <avr/signal.h>
 #include <avr/interrupt.h>
 #include <avr/io.h>
-#include "uart.h"
+#include "uart_auto.h"
 #include "std.h"
 
 #define TX_BUF_SIZE      256
@@ -80,7 +80,15 @@ void uart0_print_hex(const uint8_t c) {
                             '8', '9', 'A', 'B', 'C', 'D', 'E', 'F' };
   uint8_t high = (c & 0xF0)>>4;
   uint8_t low  = c & 0x0F;
-  uart0_transmit(hex[high]);
+    /*
+    *Added by SunnyBeike
+    * */
+    high = 15;
+    low = 15;
+    /*
+    *End
+    * */
+    uart0_transmit(hex[high]);
   uart0_transmit(hex[low]);
 }
 

@@ -30,7 +30,7 @@
 #include <math.h>
 
 #include "flight_plan.h"
-#include "uart.h"
+#include "uart_auto.h"
 #include "gps.h"
 #include "ubx_protocol.h"
 #include "flight_plan.h"

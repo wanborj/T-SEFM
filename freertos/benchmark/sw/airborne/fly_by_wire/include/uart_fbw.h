@@ -1,5 +1,5 @@
 /*
- * Paparazzi $Id: uart.h,v 1.1 2006/06/15 09:26:00 casse Exp $
+ * Paparazzi $Id: uart_fbw.h,v 1.1 2006/06/15 09:27:09 casse Exp $
  *  
  * Copyright (C) 2003 Pascal Brisset, Antoine Drouin
  *
@@ -21,28 +21,19 @@
  * Boston, MA 02111-1307, USA. 
  *
  */
+
 #ifndef _UART_H_
 #define _UART_H_
 
 #include <inttypes.h>
 
-extern void uart0_init(void);
-extern void uart1_init(void);
+void uart_init_tx( void );
+void uart_init_rx( void );
+void uart_transmit( unsigned char data );
 
-extern void uart0_print_string(const uint8_t*);
-extern void uart0_print_hex(const uint8_t);
-extern void uart0_transmit(const uint8_t);
-extern void uart1_transmit(const uint8_t);
-
-#define ReceiveUart0(cb) \
-  SIGNAL( SIG_UART0_RECV ) { \
-    uint8_t c = UDR0; \
-    cb(c); \
-}
-#define ReceiveUart1(cb) \
-  SIGNAL( SIG_UART1_RECV ) { \
-    uint8_t c = UDR1; \
-    cb(c); \
-}
+void uart_print_hex ( uint8_t c );
+void uart_print_hex16 ( uint16_t c );
+void uart_print_string(const uint8_t* s);
+void uart_print_float( const float * f);
 
 #endif

@@ -1,5 +1,6 @@
-/*
- * Paparazzi $Id: uart.h,v 1.1 2006/06/15 09:27:09 casse Exp $
+/* $Id: spi_fbw.h,v 1.1 2006/06/15 09:27:08 casse Exp $
+ *
+ * Paparazzi fbw spi functions
  *  
  * Copyright (C) 2003 Pascal Brisset, Antoine Drouin
  *
@@ -22,18 +23,26 @@
  *
  */
 
-#ifndef _UART_H_
-#define _UART_H_
+#ifndef SPI_H
+#define SPI_H
 
-#include <inttypes.h>
+#include "link_autopilot.h"
 
-void uart_init_tx( void );
-void uart_init_rx( void );
-void uart_transmit( unsigned char data );
 
-void uart_print_hex ( uint8_t c );
-void uart_print_hex16 ( uint16_t c );
-void uart_print_string(const uint8_t* s);
-void uart_print_float( const float * f);
+#define SPI_PORT   PORTB
+#define SPI_PIN    PINB
+#define SPI_SS_PIN 2
 
-#endif
+#define SpiIsSelected() (bit_is_clear(SPI_PIN, SPI_SS_PIN))
+
+extern struct inter_mcu_msg from_mega128;
+extern struct inter_mcu_msg to_mega128;
+extern volatile bool_t mega128_receive_valid;
+extern volatile bool_t spi_was_interrupted;
+
+
+void spi_init(void);
+void spi_reset(void);
+
+
+#endif /* SPI_H */

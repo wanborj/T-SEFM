@@ -1,6 +1,5 @@
-/* $Id: spi.h,v 1.1 2006/06/15 09:27:08 casse Exp $
- *
- * Paparazzi fbw spi functions
+/*
+ * Paparazzi $Id: uart_auto.h,v 1.1 2006/06/15 09:26:00 casse Exp $
  *  
  * Copyright (C) 2003 Pascal Brisset, Antoine Drouin
  *
@@ -22,27 +21,28 @@
  * Boston, MA 02111-1307, USA. 
  *
  */
+#ifndef _UART_H_
+#define _UART_H_
 
-#ifndef SPI_H
-#define SPI_H
+#include <inttypes.h>
 
-#include "link_autopilot.h"
+extern void uart0_init(void);
+extern void uart1_init(void);
 
+extern void uart0_print_string(const uint8_t*);
+extern void uart0_print_hex(const uint8_t);
+extern void uart0_transmit(const uint8_t);
+extern void uart1_transmit(const uint8_t);
 
-#define SPI_PORT   PORTB
-#define SPI_PIN    PINB
-#define SPI_SS_PIN 2
+#define ReceiveUart0(cb) \
+  SIGNAL( SIG_UART0_RECV ) { \
+    uint8_t c = UDR0; \
+    cb(c); \
+}
+#define ReceiveUart1(cb) \
+  SIGNAL( SIG_UART1_RECV ) { \
+    uint8_t c = UDR1; \
+    cb(c); \
+}
 
-#define SpiIsSelected() (bit_is_clear(SPI_PIN, SPI_SS_PIN))
-
-extern struct inter_mcu_msg from_mega128;
-extern struct inter_mcu_msg to_mega128;
-extern volatile bool_t mega128_receive_valid;
-extern volatile bool_t spi_was_interrupted;
-
-
-void spi_init(void);
-void spi_reset(void);
-
-
-#endif /* SPI_H */
+#endif

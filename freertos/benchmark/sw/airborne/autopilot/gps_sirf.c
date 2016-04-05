@@ -29,7 +29,7 @@
 #include <string.h> 
 #include "math_papabench.h"
 
-#include "uart.h"
+#include "uart_auto.h"
 #include "gps.h"
 
 

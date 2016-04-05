@@ -4,7 +4,7 @@
 
 #include "std.h"
 #include "ad7714.h"
-#include "spi.h"
+#include "spi_auto.h"
 
 /* unipolar, 16 bits, current boost, filter 4000 */
 //#define AD_HIGH_FILTER_CFG  0xAF

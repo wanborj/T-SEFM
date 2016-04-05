@@ -21,7 +21,9 @@
 # 
 
 
+BASE = /home/wanbo/program/freertos-plus/freertos/benchmark
 FBW=../fly_by_wire
+
 
 #Modfied by Wanbo
 #LOCAL_CFLAGS= $(CTL_BRD_FLAGS) $(GPS_FLAGS) $(SIMUL_FLAGS) -D __AVR_ATmega128__
@@ -39,7 +41,7 @@ EXT_FUSE  = ff
 LOCK_FUSE = ff
 
 
-INCLUDES = -I $(FBW) -I ../../include -I $(VARINCLUDE)
+INCLUDES = -I ../../include -I $(VARINCLUDE) -I include -I $(FBW)/include
 
 GPS = gps_ubx.c
 GPS_FLAGS=-DUBX
@@ -47,25 +49,25 @@ GPS_FLAGS=-DUBX
 ifdef PAPABENCH_SINGLE
 SINGLE_SOURCES = \
 	../fly_by_wire/adc_fbw.c \
-	../fly_by_wire/ppm.o \
-	../fly_by_wire/spi.o \
-	../fly_by_wire/main.o \
-	../fly_by_wire/servo.o \
-	../fly_by_wire/uart.o
+	../fly_by_wire/ppm.c \
+	../fly_by_wire/spi_fbw.c \
+	../fly_by_wire/main_fbw.c \
+	../fly_by_wire/servo.c \
+	../fly_by_wire/uart_fbw.c
 endif
 
 $(TARGET).srcs = \
 	$(ARCH_CRT0) \
-	main.c \
+	main_auto.c \
 	modem.c \
 	link_fbw.c \
-	spi.c \
+	spi_auto.c \
 	adc.c \
 	$(GPS) \
 	infrared.c \
 	pid.c \
 	nav.c \
-	uart.c \
+	uart_auto.c \
 	estimator.c	\
 	if_calib.c \
 	mainloop.c \

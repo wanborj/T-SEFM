@@ -25,9 +25,10 @@
 #include <avr/io.h>
 #include <avr/signal.h>
 #include <avr/interrupt.h>
+#include </home/wanbo/program/freertos-plus/freertos/stm32_p103.h>
 
 #include "link_fbw.h"
-#include "spi.h"
+#include "spi_auto.h"
 
 struct inter_mcu_msg from_fbw;
 struct inter_mcu_msg to_fbw;
@@ -45,7 +46,7 @@ void link_fbw_init(void) {
 }
 
 void link_fbw_send(void) {
-	printf("T_8 link_fbw_send start! \n"); //SunnyBeike
+	//vPrintString("T_8 link_fbw_send start! \n"); //SunnyBeike
   if (spi_cur_slave != SPI_NONE) {
     spi_nb_ovrn++;
     return;
@@ -61,7 +62,7 @@ void link_fbw_send(void) {
   SPDR = xor_out;
   link_fbw_receive_valid = FALSE;
   // Other bytes will follow SIG_SPI interrupts
-	printf("T_8 link_fbw_send end! \n"); //SunnyBeike
+	//vPrintString("T_8 link_fbw_send end! \n"); //SunnyBeike
 }
 
 void link_fbw_on_spi_it( void ) {

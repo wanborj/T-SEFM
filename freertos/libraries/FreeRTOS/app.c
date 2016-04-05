@@ -74,6 +74,12 @@
 #include "queue.h"
 #include "semphr.h"
 #include "app.h"
+/* the include file of PapaBench */
+#include "link_autopilot.h"
+#include "servo.h"
+#include "link_fbw.h"
+#include "gps.h"
+#include "autopilot.h"
 
 xSemaphoreHandle xBinarySemaphore[NUMBEROFSERVANT];  // the semaphores which are used to trigger new servant to execute
 xTaskHandle xTaskOfHandle[NUMBEROFSERVANT+1];         // record the handle of all S-Servant, the last one is for debugging R-Servant 
@@ -126,6 +132,24 @@ struct xRelationship xRelations =
         {12,13,1}
     }
 };
+
+/* the extern function of PapaBench */
+extern navigation_update();
+extern send_nav_values();
+extern course_run();
+extern altitude_control_task();
+extern climb_control_task();
+
+extern send_boot();
+extern send_attitude();
+extern send_adc();
+extern send_settings();
+extern send_desired();
+extern send_bat();
+extern send_climb();
+extern send_mode();
+extern send_debug();
+extern send_nav_ref();
 
 // T1, test_ppm_task, 
 void s_0(xEventHandle * pxEventArray, portBASE_TYPE NumOfEvent, struct eventData * pxDataArray, portBASE_TYPE NumOfData) 

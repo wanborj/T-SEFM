@@ -29,7 +29,7 @@
 #include <avr/signal.h>
 #include <avr/interrupt.h>
 
-#include "spi.h"
+#include "spi_fbw.h"
 
 #define IT_PORT PORTD
 #define IT_DDR  DDRD

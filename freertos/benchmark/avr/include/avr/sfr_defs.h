@@ -132,7 +132,8 @@
 #ifndef __SFR_OFFSET
 /* Define as 0 before including this file for compatibility with old asm
    sources that don't subtract __SFR_OFFSET from symbolic I/O addresses.  */
-#define __SFR_OFFSET 0x20
+//#define __SFR_OFFSET 0x20
+#define __SFR_OFFSET sfr_offset
 #endif
 //Commented by SunnyBeike
 //#if (__SFR_OFFSET != 0) && (__SFR_OFFSET != 0x20)

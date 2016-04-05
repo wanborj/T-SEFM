@@ -22,6 +22,7 @@
 
 #LOCAL_CFLAGS= $(CTL_BRD_FLAGS) -D__AVR_ATmega8__  #Modified by Wanbo
 LOCAL_CFLAGS= $(CTL_BRD_FLAGS) 
+BASE = /home/wanbo/program/freertos-plus/freertos/benchmark
 
 #ARCH	  = atmega8 # comments by Wanbo
 TARGET	  = fbw
@@ -33,7 +34,7 @@ HIGH_FUSE = cb
 EXT_FUSE  = ff
 LOCK_FUSE = ff
 VARINCLUDE = ../../var/include
-INCLUDES = -I ../../include -I $(VARINCLUDE)
+INCLUDES = -I ../../include -I $(VARINCLUDE) -I include
 
 ifeq ($(CTL_BRD_VERSION),V1_2_1)
 CTL_BRD_FLAGS=-DCTL_BRD_V1_2_1
@@ -50,11 +51,11 @@ endif
 
 $(TARGET).srcs = \
 	$(ARCH_CRT0) \
-	main.c \
+	main_fbw.c \
 	ppm.c \
 	servo.c \
-	spi.c \
-	uart.c \
+	spi_fbw.c \
+	uart_fbw.c \
 	adc_fbw.c \
 	$(ARCH_SOURCES)
 
@@ -72,7 +73,7 @@ warn_conf :
 	@echo
 
 
-main.o .depend : $(VARINCLUDE)/radio.h $(VARINCLUDE)/airframe.h
+main_fbw.o .depend : $(VARINCLUDE)/radio.h $(VARINCLUDE)/airframe.h
 ppm.s : $(VARINCLUDE)/radio.h
 
 clean : avr_clean

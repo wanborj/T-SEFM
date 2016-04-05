@@ -50,7 +50,7 @@
 #define SERVO_H
 
 #include <inttypes.h>
-#include "timer.h"
+#include "timer_fbw.h"
 
 extern void servo_init( void );
 extern void servo_set(const pprz_t values[]);

@@ -1,115 +1,194 @@
-main.o: main.c ../../include/inttypes.h ../../include/math.h \
- ../fly_by_wire/link_autopilot.h ../../include/std.h \
- ../../var/include/radio.h ../../var/include/airframe.h timer.h \
- /home/wanbo/program/PapaBench-0.4/avr/include/avr/signal.h \
- /home/wanbo/program/PapaBench-0.4/avr/include/avr/io.h \
- /home/wanbo/program/PapaBench-0.4/avr/include/avr/sfr_defs.h \
- /home/wanbo/program/PapaBench-0.4/avr/include/avr/sfr_offset.h \
- /home/wanbo/program/PapaBench-0.4/avr/include/avr/iom128.h \
- /home/wanbo/program/PapaBench-0.4/avr/include/avr/portpins.h adc.h pid.h \
- gps.h ubx.h infrared.h downlink.h modem.h ../../var/include/messages.h \
- nav.h autopilot.h estimator.h if_calib.h link_fbw.h
+main_auto.o: main_auto.c ../../include/inttypes.h ../../include/math.h \
+ /home/wanbo/program/freertos-plus/freertos/stm32_p103.h \
+ ../fly_by_wire/include/link_autopilot.h ../../include/std.h \
+ ../../var/include/radio.h ../../var/include/airframe.h \
+ include/timer_auto.h \
+ /home/wanbo/program/freertos-plus/freertos/benchmark/avr/include/avr/signal.h \
+ /home/wanbo/program/freertos-plus/freertos/benchmark/avr/include/avr/io.h \
+ /home/wanbo/program/freertos-plus/freertos/benchmark/avr/include/avr/sfr_defs.h \
+ /home/wanbo/program/freertos-plus/freertos/benchmark/avr/include/avr/sfr_offset.h \
+ /home/wanbo/program/freertos-plus/freertos/benchmark/avr/include/avr/iom128.h \
+ /home/wanbo/program/freertos-plus/freertos/benchmark/avr/include/avr/portpins.h \
+ include/adc.h include/pid.h include/gps.h include/ubx.h \
+ include/infrared.h include/downlink.h include/modem.h \
+ ../../var/include/messages.h include/nav.h include/autopilot.h \
+ include/estimator.h include/if_calib.h include/link_fbw.h
 modem.o: modem.c ../../include/inttypes.h \
- /home/wanbo/program/PapaBench-0.4/avr/include/avr/io.h \
- /home/wanbo/program/PapaBench-0.4/avr/include/avr/sfr_defs.h \
- /home/wanbo/program/PapaBench-0.4/avr/include/avr/sfr_offset.h \
- /home/wanbo/program/PapaBench-0.4/avr/include/avr/iom128.h \
- /home/wanbo/program/PapaBench-0.4/avr/include/avr/portpins.h \
- /home/wanbo/program/PapaBench-0.4/avr/include/avr/signal.h \
- /home/wanbo/program/PapaBench-0.4/avr/include/avr/interrupt.h modem.h \
- ../../var/include/airframe.h ../../include/std.h
+ /home/wanbo/program/freertos-plus/freertos/benchmark/avr/include/avr/io.h \
+ /home/wanbo/program/freertos-plus/freertos/benchmark/avr/include/avr/sfr_defs.h \
+ /home/wanbo/program/freertos-plus/freertos/benchmark/avr/include/avr/sfr_offset.h \
+ /home/wanbo/program/freertos-plus/freertos/benchmark/avr/include/avr/iom128.h \
+ /home/wanbo/program/freertos-plus/freertos/benchmark/avr/include/avr/portpins.h \
+ /home/wanbo/program/freertos-plus/freertos/benchmark/avr/include/avr/signal.h \
+ /home/wanbo/program/freertos-plus/freertos/benchmark/avr/include/avr/interrupt.h \
+ include/modem.h ../../var/include/airframe.h ../../include/std.h
 link_fbw.o: link_fbw.c \
- /home/wanbo/program/PapaBench-0.4/avr/include/avr/io.h \
- /home/wanbo/program/PapaBench-0.4/avr/include/avr/sfr_defs.h \
- /home/wanbo/program/PapaBench-0.4/avr/include/avr/sfr_offset.h \
+ /home/wanbo/program/freertos-plus/freertos/benchmark/avr/include/avr/io.h \
+ /home/wanbo/program/freertos-plus/freertos/benchmark/avr/include/avr/sfr_defs.h \
+ /home/wanbo/program/freertos-plus/freertos/benchmark/avr/include/avr/sfr_offset.h \
  ../../include/inttypes.h \
- /home/wanbo/program/PapaBench-0.4/avr/include/avr/iom128.h \
- /home/wanbo/program/PapaBench-0.4/avr/include/avr/portpins.h \
- /home/wanbo/program/PapaBench-0.4/avr/include/avr/signal.h \
- /home/wanbo/program/PapaBench-0.4/avr/include/avr/interrupt.h link_fbw.h \
- ../fly_by_wire/link_autopilot.h ../../include/std.h \
- ../../var/include/radio.h ../../var/include/airframe.h spi.h
-spi.o: spi.c ../../include/inttypes.h \
- /home/wanbo/program/PapaBench-0.4/avr/include/avr/io.h \
- /home/wanbo/program/PapaBench-0.4/avr/include/avr/sfr_defs.h \
- /home/wanbo/program/PapaBench-0.4/avr/include/avr/sfr_offset.h \
- /home/wanbo/program/PapaBench-0.4/avr/include/avr/iom128.h \
- /home/wanbo/program/PapaBench-0.4/avr/include/avr/portpins.h \
- /home/wanbo/program/PapaBench-0.4/avr/include/avr/signal.h \
- /home/wanbo/program/PapaBench-0.4/avr/include/avr/interrupt.h spi.h \
- autopilot.h ../fly_by_wire/link_autopilot.h ../../include/std.h \
- ../../var/include/radio.h ../../var/include/airframe.h link_fbw.h \
- ad7714.h
-adc.o: adc.c /home/wanbo/program/PapaBench-0.4/avr/include/avr/signal.h \
- /home/wanbo/program/PapaBench-0.4/avr/include/avr/interrupt.h \
- /home/wanbo/program/PapaBench-0.4/avr/include/avr/io.h \
- /home/wanbo/program/PapaBench-0.4/avr/include/avr/sfr_defs.h \
- /home/wanbo/program/PapaBench-0.4/avr/include/avr/sfr_offset.h \
+ /home/wanbo/program/freertos-plus/freertos/benchmark/avr/include/avr/iom128.h \
+ /home/wanbo/program/freertos-plus/freertos/benchmark/avr/include/avr/portpins.h \
+ /home/wanbo/program/freertos-plus/freertos/benchmark/avr/include/avr/signal.h \
+ /home/wanbo/program/freertos-plus/freertos/benchmark/avr/include/avr/interrupt.h \
+ /home/wanbo/program/freertos-plus/freertos/stm32_p103.h \
+ include/link_fbw.h ../fly_by_wire/include/link_autopilot.h \
+ ../../include/std.h ../../var/include/radio.h \
+ ../../var/include/airframe.h include/spi_auto.h
+spi_auto.o: spi_auto.c ../../include/inttypes.h \
+ /home/wanbo/program/freertos-plus/freertos/benchmark/avr/include/avr/io.h \
+ /home/wanbo/program/freertos-plus/freertos/benchmark/avr/include/avr/sfr_defs.h \
+ /home/wanbo/program/freertos-plus/freertos/benchmark/avr/include/avr/sfr_offset.h \
+ /home/wanbo/program/freertos-plus/freertos/benchmark/avr/include/avr/iom128.h \
+ /home/wanbo/program/freertos-plus/freertos/benchmark/avr/include/avr/portpins.h \
+ /home/wanbo/program/freertos-plus/freertos/benchmark/avr/include/avr/signal.h \
+ /home/wanbo/program/freertos-plus/freertos/benchmark/avr/include/avr/interrupt.h \
+ include/spi_auto.h include/autopilot.h \
+ ../fly_by_wire/include/link_autopilot.h ../../include/std.h \
+ ../../var/include/radio.h ../../var/include/airframe.h \
+ include/link_fbw.h include/ad7714.h
+adc.o: adc.c \
+ /home/wanbo/program/freertos-plus/freertos/benchmark/avr/include/avr/signal.h \
+ /home/wanbo/program/freertos-plus/freertos/benchmark/avr/include/avr/interrupt.h \
+ /home/wanbo/program/freertos-plus/freertos/benchmark/avr/include/avr/io.h \
+ /home/wanbo/program/freertos-plus/freertos/benchmark/avr/include/avr/sfr_defs.h \
+ /home/wanbo/program/freertos-plus/freertos/benchmark/avr/include/avr/sfr_offset.h \
  ../../include/inttypes.h \
- /home/wanbo/program/PapaBench-0.4/avr/include/avr/iom128.h \
- /home/wanbo/program/PapaBench-0.4/avr/include/avr/portpins.h \
- ../../var/include/airframe.h ../../include/std.h adc.h
+ /home/wanbo/program/freertos-plus/freertos/benchmark/avr/include/avr/iom128.h \
+ /home/wanbo/program/freertos-plus/freertos/benchmark/avr/include/avr/portpins.h \
+ ../../var/include/airframe.h ../../include/std.h include/adc.h
 gps_ubx.o: gps_ubx.c ../../include/inttypes.h \
- /home/wanbo/program/PapaBench-0.4/avr/include/avr/io.h \
- /home/wanbo/program/PapaBench-0.4/avr/include/avr/sfr_defs.h \
- /home/wanbo/program/PapaBench-0.4/avr/include/avr/sfr_offset.h \
- /home/wanbo/program/PapaBench-0.4/avr/include/avr/iom128.h \
- /home/wanbo/program/PapaBench-0.4/avr/include/avr/portpins.h \
- /home/wanbo/program/PapaBench-0.4/avr/include/avr/signal.h \
- /home/wanbo/program/PapaBench-0.4/avr/include/avr/interrupt.h \
- ../../include/math.h ../../var/include/flight_plan.h uart.h gps.h \
- ../../include/std.h ubx.h ../../var/include/ubx_protocol.h
-infrared.o: infrared.c adc.h ../../include/inttypes.h infrared.h \
- autopilot.h ../fly_by_wire/link_autopilot.h ../../include/std.h \
- ../../var/include/radio.h ../../var/include/airframe.h estimator.h
-pid.o: pid.c ../../include/math.h pid.h ../../include/inttypes.h \
- autopilot.h ../fly_by_wire/link_autopilot.h ../../include/std.h \
- ../../var/include/radio.h ../../var/include/airframe.h infrared.h \
- estimator.h nav.h
-nav.o: nav.c ../../include/math.h nav.h ../../include/std.h \
- ../../include/inttypes.h estimator.h pid.h autopilot.h \
- ../fly_by_wire/link_autopilot.h ../../var/include/radio.h \
- ../../var/include/airframe.h link_fbw.h ../../var/include/flight_plan.h
-uart.o: uart.c /home/wanbo/program/PapaBench-0.4/avr/include/avr/signal.h \
- /home/wanbo/program/PapaBench-0.4/avr/include/avr/interrupt.h \
- /home/wanbo/program/PapaBench-0.4/avr/include/avr/io.h \
- /home/wanbo/program/PapaBench-0.4/avr/include/avr/sfr_defs.h \
- /home/wanbo/program/PapaBench-0.4/avr/include/avr/sfr_offset.h \
+ /home/wanbo/program/freertos-plus/freertos/benchmark/avr/include/avr/io.h \
+ /home/wanbo/program/freertos-plus/freertos/benchmark/avr/include/avr/sfr_defs.h \
+ /home/wanbo/program/freertos-plus/freertos/benchmark/avr/include/avr/sfr_offset.h \
+ /home/wanbo/program/freertos-plus/freertos/benchmark/avr/include/avr/iom128.h \
+ /home/wanbo/program/freertos-plus/freertos/benchmark/avr/include/avr/portpins.h \
+ /home/wanbo/program/freertos-plus/freertos/benchmark/avr/include/avr/signal.h \
+ /home/wanbo/program/freertos-plus/freertos/benchmark/avr/include/avr/interrupt.h \
+ ../../include/math.h ../../var/include/flight_plan.h include/uart_auto.h \
+ include/gps.h ../../include/std.h include/ubx.h \
+ ../../var/include/ubx_protocol.h
+infrared.o: infrared.c include/adc.h ../../include/inttypes.h \
+ include/infrared.h include/autopilot.h \
+ ../fly_by_wire/include/link_autopilot.h ../../include/std.h \
+ ../../var/include/radio.h ../../var/include/airframe.h \
+ include/estimator.h
+pid.o: pid.c ../../include/math.h include/pid.h ../../include/inttypes.h \
+ include/autopilot.h ../fly_by_wire/include/link_autopilot.h \
+ ../../include/std.h ../../var/include/radio.h \
+ ../../var/include/airframe.h include/infrared.h include/estimator.h \
+ include/nav.h
+nav.o: nav.c ../../include/math.h include/nav.h ../../include/std.h \
+ ../../include/inttypes.h include/estimator.h include/pid.h \
+ include/autopilot.h ../fly_by_wire/include/link_autopilot.h \
+ ../../var/include/radio.h ../../var/include/airframe.h \
+ include/link_fbw.h ../../var/include/flight_plan.h
+uart_auto.o: uart_auto.c \
+ /home/wanbo/program/freertos-plus/freertos/benchmark/avr/include/avr/signal.h \
+ /home/wanbo/program/freertos-plus/freertos/benchmark/avr/include/avr/interrupt.h \
+ /home/wanbo/program/freertos-plus/freertos/benchmark/avr/include/avr/io.h \
+ /home/wanbo/program/freertos-plus/freertos/benchmark/avr/include/avr/sfr_defs.h \
+ /home/wanbo/program/freertos-plus/freertos/benchmark/avr/include/avr/sfr_offset.h \
  ../../include/inttypes.h \
- /home/wanbo/program/PapaBench-0.4/avr/include/avr/iom128.h \
- /home/wanbo/program/PapaBench-0.4/avr/include/avr/portpins.h uart.h \
- ../../include/std.h
+ /home/wanbo/program/freertos-plus/freertos/benchmark/avr/include/avr/iom128.h \
+ /home/wanbo/program/freertos-plus/freertos/benchmark/avr/include/avr/portpins.h \
+ include/uart_auto.h ../../include/std.h
 estimator.o: estimator.c ../../include/inttypes.h ../../include/math.h \
- estimator.h gps.h ../../include/std.h ubx.h pid.h infrared.h autopilot.h \
- ../fly_by_wire/link_autopilot.h ../../var/include/radio.h \
+ include/estimator.h include/gps.h ../../include/std.h include/ubx.h \
+ include/pid.h include/infrared.h include/autopilot.h \
+ ../fly_by_wire/include/link_autopilot.h ../../var/include/radio.h \
  ../../var/include/airframe.h
 if_calib.o: if_calib.c ../../include/inttypes.h ../../var/include/radio.h \
- autopilot.h ../fly_by_wire/link_autopilot.h ../../include/std.h \
- ../../var/include/airframe.h if_calib.h link_fbw.h infrared.h pid.h \
- nav.h ../../var/include/inflight_calib.h
+ include/autopilot.h ../fly_by_wire/include/link_autopilot.h \
+ ../../include/std.h ../../var/include/airframe.h include/if_calib.h \
+ include/link_fbw.h include/infrared.h include/pid.h include/nav.h \
+ ../../var/include/inflight_calib.h
 mainloop.o: mainloop.c \
- /home/wanbo/program/PapaBench-0.4/avr/include/avr/interrupt.h \
- /home/wanbo/program/PapaBench-0.4/avr/include/avr/io.h \
- /home/wanbo/program/PapaBench-0.4/avr/include/avr/sfr_defs.h \
- /home/wanbo/program/PapaBench-0.4/avr/include/avr/sfr_offset.h \
+ /home/wanbo/program/freertos-plus/freertos/benchmark/avr/include/avr/interrupt.h \
+ /home/wanbo/program/freertos-plus/freertos/benchmark/avr/include/avr/io.h \
+ /home/wanbo/program/freertos-plus/freertos/benchmark/avr/include/avr/sfr_defs.h \
+ /home/wanbo/program/freertos-plus/freertos/benchmark/avr/include/avr/sfr_offset.h \
  ../../include/inttypes.h \
- /home/wanbo/program/PapaBench-0.4/avr/include/avr/iom128.h \
- /home/wanbo/program/PapaBench-0.4/avr/include/avr/portpins.h \
- ../../include/std.h timer.h \
- /home/wanbo/program/PapaBench-0.4/avr/include/avr/signal.h modem.h \
- ../../var/include/airframe.h adc.h autopilot.h \
- ../fly_by_wire/link_autopilot.h ../../var/include/radio.h spi.h \
- link_fbw.h gps.h ubx.h nav.h infrared.h estimator.h downlink.h \
+ /home/wanbo/program/freertos-plus/freertos/benchmark/avr/include/avr/iom128.h \
+ /home/wanbo/program/freertos-plus/freertos/benchmark/avr/include/avr/portpins.h \
+ /home/wanbo/program/freertos-plus/freertos/stm32_p103.h \
+ ../../include/std.h include/timer_auto.h \
+ /home/wanbo/program/freertos-plus/freertos/benchmark/avr/include/avr/signal.h \
+ include/modem.h ../../var/include/airframe.h include/adc.h \
+ include/autopilot.h ../fly_by_wire/include/link_autopilot.h \
+ ../../var/include/radio.h include/spi_auto.h include/link_fbw.h \
+ include/gps.h include/ubx.h include/nav.h include/infrared.h \
+ include/estimator.h include/downlink.h include/modem.h \
  ../../var/include/messages.h
 math.o: ../../lib/c/math.c ../../include/math.h
 adc_fbw.o: ../fly_by_wire/adc_fbw.c \
- /home/wanbo/program/PapaBench-0.4/avr/include/avr/signal.h \
- /home/wanbo/program/PapaBench-0.4/avr/include/avr/interrupt.h \
- /home/wanbo/program/PapaBench-0.4/avr/include/avr/io.h \
- /home/wanbo/program/PapaBench-0.4/avr/include/avr/sfr_defs.h \
- /home/wanbo/program/PapaBench-0.4/avr/include/avr/sfr_offset.h \
+ /home/wanbo/program/freertos-plus/freertos/benchmark/avr/include/avr/signal.h \
+ /home/wanbo/program/freertos-plus/freertos/benchmark/avr/include/avr/interrupt.h \
+ /home/wanbo/program/freertos-plus/freertos/benchmark/avr/include/avr/io.h \
+ /home/wanbo/program/freertos-plus/freertos/benchmark/avr/include/avr/sfr_defs.h \
+ /home/wanbo/program/freertos-plus/freertos/benchmark/avr/include/avr/sfr_offset.h \
  ../../include/inttypes.h \
- /home/wanbo/program/PapaBench-0.4/avr/include/avr/iom128.h \
- /home/wanbo/program/PapaBench-0.4/avr/include/avr/portpins.h \
- ../fly_by_wire/adc_fbw.h ../../var/include/airframe.h \
+ /home/wanbo/program/freertos-plus/freertos/benchmark/avr/include/avr/iom128.h \
+ /home/wanbo/program/freertos-plus/freertos/benchmark/avr/include/avr/portpins.h \
+ ../fly_by_wire/include/adc_fbw.h ../../var/include/airframe.h \
  ../../include/std.h
+ppm.o: ../fly_by_wire/ppm.c ../../var/include/radio.h \
+ ../fly_by_wire/include/ppm.h ../../include/inttypes.h \
+ /home/wanbo/program/freertos-plus/freertos/benchmark/avr/include/avr/signal.h \
+ ../fly_by_wire/include/timer_fbw.h \
+ /home/wanbo/program/freertos-plus/freertos/benchmark/avr/include/avr/io.h \
+ /home/wanbo/program/freertos-plus/freertos/benchmark/avr/include/avr/sfr_defs.h \
+ /home/wanbo/program/freertos-plus/freertos/benchmark/avr/include/avr/sfr_offset.h \
+ /home/wanbo/program/freertos-plus/freertos/benchmark/avr/include/avr/iom128.h \
+ /home/wanbo/program/freertos-plus/freertos/benchmark/avr/include/avr/portpins.h \
+ ../fly_by_wire/include/link_autopilot.h ../../include/std.h \
+ ../../var/include/airframe.h
+spi_fbw.o: ../fly_by_wire/spi_fbw.c ../../include/inttypes.h \
+ /home/wanbo/program/freertos-plus/freertos/benchmark/avr/include/avr/io.h \
+ /home/wanbo/program/freertos-plus/freertos/benchmark/avr/include/avr/sfr_defs.h \
+ /home/wanbo/program/freertos-plus/freertos/benchmark/avr/include/avr/sfr_offset.h \
+ /home/wanbo/program/freertos-plus/freertos/benchmark/avr/include/avr/iom128.h \
+ /home/wanbo/program/freertos-plus/freertos/benchmark/avr/include/avr/portpins.h \
+ /home/wanbo/program/freertos-plus/freertos/benchmark/avr/include/avr/signal.h \
+ /home/wanbo/program/freertos-plus/freertos/benchmark/avr/include/avr/interrupt.h \
+ ../fly_by_wire/include/spi_fbw.h ../fly_by_wire/include/link_autopilot.h \
+ ../../include/std.h ../../var/include/radio.h \
+ ../../var/include/airframe.h
+main_fbw.o: ../fly_by_wire/main_fbw.c ../../include/inttypes.h \
+ /home/wanbo/program/freertos-plus/freertos/benchmark/avr/include/avr/io.h \
+ /home/wanbo/program/freertos-plus/freertos/benchmark/avr/include/avr/sfr_defs.h \
+ /home/wanbo/program/freertos-plus/freertos/benchmark/avr/include/avr/sfr_offset.h \
+ /home/wanbo/program/freertos-plus/freertos/benchmark/avr/include/avr/iom128.h \
+ /home/wanbo/program/freertos-plus/freertos/benchmark/avr/include/avr/portpins.h \
+ /home/wanbo/program/freertos-plus/freertos/benchmark/avr/include/avr/signal.h \
+ /home/wanbo/program/freertos-plus/freertos/benchmark/avr/include/avr/interrupt.h \
+ ../fly_by_wire/include/timer_fbw.h \
+ ../fly_by_wire/include/link_autopilot.h ../../include/std.h \
+ ../../var/include/radio.h ../../var/include/airframe.h \
+ ../fly_by_wire/include/servo.h ../fly_by_wire/include/timer_fbw.h \
+ ../fly_by_wire/include/ppm.h ../fly_by_wire/include/spi_fbw.h \
+ ../fly_by_wire/include/link_autopilot.h \
+ ../fly_by_wire/include/uart_fbw.h ../fly_by_wire/include/adc_fbw.h
+servo.o: ../fly_by_wire/servo.c \
+ /home/wanbo/program/freertos-plus/freertos/benchmark/avr/include/avr/io.h \
+ /home/wanbo/program/freertos-plus/freertos/benchmark/avr/include/avr/sfr_defs.h \
+ /home/wanbo/program/freertos-plus/freertos/benchmark/avr/include/avr/sfr_offset.h \
+ ../../include/inttypes.h \
+ /home/wanbo/program/freertos-plus/freertos/benchmark/avr/include/avr/iom128.h \
+ /home/wanbo/program/freertos-plus/freertos/benchmark/avr/include/avr/portpins.h \
+ /home/wanbo/program/freertos-plus/freertos/benchmark/avr/include/avr/signal.h \
+ ../fly_by_wire/include/servo.h ../fly_by_wire/include/timer_fbw.h \
+ ../fly_by_wire/include/link_autopilot.h ../../include/std.h \
+ ../../var/include/radio.h ../../var/include/airframe.h \
+ ../fly_by_wire/include/link_autopilot.h \
+ ../fly_by_wire/include/uart_fbw.h
+uart_fbw.o: ../fly_by_wire/uart_fbw.c \
+ /home/wanbo/program/freertos-plus/freertos/benchmark/avr/include/avr/signal.h \
+ /home/wanbo/program/freertos-plus/freertos/benchmark/avr/include/avr/interrupt.h \
+ /home/wanbo/program/freertos-plus/freertos/benchmark/avr/include/avr/io.h \
+ /home/wanbo/program/freertos-plus/freertos/benchmark/avr/include/avr/sfr_defs.h \
+ /home/wanbo/program/freertos-plus/freertos/benchmark/avr/include/avr/sfr_offset.h \
+ ../../include/inttypes.h \
+ /home/wanbo/program/freertos-plus/freertos/benchmark/avr/include/avr/iom128.h \
+ /home/wanbo/program/freertos-plus/freertos/benchmark/avr/include/avr/portpins.h \
+ ../../include/std.h ../fly_by_wire/include/uart_fbw.h

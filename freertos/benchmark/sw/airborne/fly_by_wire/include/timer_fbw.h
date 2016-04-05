@@ -1,4 +1,4 @@
-/* $Id: timer.h,v 1.1 2006/06/15 09:27:09 casse Exp $
+/* $Id: timer_fbw.h,v 1.1 2006/06/15 09:27:09 casse Exp $
  *
  * Paparazzi fbw timer functions
  *  

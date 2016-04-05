@@ -27,15 +27,15 @@
 #include <avr/signal.h>
 #include <avr/interrupt.h>
 
-#include "timer.h"
+#include "timer_fbw.h"
 #include "servo.h"
 #include "ppm.h"
-#include "spi.h"
+#include "spi_fbw.h"
 #include "link_autopilot.h"
 #include "radio.h"
 
 
-#include "uart.h"
+#include "uart_fbw.h"
 
 
 #ifndef CTL_BRD_V1_1
@@ -98,7 +98,7 @@ static void to_autopilot_from_last_radio (void) {
 
 void send_data_to_autopilot_task(void)
 {
-	printf("T_2 send_data_to_autopilot_task start! \n"); //SunnyBeike
+	//vPrintString("T_2 send_data_to_autopilot_task start! \n"); //SunnyBeike
 
    if ( !SpiIsSelected() && spi_was_interrupted ) 
    {
@@ -106,7 +106,7 @@ void send_data_to_autopilot_task(void)
       to_autopilot_from_last_radio();
       spi_reset();
    }
-	printf("T_2 send_data_to_autopilot_task end! \n"); //SunnyBeike
+	//vPrintString("T_2 send_data_to_autopilot_task end! \n"); //SunnyBeike
 
 }
 
@@ -179,7 +179,7 @@ int main( void )
 */
 void test_ppm_task(void)
 {
-	printf("T_1 test_ppm_task start! \n"); //SunnyBeike
+	//vPrintString("T_1 test_ppm_task start! \n"); //SunnyBeike
     if( ppm_valid ) 
     {
       ppm_valid = FALSE;
@@ -209,22 +209,22 @@ void test_ppm_task(void)
     {
       radio_really_lost = TRUE;
     }
-	printf("T_1 test_ppm_task end! \n"); //SunnyBeike
+	//vPrintString("T_1 test_ppm_task end! \n"); //SunnyBeike
 
 }
 void check_failsafe_task(void)
 {
-	printf("T_5 check_failsafe_task start! \n"); //SunnyBeike
+	//vPrintString("T_5 check_failsafe_task start! \n"); //SunnyBeike
     if ((mode == MODE_MANUAL && !radio_ok) ||
 	(mode == MODE_AUTO && !mega128_ok)) 
     {
       servo_set(failsafe);
     }
-	printf("T_5 check_failsafe_task end! \n"); //SunnyBeike
+	//vPrintString("T_5 check_failsafe_task end! \n"); //SunnyBeike
 }
 void check_mega128_values_task(void)
 {
-	printf("T_3 check_mega128_values_task start! \n"); //SunnyBeike
+	//vPrintString("T_3 check_mega128_values_task start! \n"); //SunnyBeike
 
      if ( !SpiIsSelected() && spi_was_interrupted ) 
      {
@@ -239,5 +239,5 @@ void check_mega128_values_task(void)
     if (time_since_last_mega128 == STALLED_TIME) {
       mega128_ok = FALSE;
     }
-	printf("T_3 check_mega128_values_task end! \n"); //SunnyBeike
+	//vPrintString("T_3 check_mega128_values_task end! \n"); //SunnyBeike
 }

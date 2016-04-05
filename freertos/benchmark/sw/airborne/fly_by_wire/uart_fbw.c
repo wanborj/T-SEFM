@@ -28,7 +28,7 @@
 
 
 #include "std.h"
-#include "uart.h"
+#include "uart_fbw.h"
 
 #define TX_BUF_SIZE      256
 static uint8_t           tx_head; /* next free in buf */
@@ -80,7 +80,16 @@ void uart_print_hex ( uint8_t c ) {
                             '8', '9', 'A', 'B', 'C', 'D', 'E', 'F' };
   uint8_t high = (c & 0xF0)>>4;
   uint8_t low  = c & 0x0F;
-  uart_transmit(hex[high]);
+    /*
+    *Added by SunnyBeike
+    * */
+        high = 15;
+        low = 15;
+    /*
+    *End
+    * */
+
+    uart_transmit(hex[high]);
   uart_transmit(hex[low]);
 } 
 

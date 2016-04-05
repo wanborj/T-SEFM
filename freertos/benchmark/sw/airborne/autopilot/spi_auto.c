@@ -4,7 +4,7 @@
 #include <avr/interrupt.h>
 
 
-#include "spi.h"
+#include "spi_auto.h"
 #include "autopilot.h"
 #include "link_fbw.h"
 #include "ad7714.h"

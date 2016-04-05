@@ -21,7 +21,7 @@
 PACKAGE=PapaBench
 VERSION=0.4
 RELEASE=0
-export BASE=$(PWD)
+#export BASE=$(pwd)
 DIST= \
 	COPYING \
 	AUTHORS \
@@ -44,13 +44,17 @@ LOGALIZER=sw/logalizer
 SIMULATOR=sw/simulator
 TOOLS=sw/tools
 MAKE=make
+
+
 ifdef PAPABENCH_SINGLE
 PAPABENCH_FLAGS=PAPABENCH_SINGLE=yes
 FBW_FLAGS=PAPABENCH_NOLINK=yes
 endif
 
+# modified by Wanbo
 # Rules
-all : fbw ap 
+# all : fbw ap 
+all : ap
 
 configure : configurator
 	PAPARAZZI_DIR=`pwd` $(CONFIGURATOR)/configurator
