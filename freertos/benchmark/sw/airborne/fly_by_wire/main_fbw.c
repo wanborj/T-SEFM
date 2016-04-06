@@ -98,7 +98,7 @@ static void to_autopilot_from_last_radio (void) {
 
 void send_data_to_autopilot_task(void)
 {
-	//vPrintString("T_2 send_data_to_autopilot_task start! \n"); //SunnyBeike
+	vPrintString("T_2 send_data_to_autopilot_task start! \n\r"); //SunnyBeike
 
    if ( !SpiIsSelected() && spi_was_interrupted ) 
    {
@@ -106,7 +106,7 @@ void send_data_to_autopilot_task(void)
       to_autopilot_from_last_radio();
       spi_reset();
    }
-	//vPrintString("T_2 send_data_to_autopilot_task end! \n"); //SunnyBeike
+	vPrintString("T_2 send_data_to_autopilot_task end! \n\r"); //SunnyBeike
 
 }
 // deleted by Wanbo
@@ -123,7 +123,7 @@ void send_data_to_autopilot_task(void)
 
 void fbw_init(void) {
   uart_init_tx();
-  uart_print_string("FBW Booting $Id: main.c,v 1.3 2008/10/22 19:41:19 casse Exp $\n");
+  uart_print_string("FBW Booting $Id: main.c,v 1.3 2008/10/22 19:41:19 casse Exp $\n\r");
 
 #ifndef CTL_BRD_V1_1
   fbw_adc_init();
@@ -185,7 +185,7 @@ int main( void )
 */
 void test_ppm_task(void)
 {
-	//vPrintString("T_1 test_ppm_task start! \n"); //SunnyBeike
+	vPrintString("T_1 test_ppm_task start! \n\r"); //SunnyBeike
     if( ppm_valid ) 
     {
       ppm_valid = FALSE;
@@ -215,22 +215,22 @@ void test_ppm_task(void)
     {
       radio_really_lost = TRUE;
     }
-	//vPrintString("T_1 test_ppm_task end! \n"); //SunnyBeike
+	vPrintString("T_1 test_ppm_task end! \n\r"); //SunnyBeike
 
 }
 void check_failsafe_task(void)
 {
-	//vPrintString("T_5 check_failsafe_task start! \n"); //SunnyBeike
+	vPrintString("T_5 check_failsafe_task start! \n\r"); //SunnyBeike
     if ((mode == MODE_MANUAL && !radio_ok) ||
 	(mode == MODE_AUTO && !mega128_ok)) 
     {
       servo_set(failsafe);
     }
-	//vPrintString("T_5 check_failsafe_task end! \n"); //SunnyBeike
+	vPrintString("T_5 check_failsafe_task end! \n\r"); //SunnyBeike
 }
 void check_mega128_values_task(void)
 {
-	//vPrintString("T_3 check_mega128_values_task start! \n"); //SunnyBeike
+	vPrintString("T_3 check_mega128_values_task start! \n\r"); //SunnyBeike
 
      if ( !SpiIsSelected() && spi_was_interrupted ) 
      {
@@ -245,5 +245,5 @@ void check_mega128_values_task(void)
     if (time_since_last_mega128 == STALLED_TIME) {
       mega128_ok = FALSE;
     }
-	//vPrintString("T_3 check_mega128_values_task end! \n"); //SunnyBeike
+	vPrintString("T_3 check_mega128_values_task end! \n\r"); //SunnyBeike
 }

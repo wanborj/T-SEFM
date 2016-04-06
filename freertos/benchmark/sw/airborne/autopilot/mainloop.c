@@ -73,7 +73,7 @@ int main( void )
 		fbw_init();
 #	endif
 	
-	//vPrintString("Init done \n");
+	vPrintString("Init done \n\r");
   /* start interrupt task */
   //sei(); /*Fadia*/
 
@@ -84,7 +84,7 @@ int main( void )
       init_cpt--;
   }
 
-	//vPrintString("timeout \n");
+	vPrintString("timeout \n\r");
   /*  enter mainloop */
   while( 1 ) {
 
@@ -95,10 +95,10 @@ int main( void )
 
     if(timer_periodic()) {
       periodic_task();
-	//vPrintString("periodic_task end \n");
+	vPrintString("periodic_task end \n\r");
 #		if PAPABENCH_SINGLE
 			fbw_schedule();
-			//vPrintString("fbw_schedule end \n");
+			vPrintString("fbw_schedule end \n\r");
 #		endif
 	}
 	//added by SunnyBeike
@@ -108,18 +108,18 @@ int main( void )
     if (gps_msg_received) 
     {
 	/*receive_gps_data_task()*/
-	//vPrintString("T_9 receive_gps_data_task start! \n"); //SunnyBeike
+	vPrintString("T_9 receive_gps_data_task start! \n\r"); //SunnyBeike
 	parse_gps_msg();
 	send_gps_pos();
         send_radIR();
         send_takeOff();
-	//vPrintString("T_9 receive_gps_data_task end! \n"); //SunnyBeike
+	vPrintString("T_9 receive_gps_data_task end! \n\r"); //SunnyBeike
 
     }
     if (link_fbw_receive_complete) {
       link_fbw_receive_complete = FALSE;
       radio_control_task();
-			//vPrintString("radio_control_task end \n");
+			vPrintString("radio_control_task end \n\r");
     }
 	/*Added by SunnyBeike*/
 	  if (_20Hz>=3) _20Hz=0;

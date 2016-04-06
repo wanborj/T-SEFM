@@ -422,7 +422,7 @@ void vR_Servant( void * pvParameter)
 
         if( HAVE_TO_SEND_SEMAPHORE )
         {
-            vPrintString("sending semaphore to targetServantTCB------------\n\r");
+            //vPrintString("sending semaphore to targetServantTCB------------\n\r");
             // set all the relations whose destination S-Servant is xTaskOfHandle[i] to 1.
             for( i = 0; i < xRelations.xNumOfRelation; ++ i )
             {

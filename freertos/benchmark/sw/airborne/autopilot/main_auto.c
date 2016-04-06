@@ -340,7 +340,7 @@ inline uint8_t inflight_calib_mode_update ( void ) {
  */
 void radio_control_task( void ) {
   bool_t calib_mode_changed;
-	//vPrintString("T_6 radio_control_task start! \n"); //SunnyBeike
+	vPrintString("T_6 radio_control_task start! \n\r"); //SunnyBeike
   if (link_fbw_receive_valid) {
     uint8_t mode_changed = FALSE;
     copy_from_to_fbw();
@@ -390,7 +390,7 @@ void radio_control_task( void ) {
     }
   }
 
-	//vPrintString("T_6 radio_control_task end! \n"); //SunnyBeike
+	vPrintString("T_6 radio_control_task end! \n\r"); //SunnyBeike
 }
 
 /** \fn void navigation_task( void )
@@ -423,16 +423,16 @@ void course_run(void){
 
 void altitude_control_task(void)
 {
-	//vPrintString("T_11 navigation_task start! \n"); //SunnyBeike
+	vPrintString("T_11 navigation_task start! \n\r"); //SunnyBeike
 	if (pprz_mode == PPRZ_MODE_AUTO2 || pprz_mode == PPRZ_MODE_HOME) {
 		if (vertical_mode == VERTICAL_MODE_AUTO_ALT)
       			altitude_pid_run();
 	}
-	//vPrintString("T_11 navigation_task end! \n"); //SunnyBeike
+	vPrintString("T_11 navigation_task end! \n\r"); //SunnyBeike
 }
 void climb_control_task(void)
 {
-	//vPrintString("T_12 navigation_task start! \n"); //SunnyBeike
+	vPrintString("T_12 navigation_task start! \n\r"); //SunnyBeike
    if (pprz_mode == PPRZ_MODE_AUTO2 || pprz_mode == PPRZ_MODE_HOME) 
    {
 	if (vertical_mode >= VERTICAL_MODE_AUTO_CLIMB)
@@ -442,7 +442,7 @@ void climb_control_task(void)
    	if (low_battery || (!estimator_flight_time && !launch))
    		 desired_gaz = 0.;
   }  
-	//vPrintString("T_12 navigation_task end! \n"); //SunnyBeike
+	vPrintString("T_12 navigation_task end! \n\r"); //SunnyBeike
 }
 #define PERIOD (256. * 1024. / CLOCK / 1000000.)
 
@@ -554,11 +554,11 @@ if (_4Hz == 0)
 {
     estimator_propagate_state();
     //navigation_task
-	//vPrintString("T_10 navigation_task start! \n"); //SunnyBeike
+	vPrintString("T_10 navigation_task start! \n\r"); //SunnyBeike
     navigation_update();
     send_nav_values();
     course_run();
-	//vPrintString("T_10 navigation_task end! \n"); //SunnyBeike
+	vPrintString("T_10 navigation_task end! \n\r"); //SunnyBeike
     //end navigation
     altitude_control_task();
     climb_control_task();
@@ -573,7 +573,7 @@ else if (_20Hz == 1)
     if (odd & 0x01)
     {
 	//reporting_task()
-	//vPrintString("T_13 reporting_task start! \n"); //SunnyBeike
+	vPrintString("T_13 reporting_task start! \n\r"); //SunnyBeike
 
 	send_boot();
 	send_attitude();
@@ -585,7 +585,7 @@ else if (_20Hz == 1)
 	send_mode();
 	send_debug();
 	send_nav_ref();
-	//vPrintString("T_13 reporting_task end! \n"); //SunnyBeike
+	vPrintString("T_13 reporting_task end! \n\r"); //SunnyBeike
 
     }
 }
@@ -602,7 +602,7 @@ else
 
 void stabilisation_task(void)
 {
-	//vPrintString("T_7 stabilisation_task start! \n"); //SunnyBeike
+	vPrintString("T_7 stabilisation_task start! \n\r"); //SunnyBeike
     ir_update();
     estimator_update_state_infrared();
     roll_pitch_pid_run(); // Set  desired_aileron & desired_elevator
@@ -614,7 +614,7 @@ void stabilisation_task(void)
     
     // Code for camera stabilization, FIXME put that elsewhere
     to_fbw.channels[RADIO_GAIN1] = TRIM_PPRZ(MAX_PPRZ/0.75*(-estimator_phi));
-	//vPrintString("T_7 stabilisation_task end! \n"); //SunnyBeike
+	vPrintString("T_7 stabilisation_task end! \n\r"); //SunnyBeike
 }
 
 /*void receive_gps_data_task(void)
