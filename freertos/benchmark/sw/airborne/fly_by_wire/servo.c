@@ -176,7 +176,7 @@ void servo_set_one(uint8_t servo, uint16_t value_us) {
 void 
 servo_transmit(void) {
   uint8_t servo;
-	//vPrintString("T_4 servo_transmit start! \n"); //SunnyBeike
+	vPrintString("T_4 servo_transmit start! \n\r"); //SunnyBeike
   uart_transmit((uint8_t)0); uart_transmit((uint8_t)0);
 
   for(servo = 0; servo < _4017_NB_CHANNELS; servo++) {
@@ -184,7 +184,7 @@ servo_transmit(void) {
     uart_transmit((uint8_t)(servo_widths[servo] & 0xff));
   }
   uart_transmit((uint8_t)'\n');
-	//vPrintString("T_4 servo_transmit end! \n"); //SunnyBeike
+	vPrintString("T_4 servo_transmit end! \n\r"); //SunnyBeike
 }
 
 

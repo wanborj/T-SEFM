@@ -122,6 +122,7 @@
 #ifndef __ASSEMBLER__
 /* These only work in C programs.  */
 #include <inttypes.h>
+#include "stm32_p103.h"
 
 #define _MMIO_BYTE(mem_addr) (*(volatile uint8_t *)(mem_addr))
 #define _MMIO_WORD(mem_addr) (*(volatile uint16_t *)(mem_addr))
@@ -159,7 +160,7 @@
 #else  /* !_SFR_ASM_COMPAT */
 
 //uint8_t sfr_offset[128];
-#define __SFR_OFFSET sfr_offset // Added by SunnyBeike
+//#define __SFR_OFFSET sfr_offset // Added by SunnyBeike
 #define __SFR_OFFSET 0x20001000 // Added by SunnyBeike
 
 
