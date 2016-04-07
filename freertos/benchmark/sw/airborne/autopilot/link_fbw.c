@@ -46,23 +46,25 @@ void link_fbw_init(void) {
 }
 
 void link_fbw_send(void) {
-	vPrintString("T_8 link_fbw_send start! \n\r"); //SunnyBeike
-  if (spi_cur_slave != SPI_NONE) {
-    spi_nb_ovrn++;
-    return;
-  }
+    vPrintString("S_7 link_fbw_send start! \n\r"); //SunnyBeike
 
-  /* Enable SPI, Master, set clock rate fck/16 */ 
-  SPI_START(_BV(SPE) | _BV(MSTR) | _BV(SPR0)); // | _BV(SPR1);
-  SPI_SELECT_SLAVE0();
+    if (spi_cur_slave != SPI_NONE) {
+        spi_nb_ovrn++;
+        vPrintString("S_7 link_fbw_send end! \n\r"); //SunnyBeike
+        return;
+    }
 
-  idx_buf = 0;
-  xor_in = 0;
-  xor_out = ((uint8_t*)&to_fbw)[idx_buf];
-  SPDR = xor_out;
-  link_fbw_receive_valid = FALSE;
-  // Other bytes will follow SIG_SPI interrupts
-	vPrintString("T_8 link_fbw_send end! \n\r"); //SunnyBeike
+    /* Enable SPI, Master, set clock rate fck/16 */ 
+    SPI_START(_BV(SPE) | _BV(MSTR) | _BV(SPR0)); // | _BV(SPR1);
+    SPI_SELECT_SLAVE0();
+
+    idx_buf = 0;
+    xor_in = 0;
+    xor_out = ((uint8_t*)&to_fbw)[idx_buf];
+    SPDR = xor_out;
+    link_fbw_receive_valid = FALSE;
+    // Other bytes will follow SIG_SPI interrupts
+    vPrintString("S_7 link_fbw_send end! \n\r"); //SunnyBeike
 }
 
 void link_fbw_on_spi_it( void ) {

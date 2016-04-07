@@ -90,6 +90,8 @@ extern struct xRelationship xRelations;
 
 // the LET of all S-Servant
 extern portTickType xLetOfServant[NUMBEROFSERVANT] ;
+// the Period of servant, mainly in sensor and actuator which are periodic.
+extern portTickType xPeriodOfServant[NUMBEROFSERVANT];
 // In app.c, this is used to sepcify the function of Servant
 extern pvServantFunType xServantTable[NUMBEROFSERVANT];
 
@@ -123,6 +125,7 @@ void vParameterInitialise()
         pvParameters[i].xNumOfIn = 0;
         pvParameters[i].xNumOfOut = 0;
         pvParameters[i].xLet = xLetOfServant[i]/portTICK_RATE_MS;
+        pvParameters[i].xPeriod = xPeriodOfServant[i]/portTICK_RATE_MS;
         pvParameters[i].xFp = xServantTable[i];
     }
 
@@ -243,9 +246,10 @@ void vSensor( void * pvParameter )
     portBASE_TYPE NUM = ((struct xParam *) pvMyParameter)->xNumOfOut;
     portBASE_TYPE xMyFlag = ((struct xParam *) pvMyParameter)->xMyFlag;
     portTickType xLet = ((struct xParam *) pvMyParameter)->xLet;
+    portTickType xPeriod = ((struct xParam *) pvMyParameter)->xPeriod;
     pvServantFunType xMyFun = ((struct xParam *) pvMyParameter)->xFp;
 
-    /* set the LET of Servant */
+    /* set the LET of Servant when it is created */
     vTaskSetxLet(xTaskOfHandle[xMyFlag], xLet);
     
     /* create data for destination servants and initialise them */
@@ -265,10 +269,10 @@ void vSensor( void * pvParameter )
 
         xMyFun( NULL, 0, xDatas, NUM);
 
-        vTaskDelayLET();
+        //vTaskDelayLET();
 
         // sleep for 2 sec, which means that period of this task is 2 sec.
-        vTaskDelayUntil(&xLastWakeTime, 2000/portTICK_RATE_MS);
+        vTaskDelayUntil(&xLastWakeTime, xPeriod);
     }
 }
 
@@ -283,28 +287,37 @@ void vSensor( void * pvParameter )
 
 void vActuator( void * pvParameter )
 {
+    portTickType xLastWakeTime;
+    xLastWakeTime = xTaskGetTickCount();
+    portTickType xCurrentTime;
+
     void * pvMyParameter = pvParameter;
     portBASE_TYPE NUM = ((struct xParam *) pvMyParameter)->xNumOfIn;
     portBASE_TYPE xMyFlag = ((struct xParam *) pvMyParameter)->xMyFlag;
+    portTickType xLet = ((struct xParam *) pvMyParameter)->xLet;
+    portTickType xPeriod = ((struct xParam *) pvMyParameter)->xPeriod;
     pvServantFunType xMyFun = ((struct xParam *) pvMyParameter)->xFp;
 
     xEventHandle pxEvent[NUM];
 
-    //struct eventData xData[];
+    //struct eventData xData[]; // doesn't need in actuator which updates the port of physical machine directly.
 
-    /* get the LET of current servant */
-    portTickType xLet = ((struct xParam *) pvMyParameter)->xLet;
-    /* set the LET of current servant */
+    /* set the LET of current servant when it is created */
     vTaskSetxLet(xTaskOfHandle[xMyFlag], xLet);
 
     while(1)
     {
+        xCurrentTime = xTaskGetTickCount();
+        vTaskSetxStartTime( xTaskOfHandle[xMyFlag], xCurrentTime );
+
         vEventReceiveAll( pvMyParameter, pxEvent );
 
         xMyFun( pxEvent, NUM, NULL, 0 );
 
         vEventDeleteAll( pvMyParameter, pxEvent );
-        vTaskDelayLET();
+        //vTaskDelayLET();
+
+        vTaskDelayUntil(&xLastWakeTime, xPeriod);
     }
 }
 
@@ -350,7 +363,7 @@ void vServant( void * pvParameter )
         vEventDeleteAll( pvMyParameter, pxEvent );        
 
         vEventCreateAll( pvMyParameter, xDatas );
-        vTaskDelayLET();
+        //vTaskDelayLET();
     }
 }
 
@@ -385,7 +398,7 @@ void vR_Servant( void * pvParameter)
         HAVE_TO_SEND_SEMAPHORE = 1;
 
 
-      //  vPrintString("semaphore check\n\r");
+        //vPrintString("semaphore check\n\r");
 
         for( i = 0; i < xRelations.xNumOfRelation; ++ i )
         {

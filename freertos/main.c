@@ -55,36 +55,42 @@ int main(void)
 
     xTaskCreate( vR_Servant, "R-Servant", SERVANT_STACK_SIZE, NULL, tskIDLE_PRIORITY + 1, &xTaskOfHandle[NUMBEROFSERVANT]);
 
-    // task 1, 25ms, including s_0, s_1, s_5
-    xTaskCreate( vSensor, "Sensor s_0", SERVANT_STACK_SIZE, (void *)&pvParameters[0], tskIDLE_PRIORITY + 10, &xTaskOfHandle[0]);
+    // task 1, 25ms,
+    xTaskCreate( vSensor, "Sensor Of Task 1", SERVANT_STACK_SIZE, (void *)&pvParameters[0], tskIDLE_PRIORITY + 10, &xTaskOfHandle[0]);
 
-    xTaskCreate( vServant, "Servant s_1", SERVANT_STACK_SIZE, (void *)&pvParameters[1], tskIDLE_PRIORITY + 10, &xTaskOfHandle[1]);
+    xTaskCreate( vServant, "Servant s_0", SERVANT_STACK_SIZE, (void *)&pvParameters[1], tskIDLE_PRIORITY + 10, &xTaskOfHandle[1]);
+    xTaskCreate( vServant, "Servant s_1", SERVANT_STACK_SIZE, (void *)&pvParameters[2], tskIDLE_PRIORITY + 10, &xTaskOfHandle[2]);
+    xTaskCreate( vServant, "Servant s_5", SERVANT_STACK_SIZE, (void *)&pvParameters[3], tskIDLE_PRIORITY + 10,&xTaskOfHandle[3]);
 
-    xTaskCreate( vActuator, "Actuator s_5", SERVANT_STACK_SIZE, (void *)&pvParameters[5], tskIDLE_PRIORITY + 10,&xTaskOfHandle[5]);
+    xTaskCreate( vActuator, "Actuator Of Task 1", SERVANT_STACK_SIZE, (void *)&pvParameters[4], tskIDLE_PRIORITY + 10, &xTaskOfHandle[4]);
 
-    // task 2, 50ms, including s_6, s_7, s_2, s_4, s_3
-    xTaskCreate( vSensor, "Sensor s_6", SERVANT_STACK_SIZE, (void *)&pvParameters[6], tskIDLE_PRIORITY + 8, &xTaskOfHandle[6]);
+    // task 2, 50ms, 
+    xTaskCreate( vSensor, "Sensor of Task 2", SERVANT_STACK_SIZE, (void *)&pvParameters[5], tskIDLE_PRIORITY + 8, &xTaskOfHandle[5]); 
 
+    xTaskCreate( vServant, "Servant s_6", SERVANT_STACK_SIZE, (void *)&pvParameters[6], tskIDLE_PRIORITY + 8, &xTaskOfHandle[6]);
     xTaskCreate( vServant, "Servant s_7", SERVANT_STACK_SIZE, (void *)&pvParameters[7], tskIDLE_PRIORITY + 8, &xTaskOfHandle[7]);
-    xTaskCreate( vServant, "Servant s_2", SERVANT_STACK_SIZE, (void *)&pvParameters[2], tskIDLE_PRIORITY + 8, &xTaskOfHandle[2]);
-    xTaskCreate( vServant, "Servant s_4", SERVANT_STACK_SIZE, (void *)&pvParameters[4], tskIDLE_PRIORITY + 8, &xTaskOfHandle[4]);
+    xTaskCreate( vServant, "Servant s_2", SERVANT_STACK_SIZE, (void *)&pvParameters[8], tskIDLE_PRIORITY + 8, &xTaskOfHandle[8]);
+    xTaskCreate( vServant, "Servant s_4", SERVANT_STACK_SIZE, (void *)&pvParameters[9], tskIDLE_PRIORITY + 8, &xTaskOfHandle[9]);
+    xTaskCreate( vServant, "Servant s_3", SERVANT_STACK_SIZE, (void *)&pvParameters[10], tskIDLE_PRIORITY + 8, &xTaskOfHandle[10]);
 
-    xTaskCreate( vActuator, "Actuator s_3", SERVANT_STACK_SIZE, (void *)&pvParameters[3], tskIDLE_PRIORITY + 8,&xTaskOfHandle[3]);
+    xTaskCreate( vActuator, "Actuator of Task 2", SERVANT_STACK_SIZE, (void *)&pvParameters[11], tskIDLE_PRIORITY + 8, &xTaskOfHandle[11]); 
 
-    // task 3, 250ms, including s_8, s_9, s_10, s_11
-    xTaskCreate( vSensor, "Sensor s_8", SERVANT_STACK_SIZE, (void *)&pvParameters[8], tskIDLE_PRIORITY + 4, &xTaskOfHandle[8]);
+    // task 3, 100ms,
+    xTaskCreate( vSensor, "Sensor of Task 4", SERVANT_STACK_SIZE, (void *)&pvParameters[12], tskIDLE_PRIORITY + 6, &xTaskOfHandle[12]); 
 
-    xTaskCreate( vServant, "Servant s_9", SERVANT_STACK_SIZE, (void *)&pvParameters[9], tskIDLE_PRIORITY + 4, &xTaskOfHandle[9]);
-    xTaskCreate( vServant, "Servant s_10", SERVANT_STACK_SIZE, (void *)&pvParameters[10], tskIDLE_PRIORITY + 4, &xTaskOfHandle[10]);
+    xTaskCreate( vServant, "Servant s_12", SERVANT_STACK_SIZE, (void *)&pvParameters[13], tskIDLE_PRIORITY + 6, &xTaskOfHandle[13]);
 
-    xTaskCreate( vActuator, "Actuator s_11", SERVANT_STACK_SIZE, (void *)&pvParameters[11], tskIDLE_PRIORITY + 4,&xTaskOfHandle[11]);
-
-
-    // task 4, 100ms, including s_12, s_13
-    xTaskCreate( vSensor, "Sensor s_12", SERVANT_STACK_SIZE, (void *)&pvParameters[12], tskIDLE_PRIORITY + 6, &xTaskOfHandle[12]);
-
-    xTaskCreate( vActuator, "Actuator -s_13", SERVANT_STACK_SIZE, (void *)&pvParameters[13], tskIDLE_PRIORITY + 6,&xTaskOfHandle[13]);
+    xTaskCreate( vActuator, "Actuator Of Task 4", SERVANT_STACK_SIZE, (void *)&pvParameters[14], tskIDLE_PRIORITY + 6, &xTaskOfHandle[14]);
     
+    // task 4, 250ms,
+    xTaskCreate( vSensor, "Sensor of Task 3", SERVANT_STACK_SIZE, (void *)&pvParameters[15], tskIDLE_PRIORITY + 4, &xTaskOfHandle[15]); 
+
+    xTaskCreate( vServant, "Sensor s_8", SERVANT_STACK_SIZE, (void *)&pvParameters[16], tskIDLE_PRIORITY + 4, &xTaskOfHandle[16]);
+    xTaskCreate( vServant, "Servant s_9", SERVANT_STACK_SIZE, (void *)&pvParameters[17], tskIDLE_PRIORITY + 4, &xTaskOfHandle[17]);
+    xTaskCreate( vServant, "Servant s_10", SERVANT_STACK_SIZE, (void *)&pvParameters[18], tskIDLE_PRIORITY + 4,&xTaskOfHandle[18]);
+    xTaskCreate( vServant, "Servant s_11", SERVANT_STACK_SIZE, (void *)&pvParameters[19], tskIDLE_PRIORITY + 4,&xTaskOfHandle[19]);
+
+    xTaskCreate( vActuator, "Actuator of Task 3", SERVANT_STACK_SIZE, (void *)&pvParameters[20], tskIDLE_PRIORITY + 4, &xTaskOfHandle[20]); 
 
     /* Start running the task. */
     vTaskStartScheduler();

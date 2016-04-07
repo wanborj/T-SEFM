@@ -91,6 +91,8 @@ struct xParam
     portTickType xLet;
     /* the implementation of current servant */
     pvServantFunType xFp;
+    /* the period of task where this servant is in (ms) */
+    portTickType xPeriod;
 };
 
 
