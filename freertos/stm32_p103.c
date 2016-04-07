@@ -160,11 +160,33 @@ void vPrintString( const char * string)
  * print a number which is less than 10
  *
  * */
-
-void vPrintNumber( const long num)
+void vPrintNumber( const long c_num)
 {
-    vPrintString("the number is :");
-    send_byte(num+'0');
-    send_byte('\n');
-    send_byte('\r');
+    char time[15], tmp;
+    unsigned int i, count = 0;
+    long num = c_num;
+
+    // transform long into char * 
+    while( num  )
+    {
+        time[count] = num%10 +'0';
+        count ++;
+        num /= 10;
+
+    }
+    time[count] = '\0';
+
+    // reverse
+    for( i = 0; i < count/2; ++i )
+    {
+        tmp = time[i];
+        time[i] = time[count-1-i];
+        time[count-1-i] = tmp;
+
+    }
+
+    vPrintString(time);
+    vPrintString("\n\r");
+
 }
+

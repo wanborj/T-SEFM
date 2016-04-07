@@ -262,6 +262,7 @@ void vSensor( void * pvParameter )
     while(1)
     {
         xCurrentTime = xTaskGetTickCount();
+        vPrintNumber(xCurrentTime);
         vTaskSetxStartTime( xTaskOfHandle[xMyFlag], xCurrentTime );
 
         // create events for all destination servants of this sensor.
@@ -269,7 +270,9 @@ void vSensor( void * pvParameter )
 
         xMyFun( NULL, 0, xDatas, NUM);
 
-        //vTaskDelayLET();
+        vTaskDelayLET();
+        xCurrentTime = xTaskGetTickCount();
+        vPrintNumber(xCurrentTime);
 
         // sleep for 2 sec, which means that period of this task is 2 sec.
         vTaskDelayUntil(&xLastWakeTime, xPeriod);
@@ -308,6 +311,7 @@ void vActuator( void * pvParameter )
     while(1)
     {
         xCurrentTime = xTaskGetTickCount();
+        vPrintNumber(xCurrentTime);
         vTaskSetxStartTime( xTaskOfHandle[xMyFlag], xCurrentTime );
 
         vEventReceiveAll( pvMyParameter, pxEvent );
@@ -315,7 +319,10 @@ void vActuator( void * pvParameter )
         xMyFun( pxEvent, NUM, NULL, 0 );
 
         vEventDeleteAll( pvMyParameter, pxEvent );
-        //vTaskDelayLET();
+        vTaskDelayLET();
+
+        xCurrentTime = xTaskGetTickCount();
+        vPrintNumber(xCurrentTime);
 
         vTaskDelayUntil(&xLastWakeTime, xPeriod);
     }
@@ -332,6 +339,7 @@ void vServant( void * pvParameter )
 {
     portBASE_TYPE i;
     void * pvMyParameter = pvParameter;
+    portTickType xCurrentTime;
     
     portBASE_TYPE xNumOfIn = ((struct xParam *) pvMyParameter)->xNumOfIn;
     portBASE_TYPE xNumOfOut = ((struct xParam *) pvMyParameter)->xNumOfOut;
@@ -350,6 +358,10 @@ void vServant( void * pvParameter )
     while(1)
     {
         vEventReceiveAll( pvMyParameter, pxEvent );
+        xCurrentTime = xTaskGetTickCount();
+        vPrintNumber(xCurrentTime);
+        
+        vTaskSetxStartTime( xTaskOfHandle[xMyFlag], xCurrentTime );
 
         /* Here are coding for processing data of events */
         // coding...
@@ -363,7 +375,9 @@ void vServant( void * pvParameter )
         vEventDeleteAll( pvMyParameter, pxEvent );        
 
         vEventCreateAll( pvMyParameter, xDatas );
-        //vTaskDelayLET();
+        vTaskDelayLET();
+        xCurrentTime = xTaskGetTickCount();
+        vPrintNumber(xCurrentTime);
     }
 }
 
