@@ -24,8 +24,10 @@ static void setup_hardware( void );
 
 extern struct xParam pvParameters[NUMBEROFSERVANT];
 
-//extern xSemaphoreHandle xBinarySemaphore[NUMBEROFSERVANT];  // the network topology
+extern xSemaphoreHandle xBinarySemaphore[NUMBEROFSERVANT];  // the network topology
 extern xTaskHandle xTaskOfHandle[NUMBEROFSERVANT];         // record the handle of all S-Servant, the last one is for debugging R-Servant
+
+extern portTickType xPeriodOfTask[NUMBEROFTASK];
 //extern portBASE_TYPE xRelation[NUMBEROFSERVANT][NUMBEROFSERVANT]; // record the relationship among servants excluding R-Servant
 //extern portTickType xLetOfServant[NUMBEROFSERVANT];  // ms
 
@@ -118,7 +120,57 @@ inline unsigned long myTraceGetTimeMillisecond(){
 	return (xTaskGetTickCountFromISR() + myTraceGetTick()) * 1000 / configTICK_RATE_HZ;
 }
 */
+
+/* time tick hook which is used to triggered every sensor of corresponding task to execute at
+ * specified time according to their period.
+ *
+ * if there is any task need to be triggered at this time,
+ * tick hook function would send semaphore to them.
+ * */
 void vApplicationTickHook( void )
 {
+    portTickType xCurrentTime = xTaskGetTickCountFromISR();
+    portBASE_TYPE i;
+
+    if(xCurrentTime % xPeriodOfTask[0] == 0)
+    {
+        xSemaphoreGive(xBinarySemaphore[0]);
+    }
+    if(xCurrentTime % xPeriodOfTask[1] == 0)
+    {
+        xSemaphoreGive(xBinarySemaphore[5]);
+    }
+    if(xCurrentTime % xPeriodOfTask[2] == 0)
+    {
+        xSemaphoreGive(xBinarySemaphore[12]);
+    }
+    if(xCurrentTime % xPeriodOfTask[3] == 0)
+    {
+        xSemaphoreGive(xBinarySemaphore[15]);
+    }
+    
+    /*
+    for( i = 0; i < NUMBEROFTASK; ++ i )
+    {
+        if(xCurrentTime % xPeriodOfTask[i] == 0)
+        {
+           switch(i)
+           {
+               case 0: 
+                    xSemaphoreGive(xBinarySemaphore[0]);                   
+                    break;
+               case 1:
+                    xSemaphoreGive(xBinarySemaphore[5]);
+                    break;
+               case 2:
+                    xSemaphoreGive(xBinarySemaphore[12]);
+                    break;
+               case 3:
+                    xSemaphoreGive(xBinarySemaphore[15]);
+                    break;
+           }
+        }
+    }
+    */
 }
 

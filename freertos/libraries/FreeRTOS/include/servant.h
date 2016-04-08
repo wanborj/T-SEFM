@@ -93,6 +93,8 @@ struct xParam
     pvServantFunType xFp;
     /* the period of task where this servant is in (ms) */
     portTickType xPeriod;
+    /* the id of task. start from 0 */
+    portBASE_TYPE xTaskFlag;
 };
 
 
