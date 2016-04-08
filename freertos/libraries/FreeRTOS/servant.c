@@ -261,7 +261,9 @@ void vSensor( void * pvParameter )
         // create events for all destination servants of this sensor.
         vEventCreateAll( pvMyParameter, xDatas );
 
+        //portDISABLE_INTERRUPTS();
         xMyFun( NULL, 0, xDatas, NUM);
+        //portENABLE_INTERRUPTS();
 
         vTaskDelayLET();
         xCurrentTime = xTaskGetTickCount();
@@ -313,7 +315,9 @@ void vActuator( void * pvParameter )
         xData = xEventGetxData(pxEvent[0]);
         xData.xData  += xData.xData + xPeriod; 
 
+        //portDISABLE_INTERRUPTS();
         xMyFun( pxEvent, NUM, NULL, 0 );
+        //portENABLE_INTERRUPTS();
 
         vEventDeleteAll( pvMyParameter, pxEvent );
 
@@ -372,7 +376,9 @@ void vServant( void * pvParameter )
             xDatas[i] = xEventGetxData(pxEvent[i]);
         }
 
+        //portDISABLE_INTERRUPTS();
         xMyFun(pxEvent, xNumOfIn, xDatas, xNumOfOut);
+        //portENABLE_INTERRUPTS();
         
         vEventDeleteAll( pvMyParameter, pxEvent );        
 

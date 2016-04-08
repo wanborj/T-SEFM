@@ -85,37 +85,37 @@ xSemaphoreHandle xBinarySemaphore[NUMBEROFSERVANT];  // the semaphores which are
 xTaskHandle xTaskOfHandle[NUMBEROFSERVANT];         // record the handle of all S-Servant, the last one is for debugging R-Servant 
 portTickType xPeriodOfTask[NUMBEROFTASK] =
 {
-    250,
     500,
     1000,
-    2500
+    2000,
+    5000
 };
 
 // the LET of all S-Servant (ms)
 portTickType xLetOfServant[NUMBEROFSERVANT] = 
 { 
-    5,    // sensor_0
-    5,    // s_1
-    5,    // s_2
-    5,    // s_3 
-    5,    // actuator_4 
-    5,    // Sensor_5
-    5,    // s_6
-    5,    // s_7
-    5,    // s_8
-    5,    // s_9
-    5,    // s_10
-    5,    // Actuator_11
-    5,    // Sensor_12
-    5,    // s_13
-    5,    // Actuator_14
-    5,    // Sensor_15
-    5,    // s_16
-    5,    // s_17
-    5,    // s_18
-    5,    // s_19
-    5,    // actuator_20
-    10    // R-Servant 
+    4,    // sensor_0
+    4,    // s_1
+    4,    // s_2
+    4,    // s_3 
+    4,    // actuator_4 
+    4,    // Sensor_5
+    4,    // s_6
+    4,    // s_7
+    4,    // s_8
+    4,    // s_9
+    4,    // s_10
+    4,    // Actuator_11
+    4,    // Sensor_12
+    4,    // s_13
+    4,    // Actuator_14
+    4,    // Sensor_15
+    4,    // s_16
+    4,    // s_17
+    4,    // s_18
+    4,    // s_19
+    4,    // actuator_20
+    2    // R-Servant 
 };
 
 portBASE_TYPE xTaskOfServant[NUMBEROFSERVANT] =
