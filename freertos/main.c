@@ -25,7 +25,7 @@ static void setup_hardware( void );
 extern struct xParam pvParameters[NUMBEROFSERVANT];
 
 //extern xSemaphoreHandle xBinarySemaphore[NUMBEROFSERVANT];  // the network topology
-extern xTaskHandle xTaskOfHandle[NUMBEROFSERVANT+1];         // record the handle of all S-Servant, the last one is for debugging R-Servant
+extern xTaskHandle xTaskOfHandle[NUMBEROFSERVANT];         // record the handle of all S-Servant, the last one is for debugging R-Servant
 //extern portBASE_TYPE xRelation[NUMBEROFSERVANT][NUMBEROFSERVANT]; // record the relationship among servants excluding R-Servant
 //extern portTickType xLetOfServant[NUMBEROFSERVANT];  // ms
 
@@ -53,7 +53,7 @@ int main(void)
     vSemaphoreInitialise();
     vParameterInitialise();
 
-    xTaskCreate( vR_Servant, "R-Servant", SERVANT_STACK_SIZE, NULL, tskIDLE_PRIORITY + 1, &xTaskOfHandle[NUMBEROFSERVANT]);
+    xTaskCreate( vR_Servant, "R-Servant", SERVANT_STACK_SIZE, NULL,tskIDLE_PRIORITY + 1, &xTaskOfHandle[NUMBEROFSERVANT-1]);
 
     // task 1, 25ms,
     xTaskCreate( vSensor, "Sensor Of Task 1", SERVANT_STACK_SIZE, (void *)&pvParameters[0], tskIDLE_PRIORITY + 10, &xTaskOfHandle[0]);

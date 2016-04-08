@@ -82,7 +82,7 @@
 #include "autopilot.h"
 
 xSemaphoreHandle xBinarySemaphore[NUMBEROFSERVANT];  // the semaphores which are used to trigger new servant to execute
-xTaskHandle xTaskOfHandle[NUMBEROFSERVANT+1];         // record the handle of all S-Servant, the last one is for debugging R-Servant 
+xTaskHandle xTaskOfHandle[NUMBEROFSERVANT];         // record the handle of all S-Servant, the last one is for debugging R-Servant 
 
 // the LET of all S-Servant (ms)
 portTickType xLetOfServant[NUMBEROFSERVANT] = 
@@ -107,7 +107,8 @@ portTickType xLetOfServant[NUMBEROFSERVANT] =
     5,    // s_17
     5,    // s_18
     5,    // s_19
-    5    // actuator_20
+    5,    // actuator_20
+    10    // R-Servant 
 };
 
 portTickType xPeriodOfServant[NUMBEROFSERVANT] =
@@ -132,7 +133,8 @@ portTickType xPeriodOfServant[NUMBEROFSERVANT] =
     1000,    // s_17
     1000,    // s_18
     1000,    // s_19
-    1000    // actuator_20
+    1000,    // actuator_20
+    0   // R-Servant
 };
 // record the relationship among servants excluding R-Servant
 /*
@@ -168,7 +170,7 @@ struct xRelationship xRelations =
         {16,17,1},
         {17,18,1},
         {18,19,1},
-        {19,20,1},
+        {19,20,1}
     }
 };
 
@@ -383,5 +385,6 @@ pvServantFunType xServantTable[NUMBEROFSERVANT] =
     &s_17,
     &s_18,
     &s_19,
-    &s_20
+    &s_20,
+    NULL 
 };
