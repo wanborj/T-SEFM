@@ -243,7 +243,7 @@ void vSensor( void * pvParameter )
         // Tick hook function in main.c will give the semaphore at the right time
         xSemaphoreTake(xBinarySemaphore[xMyFlag], portMAX_DELAY);
 
-        taskENTER_CRITICAL();
+        //taskENTER_CRITICAL();
         xCurrentTime = xTaskGetTickCount();
         //vPrintNumber(xCurrentTime);;
         vTaskSetxStartTime( xTaskOfHandle[xMyFlag], xCurrentTime );
@@ -260,7 +260,7 @@ void vSensor( void * pvParameter )
         vTaskDelayLET();
         xCurrentTime = xTaskGetTickCount();
         //vPrintNumber(xCurrentTime);;
-        taskEXIT_CRITICAL();
+        //taskEXIT_CRITICAL();
     }
 }
 
@@ -298,7 +298,7 @@ void vActuator( void * pvParameter )
     {
         vEventReceiveAll( pvMyParameter, pxEvent );
         
-        taskENTER_CRITICAL();
+        //taskENTER_CRITICAL();
 
         xCurrentTime = xTaskGetTickCount();
         //vPrintNumber(xCurrentTime);;
@@ -318,7 +318,7 @@ void vActuator( void * pvParameter )
         xCurrentTime = xTaskGetTickCount();
         //vPrintNumber(xCurrentTime);;
 
-        taskEXIT_CRITICAL();
+        //taskEXIT_CRITICAL();
     }
 }
 
@@ -352,7 +352,7 @@ void vServant( void * pvParameter )
     {
         vEventReceiveAll( pvMyParameter, pxEvent );
 
-        taskENTER_CRITICAL();
+        //taskENTER_CRITICAL();
 
         xCurrentTime = xTaskGetTickCount();
         //vPrintNumber(xCurrentTime);;
@@ -375,7 +375,7 @@ void vServant( void * pvParameter )
         xCurrentTime = xTaskGetTickCount();
         //vPrintNumber(xCurrentTime);;
         
-        taskEXIT_CRITICAL();
+        //taskEXIT_CRITICAL();
     }
 }
 
