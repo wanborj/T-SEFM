@@ -305,7 +305,6 @@ void vActuator( void * pvParameter )
 
         xCurrentTime = xTaskGetTickCount();
         //vPrintNumber(xCurrentTime);;
-
         vTaskDelayUntil(&xLastWakeTime, xPeriod);
     }
 }
@@ -451,7 +450,7 @@ void vR_Servant( void * pvParameter)
             }
         }
 
-        vPrintString("sending semaphore to targetServantTCB------------\n\r");
+        //vPrintString("sending semaphore to targetServantTCB------------\n\r");
         vTaskDelayLET();
         xCurrentTime = xTaskGetTickCount();
 
