@@ -71,9 +71,9 @@
 #include "eventlist.h"
 
 
-#define NUMBEROFSERVANT 21 
+#define NUMBEROFSERVANT 22 
 #define MAXRELATION NUMBEROFSERVANT 
-/* pvParameters[NUMBEROFSERVANT] */
+
 #define MAXOUTDEGREE 10   // network max in degree of every S-servant
 #define MAXINDEGREE 10  // network max out degree of every s-servant
 

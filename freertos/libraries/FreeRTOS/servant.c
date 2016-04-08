@@ -79,7 +79,7 @@
 #include "app.h"
 
 xList * pxCurrentReadyList;         // record the xEventReadyList that R-Servant transit event just now
-struct xParam pvParameters[NUMBEROFSERVANT+1];
+struct xParam pvParameters[NUMBEROFSERVANT];
 
 extern xSemaphoreHandle xBinarySemaphore[NUMBEROFSERVANT];  // the semaphores which are used to trigger new servant to execute
 extern xTaskHandle xTaskOfHandle[NUMBEROFSERVANT+1];         // record the handle of all S-Servant, the last one is for debugging R-Servant 
@@ -128,9 +128,6 @@ void vParameterInitialise()
         pvParameters[i].xPeriod = xPeriodOfServant[i]/portTICK_RATE_MS;
         pvParameters[i].xFp = xServantTable[i];
     }
-    // set the LET of R-Servant
-    pvParameters[NUMBEROFSERVANT].xMyFlag = NUMBEROFSERVANT;
-    pvParameters[NUMBEROFSERVANT].xLet = xLetOfServant[NUMBEROFSERVANT]/portTICK_RATE_MS;
 
     // new edition with sparse matrix relation table
     for( i = 0; i < xRelations.xNumOfRelation; ++ i )
@@ -255,7 +252,7 @@ void vSensor( void * pvParameter )
 
         xMyFun( NULL, 0, xDatas, NUM);
 
-        //vTaskDelayLET();
+        vTaskDelayLET();
         xCurrentTime = xTaskGetTickCount();
         //vPrintNumber(xCurrentTime);;
 
@@ -304,7 +301,7 @@ void vActuator( void * pvParameter )
         xMyFun( pxEvent, NUM, NULL, 0 );
 
         vEventDeleteAll( pvMyParameter, pxEvent );
-        //vTaskDelayLET();
+        vTaskDelayLET();
 
         xCurrentTime = xTaskGetTickCount();
         //vPrintNumber(xCurrentTime);;
@@ -359,7 +356,7 @@ void vServant( void * pvParameter )
         vEventDeleteAll( pvMyParameter, pxEvent );        
 
         vEventCreateAll( pvMyParameter, xDatas );
-        //vTaskDelayLET();
+        vTaskDelayLET();
         xCurrentTime = xTaskGetTickCount();
         //vPrintNumber(xCurrentTime);;
     }
@@ -370,8 +367,9 @@ void vR_Servant( void * pvParameter)
     portBASE_TYPE i, j;
     portBASE_TYPE xSource, xDest;
     portBASE_TYPE HAVE_TO_SEND_SEMAPHORE; // could the semaphore be sent? 1 means yes , 0 means no
+
     portTickType xCurrentTime;
-    struct xParam * pvMyParameter = (struct xParam *)pvParameters;
+    void * pvMyParameter = pvParameter;
 
     portBASE_TYPE xMyFlag = ((struct xParam *) pvMyParameter)->xMyFlag;
     portTickType xLet = ((struct xParam *) pvMyParameter)->xLet;
@@ -454,7 +452,7 @@ void vR_Servant( void * pvParameter)
         }
 
         vPrintString("sending semaphore to targetServantTCB------------\n\r");
-        //vTaskDelayLET();
+        vTaskDelayLET();
         xCurrentTime = xTaskGetTickCount();
 
         // send semaphore to destinationtcb

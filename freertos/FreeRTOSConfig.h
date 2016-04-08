@@ -103,7 +103,7 @@ to exclude the API function. */
 
 /* including the configuration for SEFM*/
 #define INCLUDE_SEFM        1
-//#define configMAX_RSERVANT_EXETIME  (5/portTICK_RATE_MS)    /*< R-Servant upper bound execution time is 10ms >*/
+#define configMAX_RSERVANT_EXETIME  (5/portTICK_RATE_MS)    /*< R-Servant upper bound execution time is 10ms >*/
 #define configCPU_NUMBER    1
 
 /* This is the raw value as per the Cortex-M3 NVIC.  Values can be 255
