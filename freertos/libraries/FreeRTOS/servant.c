@@ -95,6 +95,12 @@ extern portTickType xPeriodOfServant[NUMBEROFSERVANT];
 // In app.c, this is used to sepcify the function of Servant
 extern pvServantFunType xServantTable[NUMBEROFSERVANT];
 
+// record the task id where the servant is in
+extern portBASE_TYPE xTaskOfServant[NUMBEROFSERVANT];
+
+// record the period of Task
+extern portTickType xPeriodOfTask[NUMBEROFTASK];
+
 
 /* create all semaphores which are used to triggered s-servant */
 void vSemaphoreInitialise()
@@ -125,8 +131,9 @@ void vParameterInitialise()
         pvParameters[i].xNumOfIn = 0;
         pvParameters[i].xNumOfOut = 0;
         pvParameters[i].xLet = xLetOfServant[i]/portTICK_RATE_MS;
-        pvParameters[i].xPeriod = xPeriodOfServant[i]/portTICK_RATE_MS;
         pvParameters[i].xFp = xServantTable[i];
+        pvParameters[i].xTaskFlag = xTaskOfServant[i]; 
+        pvParameters[i].xPeriod = xPeriodOfTask[xTaskOfServant[i]]/portTICK_RATE_MS;
     }
 
     // new edition with sparse matrix relation table

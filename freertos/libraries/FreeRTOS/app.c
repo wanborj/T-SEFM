@@ -83,7 +83,7 @@
 
 xSemaphoreHandle xBinarySemaphore[NUMBEROFSERVANT];  // the semaphores which are used to trigger new servant to execute
 xTaskHandle xTaskOfHandle[NUMBEROFSERVANT];         // record the handle of all S-Servant, the last one is for debugging R-Servant 
-const portTickType xPeriodOfTask[NUMBEROFTASK] =
+portTickType xPeriodOfTask[NUMBEROFTASK] =
 {
     250,
     500,
@@ -118,31 +118,33 @@ portTickType xLetOfServant[NUMBEROFSERVANT] =
     10    // R-Servant 
 };
 
-portTickType xPeriodOfServant[NUMBEROFSERVANT] =
+portBASE_TYPE xTaskOfServant[NUMBEROFSERVANT] =
 {
-    250,    // sensor_0
-    250,    // s_1
-    250,    // s_2
-    250,    // s_3 
-    250,    // actuator_4 
-    500,    // Sensor_5
-    500,    // s_6
-    500,    // s_7
-    500,    // s_8
-    500,    // s_9
-    500,    // s_10
-    500,    // Actuator_11
-    1000,    // Sensor_12
-    1000,    // s_13
-    1000,    // Actuator_14
-    2500,    // Sensor_15
-    2500,    // s_16
-    2500,    // s_17
-    2500,    // s_18
-    2500,    // s_19
-    2500,    // actuator_20
-    0   // R-Servant
+    0, // task 0 consist of 5 servant
+    0,
+    0,
+    0,
+    0,
+    1, // task 1 consist of 7 servant 
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    2, // task 2 consist of 3 servant
+    2,
+    2,
+    3, // task 3 consist of 5 servant
+    3,
+    3,
+    3,
+    3,
+    3,
+    0
 };
+
+portTickType xPeriodOfServant[NUMBEROFSERVANT];
 // record the relationship among servants excluding R-Servant
 /*
 struct sparseRelation
