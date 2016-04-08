@@ -113,8 +113,8 @@ if_calib.o : $(PAPA_VAR_INC)/inflight_calib.h
 
 
 qemu: main.bin $(QEMU_STM32)
-#	$(QEMU_STM32) -monitor stdio -M stm32-p103 -kernel main.bin
-	$(QEMU_STM32) -M stm32-p103 -kernel main.bin
+	$(QEMU_STM32) -monitor stdio -M stm32-p103 -kernel main.bin
+#	$(QEMU_STM32) -M stm32-p103 -kernel main.bin
 
 qemudbg: main.bin $(QEMU_STM32)
 	$(QEMU_STM32) -M stm32-p103 \
@@ -125,7 +125,7 @@ qemuauto: main.bin
 	bash emulate.sh main.bin
 
 emu: main.bin
-	bash emulate.sh main.bin
+
 
 clean:
 	rm -f *.elf *.bin *.list
