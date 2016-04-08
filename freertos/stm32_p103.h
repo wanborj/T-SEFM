@@ -25,8 +25,7 @@ void enable_rs232(void);
 
 void vPrintString(const char * );
 
-void vPrintNumber( const long num );
-
+void vPrintNumber( const long c_num );
 
 
 
