@@ -97,7 +97,7 @@ struct timeStamp
 struct eventData
 {
     /* data type can be changed here. Data type including portCHAR, portFLOAT, portLONG, portSHORT, portBASE_TYPE*/
-    portDOUBLE xData;
+    portTickType xData;
 };
 
 typedef void * xEventHandle;

@@ -72,6 +72,7 @@
 
 
 #define NUMBEROFSERVANT 22 
+#define NUMBEROFTASK 4
 #define MAXRELATION NUMBEROFSERVANT 
 
 #define MAXOUTDEGREE 10   // network max in degree of every S-servant

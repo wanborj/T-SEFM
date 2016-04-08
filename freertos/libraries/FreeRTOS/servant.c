@@ -228,7 +228,6 @@ void vSensor( void * pvParameter )
     portBASE_TYPE NUM = ((struct xParam *) pvMyParameter)->xNumOfOut;
     portBASE_TYPE xMyFlag = ((struct xParam *) pvMyParameter)->xMyFlag;
     portTickType xLet = ((struct xParam *) pvMyParameter)->xLet;
-    portTickType xPeriod = ((struct xParam *) pvMyParameter)->xPeriod;
     pvServantFunType xMyFun = ((struct xParam *) pvMyParameter)->xFp;
 
     /* set the LET of Servant when it is created */
@@ -236,16 +235,21 @@ void vSensor( void * pvParameter )
     
     /* create data for destination servants and initialise them */
     struct eventData xDatas[NUM];
-    for( i = 0; i < NUM; i ++ )
-    {
-        xDatas[i].xData = 0.0;
-    }
+
 
     while(1)
     {
+        // waiting for the start of period
+        // Tick hook function in main.c will give the semaphore at the right time
+        xSemaphoreTake(xBinarySemaphore[xMyFlag], portMAX_DELAY);
+
         xCurrentTime = xTaskGetTickCount();
         //vPrintNumber(xCurrentTime);;
         vTaskSetxStartTime( xTaskOfHandle[xMyFlag], xCurrentTime );
+        for( i = 0; i < NUM; i ++ )
+        {
+            xDatas[i].xData = xCurrentTime;
+        }
 
         // create events for all destination servants of this sensor.
         vEventCreateAll( pvMyParameter, xDatas );
@@ -255,9 +259,6 @@ void vSensor( void * pvParameter )
         vTaskDelayLET();
         xCurrentTime = xTaskGetTickCount();
         //vPrintNumber(xCurrentTime);;
-
-        // sleep for 2 sec, which means that period of this task is 2 sec.
-        vTaskDelayUntil(&xLastWakeTime, xPeriod);
     }
 }
 
@@ -285,7 +286,8 @@ void vActuator( void * pvParameter )
 
     xEventHandle pxEvent[NUM];
 
-    //struct eventData xData[]; // doesn't need in actuator which updates the port of physical machine directly.
+    // this event is used to drive physical equipments.
+    struct eventData xData; 
 
     /* set the LET of current servant when it is created */
     vTaskSetxLet(xTaskOfHandle[xMyFlag], xLet);
@@ -298,14 +300,20 @@ void vActuator( void * pvParameter )
         //vPrintNumber(xCurrentTime);;
         vTaskSetxStartTime( xTaskOfHandle[xMyFlag], xCurrentTime );
 
+        xData = xEventGetxData(pxEvent[0]);
+        xData.xData  += xData.xData + xPeriod; 
+
         xMyFun( pxEvent, NUM, NULL, 0 );
 
         vEventDeleteAll( pvMyParameter, pxEvent );
+
+        // create event for physical equipments.
+        //vEventCreate( xTaskOfHandle[dest], xData );
         vTaskDelayLET();
 
         xCurrentTime = xTaskGetTickCount();
         //vPrintNumber(xCurrentTime);;
-        vTaskDelayUntil(&xLastWakeTime, xPeriod);
+        //vTaskDelayUntil(&xLastWakeTime, xPeriod);
     }
 }
 
@@ -347,7 +355,7 @@ void vServant( void * pvParameter )
         // coding...
         for( i = 0; i < xNumOfOut; i ++ )
         {
-            xDatas[i].xData = (portDOUBLE)xMyFlag;
+            xDatas[i] = xEventGetxData(pxEvent[i]);
         }
 
         xMyFun(pxEvent, xNumOfIn, xDatas, xNumOfOut);
@@ -385,6 +393,8 @@ void vR_Servant( void * pvParameter)
         xCurrentTime = xTaskGetTickCount();
         vTaskSetxStartTime( xTaskOfHandle[xMyFlag], xCurrentTime );
 
+        // to see whether there is a servant need to be triggered.
+        // This process could be preempted by Sensor servant.
         while(! HAVE_TO_SEND_SEMAPHORE)
         {
             /*
@@ -438,7 +448,6 @@ void vR_Servant( void * pvParameter)
 
 
         // set all the relations whose destination S-Servant is xTaskOfHandle[i] to 1.
-
         for( i = 0; i < xRelations.xNumOfRelation; ++ i )
         {
             xDest = xRelations.xRelation[i].xOutFlag;
@@ -450,7 +459,6 @@ void vR_Servant( void * pvParameter)
             }
         }
 
-        //vPrintString("sending semaphore to targetServantTCB------------\n\r");
         vTaskDelayLET();
         xCurrentTime = xTaskGetTickCount();
 
