@@ -85,54 +85,55 @@ xSemaphoreHandle xBinarySemaphore[NUMBEROFSERVANT];  // the semaphores which are
 xTaskHandle xTaskOfHandle[NUMBEROFSERVANT+1];         // record the handle of all S-Servant, the last one is for debugging R-Servant 
 
 // the LET of all S-Servant (ms)
-portTickType xLetOfServant[NUMBEROFSERVANT] = 
+portTickType xLetOfServant[NUMBEROFSERVANT+1] = 
 { 
-    5,    // sensor_0
-    5,    // s_1
-    5,    // s_2
-    5,    // s_3 
-    5,    // actuator_4 
-    5,    // Sensor_5
-    5,    // s_6
-    5,    // s_7
-    5,    // s_8
-    5,    // s_9
-    5,    // s_10
-    5,    // Actuator_11
-    5,    // Sensor_12
-    5,    // s_13
-    5,    // Actuator_14
-    5,    // Sensor_15
-    5,    // s_16
-    5,    // s_17
-    5,    // s_18
-    5,    // s_19
-    5    // actuator_20
+    35,    // sensor_0
+    35,    // s_1
+    35,    // s_2
+    35,    // s_3 
+    35,    // actuator_4 
+    35,    // Sensor_5
+    35,    // s_6
+    35,    // s_7
+    35,    // s_8
+    35,    // s_9
+    35,    // s_10
+    35,    // Actuator_11
+    35,    // Sensor_12
+    35,    // s_13
+    35,    // Actuator_14
+    35,    // Sensor_15
+    35,    // s_16
+    35,    // s_17
+    35,    // s_18
+    35,    // s_19
+    35,    // actuator_20
+    10    // R-Servant 
 };
 
 portTickType xPeriodOfServant[NUMBEROFSERVANT] =
 {
-    100,    // sensor_0
-    100,    // s_1
-    100,    // s_2
-    100,    // s_3 
-    100,    // actuator_4 
-    200,    // Sensor_5
-    200,    // s_6
-    200,    // s_7
-    200,    // s_8
-    200,    // s_9
-    200,    // s_10
-    200,    // Actuator_11
-    400,    // Sensor_12
-    400,    // s_13
-    400,    // Actuator_14
-    1000,    // Sensor_15
-    1000,    // s_16
-    1000,    // s_17
-    1000,    // s_18
-    1000,    // s_19
-    1000    // actuator_20
+    1000,    // sensor_0
+    1000,    // s_1
+    1000,    // s_2
+    1000,    // s_3 
+    1000,    // actuator_4 
+    2000,    // Sensor_5
+    2000,    // s_6
+    2000,    // s_7
+    2000,    // s_8
+    2000,    // s_9
+    2000,    // s_10
+    2000,    // Actuator_11
+    4000,    // Sensor_12
+    4000,    // s_13
+    4000,    // Actuator_14
+    10000,    // Sensor_15
+    10000,    // s_16
+    10000,    // s_17
+    10000,    // s_18
+    10000,    // s_19
+    10000    // actuator_20
 };
 // record the relationship among servants excluding R-Servant
 /*

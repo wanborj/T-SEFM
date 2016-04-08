@@ -198,7 +198,7 @@ static void vEventSetxTimeStamp( xEventHandle pxNewEvent )
     xTaskHandle pxCurrentTCBLocal = xTaskGetCurrentTaskHandle();
 
     /*set the time of this event to be processed */
-    pxEvent->xTimeStamp.xTime = xTaskGetxStartTime(pxCurrentTCBLocal) + xTaskGetxLet(pxCurrentTCBLocal) + configMAX_RSERVANT_EXETIME;
+    pxEvent->xTimeStamp.xTime = xTaskGetxStartTime(pxCurrentTCBLocal) + xTaskGetxLet(pxCurrentTCBLocal) ;
 
     /*the microstep is not used now*/
     pxEvent->xTimeStamp.xMicroStep = 0;

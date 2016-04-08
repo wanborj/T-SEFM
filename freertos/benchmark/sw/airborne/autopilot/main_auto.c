@@ -287,6 +287,7 @@ extern const int32_t utm_north0;
 
 void send_boot(void){
   /** initialisation phase during boot */
+  vPrintString("S_13 reporting_task start!\n\r");
   if (boot) {
       DOWNLINK_SEND_BOOT(&version);
       DOWNLINK_SEND_RAD_OF_IR(&estimator_ir, &estimator_rad, &estimator_rad_of_ir, &ir_roll_neutral, &ir_pitch_neutral);
@@ -325,6 +326,7 @@ void send_debug(void){  //5000ms
 }
 void send_nav_ref(void){  //10000ms
   if(!boot){ if (count % 100 == 49) PERIODIC_SEND_NAVIGATION_REF();}
+  vPrintString("S_13 reporting_task end!\n\r");
 }
 
 /** \fn inline uint8_t inflight_calib_mode_update ( void )
