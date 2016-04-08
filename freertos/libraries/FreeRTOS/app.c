@@ -144,7 +144,6 @@ portBASE_TYPE xTaskOfServant[NUMBEROFSERVANT] =
     0
 };
 
-portTickType xPeriodOfServant[NUMBEROFSERVANT];
 // record the relationship among servants excluding R-Servant
 /*
 struct sparseRelation

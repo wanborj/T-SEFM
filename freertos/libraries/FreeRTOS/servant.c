@@ -90,8 +90,7 @@ extern struct xRelationship xRelations;
 
 // the LET of all S-Servant
 extern portTickType xLetOfServant[NUMBEROFSERVANT] ;
-// the Period of servant, mainly in sensor and actuator which are periodic.
-extern portTickType xPeriodOfServant[NUMBEROFSERVANT];
+
 // In app.c, this is used to sepcify the function of Servant
 extern pvServantFunType xServantTable[NUMBEROFSERVANT];
 
