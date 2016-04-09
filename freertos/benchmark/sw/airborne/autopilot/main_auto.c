@@ -287,7 +287,7 @@ extern const int32_t utm_north0;
 
 void send_boot(void){
   /** initialisation phase during boot */
-  vPrintString("S_13 reporting_task start!\n\r");
+  //vPrintString("S_13 reporting_task start!\n\r");
   if (boot) {
       DOWNLINK_SEND_BOOT(&version);
       DOWNLINK_SEND_RAD_OF_IR(&estimator_ir, &estimator_rad, &estimator_rad_of_ir, &ir_roll_neutral, &ir_pitch_neutral);
@@ -326,7 +326,7 @@ void send_debug(void){  //5000ms
 }
 void send_nav_ref(void){  //10000ms
   if(!boot){ if (count % 100 == 49) PERIODIC_SEND_NAVIGATION_REF();}
-  vPrintString("S_13 reporting_task end!\n\r");
+  //vPrintString("S_13 reporting_task end!\n\r");
 }
 
 /** \fn inline uint8_t inflight_calib_mode_update ( void )
@@ -342,7 +342,7 @@ inline uint8_t inflight_calib_mode_update ( void ) {
  */
 void radio_control_task( void ) {
   bool_t calib_mode_changed;
-	vPrintString("S_3 radio_control_task start! \n\r"); //SunnyBeike
+	//vPrintString("S_3 radio_control_task start! \n\r"); //SunnyBeike
   if (link_fbw_receive_valid) {
     uint8_t mode_changed = FALSE;
     copy_from_to_fbw();
@@ -392,7 +392,7 @@ void radio_control_task( void ) {
     }
   }
 
-	vPrintString("S_3 radio_control_task end! \n\r"); //SunnyBeike
+	//vPrintString("S_3 radio_control_task end! \n\r"); //SunnyBeike
 }
 
 /** \fn void navigation_task( void )
@@ -401,7 +401,7 @@ void radio_control_task( void ) {
 void navigation_update( void ) {
 
   /* Default to keep compatibility with previous behaviour */
-  vPrintString("S_17 Navigation task start!\n\r");
+  //vPrintString("S_17 Navigation task start!\n\r");
   lateral_mode = LATERAL_MODE_COURSE;
   if (pprz_mode == PPRZ_MODE_HOME)
     nav_home();
@@ -422,21 +422,21 @@ void course_run(void){
       course_pid_run(); /* aka compute nav_desired_roll */
     desired_roll = nav_desired_roll;
   }  
-  vPrintString("S_17 Navigation task end!\n\r");
+  //vPrintString("S_17 Navigation task end!\n\r");
 }
 
 void altitude_control_task(void)
 {
-	vPrintString("S_18 navigation_task start! \n\r"); //SunnyBeike
+	//vPrintString("S_18 navigation_task start! \n\r"); //SunnyBeike
 	if (pprz_mode == PPRZ_MODE_AUTO2 || pprz_mode == PPRZ_MODE_HOME) {
 		if (vertical_mode == VERTICAL_MODE_AUTO_ALT)
       			altitude_pid_run();
 	}
-	vPrintString("S_18 navigation_task end! \n\r"); //SunnyBeike
+	//vPrintString("S_18 navigation_task end! \n\r"); //SunnyBeike
 }
 void climb_control_task(void)
 {
-	vPrintString("S_19 navigation_task start! \n\r"); //SunnyBeike
+	//vPrintString("S_19 navigation_task start! \n\r"); //SunnyBeike
    if (pprz_mode == PPRZ_MODE_AUTO2 || pprz_mode == PPRZ_MODE_HOME) 
    {
 	if (vertical_mode >= VERTICAL_MODE_AUTO_CLIMB)
@@ -446,7 +446,7 @@ void climb_control_task(void)
    	if (low_battery || (!estimator_flight_time && !launch))
    		 desired_gaz = 0.;
   }  
-	vPrintString("S_19 navigation_task end! \n\r"); //SunnyBeike
+	//vPrintString("S_19 navigation_task end! \n\r"); //SunnyBeike
 }
 #define PERIOD (256. * 1024. / CLOCK / 1000000.)
 
@@ -606,7 +606,7 @@ else
 
 void stabilisation_task(void)
 {
-	vPrintString("S_6 stabilisation_task start! \n\r"); //SunnyBeike
+	//vPrintString("S_6 stabilisation_task start! \n\r"); //SunnyBeike
     ir_update();
     estimator_update_state_infrared();
     roll_pitch_pid_run(); // Set  desired_aileron & desired_elevator
@@ -618,7 +618,7 @@ void stabilisation_task(void)
     
     // Code for camera stabilization, FIXME put that elsewhere
     to_fbw.channels[RADIO_GAIN1] = TRIM_PPRZ(MAX_PPRZ/0.75*(-estimator_phi));
-	vPrintString("S_6 stabilisation_task end! \n\r"); //SunnyBeike
+	//vPrintString("S_6 stabilisation_task end! \n\r"); //SunnyBeike
 }
 
 /*void receive_gps_data_task(void)
@@ -663,5 +663,5 @@ void send_takeOff(void){
      }
      gps_pos_available = FALSE; 
   }
-  vPrintString("S_16 receive_gps_data_task end!\n\r");
+  //vPrintString("S_16 receive_gps_data_task end!\n\r");
 }

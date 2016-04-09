@@ -226,7 +226,9 @@ void vSensor( void * pvParameter )
     portTickType xLastWakeTime;
     xLastWakeTime = xTaskGetTickCount();
     portTickType xCurrentTime;
+    portTickType xStartTime;
     portBASE_TYPE i;
+    portBASE_TYPE xCount = 0;
 
     /* store the paramter into stack of servant */
     void * pvMyParameter = pvParameter;
@@ -251,11 +253,19 @@ void vSensor( void * pvParameter )
 
         //taskENTER_CRITICAL();
         xCurrentTime = xTaskGetTickCount();
-        //vPrintNumber(xCurrentTime);;
+        //vPrintNumber(xCurrentTime);
         vTaskSetxStartTime( xTaskOfHandle[xMyFlag], xCurrentTime );
+
+        xStartTime = xCount * xPeriodOfTask[xTaskOfServant[xMyFlag]];
+        xCount ++;
+        //vPrintString("Task ");
+        //send_byte(xTaskOfServant[xMyFlag] + '0');
+        //vPrintString("'s start time is ");
+        //vPrintNumber(xStartTime);
+
         for( i = 0; i < NUM; i ++ )
         {
-            xDatas[i].xData = xCurrentTime;
+            xDatas[i].xData = xStartTime;
         }
 
         // create events for all destination servants of this sensor.
@@ -286,6 +296,8 @@ void vActuator( void * pvParameter )
     portTickType xLastWakeTime;
     xLastWakeTime = xTaskGetTickCount();
     portTickType xCurrentTime;
+    portBASE_TYPE xOutOfDeadlineCount = 0;
+    portTickType xMileStone = 2000;
 
     void * pvMyParameter = pvParameter;
     portBASE_TYPE NUM = ((struct xParam *) pvMyParameter)->xNumOfIn;
@@ -313,7 +325,12 @@ void vActuator( void * pvParameter )
         vTaskSetxStartTime( xTaskOfHandle[xMyFlag], xCurrentTime );
 
         xData = xEventGetxData(pxEvent[0]);
-        xData.xData  += xData.xData + xPeriod; 
+        xData.xData  = xData.xData + xPeriod; 
+
+        //vPrintString("Task ");
+        //send_byte(xTaskOfServant[xMyFlag] + '0');
+        //vPrintString("'s deadline is ");
+        //vPrintNumber(xData.xData);
 
         //portDISABLE_INTERRUPTS();
         xMyFun( pxEvent, NUM, NULL, 0 );
@@ -326,6 +343,26 @@ void vActuator( void * pvParameter )
         vTaskDelayLET();
 
         xCurrentTime = xTaskGetTickCount();
+        if( xCurrentTime > xData.xData )
+        {
+            // recording the times of missing deadline
+            xOutOfDeadlineCount ++;
+            //vPrintString("Task: ");
+            //send_byte(xTaskOfServant[xMyFlag] + '0');
+            //vPrintString(" miss deadline \n\r");
+        }
+
+        // if the current Time bigger then the LCD of tasks' periods,
+        // then the Count refresh.
+        if( xCurrentTime > xMileStone)
+        {
+            vPrintString("Task: ");
+            send_byte(xTaskOfServant[xMyFlag] + '0');
+            vPrintString(" miss deadline for ");
+            vPrintNumber(xOutOfDeadlineCount);
+            xMileStone += 2000;
+            xOutOfDeadlineCount = 0;
+        }
         //vPrintNumber(xCurrentTime);;
 
         //taskEXIT_CRITICAL();

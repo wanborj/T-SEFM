@@ -94,7 +94,7 @@ void gps_init( void ) {
 }
 
 void parse_gps_msg( void ) {
-  vPrintString("S_16 receive_gps_data_task start!\n\r");
+  //vPrintString("S_16 receive_gps_data_task start!\n\r");
   if (ubx_class == UBX_NAV_ID) {
     if (ubx_id == UBX_NAV_POSUTM_ID) {
       gps_utm_east = UBX_NAV_POSUTM_EAST(ubx_msg_buf);
