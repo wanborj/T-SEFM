@@ -166,27 +166,32 @@ void vPrintNumber( const long c_num)
     unsigned int i, count = 0;
     long num = c_num;
 
-    // transform long into char * 
-    while( num  )
+    if(num == 0)
     {
-        time[count] = num%10 +'0';
-        count ++;
-        num /= 10;
-
+        vPrintString("0\n\r");
     }
-    time[count] = '\0';
-
-    // reverse
-    for( i = 0; i < count/2; ++i )
+    else
     {
-        tmp = time[i];
-        time[i] = time[count-1-i];
-        time[count-1-i] = tmp;
+        // transform long into char * 
+        while( num  )
+        {
+            time[count] = num%10 +'0';
+            count ++;
+            num /= 10;
 
+        }
+        time[count] = '\0';
+
+        // reverse
+        for( i = 0; i < count/2; ++i )
+        {
+            tmp = time[i];
+            time[i] = time[count-1-i];
+            time[count-1-i] = tmp;
+
+        }
+        vPrintString(time);
+        vPrintString("\n\r");
     }
-
-    vPrintString(time);
-    vPrintString("\n\r");
-
 }
 

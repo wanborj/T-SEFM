@@ -85,10 +85,10 @@ xSemaphoreHandle xBinarySemaphore[NUMBEROFSERVANT];  // the semaphores which are
 xTaskHandle xTaskOfHandle[NUMBEROFSERVANT];         // record the handle of all S-Servant, the last one is for debugging R-Servant 
 portTickType xPeriodOfTask[NUMBEROFTASK] =
 {
-    500,
-    1000,
-    2000,
-    5000
+    100,
+    200,
+    400,
+    1000
 };
 
 // the LET of all S-Servant (ms)
@@ -212,7 +212,7 @@ extern void  send_nav_ref();
  * */
 void s_0(xEventHandle * pxEventArray, portBASE_TYPE NumOfEvent, struct eventData * pxDataArray, portBASE_TYPE NumOfData) 
 {
-    vPrintString("Task 1 start ###############\n\r");
+    //vPrintString("Task 1 start ###############\n\r");
 }
 void s_1(xEventHandle * pxEventArray, portBASE_TYPE NumOfEvent, struct eventData * pxDataArray, portBASE_TYPE NumOfData) 
 {
@@ -239,7 +239,7 @@ void s_3(xEventHandle * pxEventArray, portBASE_TYPE NumOfEvent, struct eventData
 }
 void s_4(xEventHandle * pxEventArray, portBASE_TYPE NumOfEvent, struct eventData * pxDataArray, portBASE_TYPE NumOfData) 
 {
-    vPrintString("Task 1 end ###############\n\r");
+    //vPrintString("Task 1 end ###############\n\r");
 }
 
 /*
@@ -254,7 +254,7 @@ void s_4(xEventHandle * pxEventArray, portBASE_TYPE NumOfEvent, struct eventData
  * */
 void s_5(xEventHandle * pxEventArray, portBASE_TYPE NumOfEvent, struct eventData * pxDataArray, portBASE_TYPE NumOfData) 
 {
-    vPrintString("Task 2 start+++++++++++++++++++\n\r");
+    //vPrintString("Task 2 start+++++++++++++++++++\n\r");
 }
 void s_6(xEventHandle * pxEventArray, portBASE_TYPE NumOfEvent, struct eventData * pxDataArray, portBASE_TYPE NumOfData) 
 {
@@ -285,7 +285,7 @@ void s_10(xEventHandle * pxEventArray, portBASE_TYPE NumOfEvent, struct eventDat
 }
 void s_11(xEventHandle * pxEventArray, portBASE_TYPE NumOfEvent, struct eventData * pxDataArray, portBASE_TYPE NumOfData) 
 {
-    vPrintString("Task 2 end +++++++++++++++++++\n\r");
+    //vPrintString("Task 2 end +++++++++++++++++++\n\r");
 }
 
 
@@ -297,7 +297,7 @@ void s_11(xEventHandle * pxEventArray, portBASE_TYPE NumOfEvent, struct eventDat
  * */
 void s_12(xEventHandle * pxEventArray, portBASE_TYPE NumOfEvent, struct eventData * pxDataArray, portBASE_TYPE NumOfData) 
 {
-    vPrintString("Task 3 start---------------------\n\r");
+    //vPrintString("Task 3 start---------------------\n\r");
 }
 void s_13(xEventHandle * pxEventArray, portBASE_TYPE NumOfEvent, struct eventData * pxDataArray, portBASE_TYPE NumOfData) 
 {
@@ -317,7 +317,7 @@ void s_13(xEventHandle * pxEventArray, portBASE_TYPE NumOfEvent, struct eventDat
 }
 void s_14(xEventHandle * pxEventArray, portBASE_TYPE NumOfEvent, struct eventData * pxDataArray, portBASE_TYPE NumOfData) 
 {
-    vPrintString("Task 3 end ----------------------\n\r");
+    //vPrintString("Task 3 end ----------------------\n\r");
 }
 
 
@@ -332,7 +332,7 @@ void s_14(xEventHandle * pxEventArray, portBASE_TYPE NumOfEvent, struct eventDat
  * */
 void s_15(xEventHandle * pxEventArray, portBASE_TYPE NumOfEvent, struct eventData * pxDataArray, portBASE_TYPE NumOfData) 
 {
-    vPrintString("Task 4 start********************\n\r");
+    //vPrintString("Task 4 start********************\n\r");
 }
 void s_16(xEventHandle * pxEventArray, portBASE_TYPE NumOfEvent, struct eventData * pxDataArray, portBASE_TYPE NumOfData) 
 {
@@ -366,7 +366,7 @@ void s_19(xEventHandle * pxEventArray, portBASE_TYPE NumOfEvent, struct eventDat
 }
 void s_20(xEventHandle * pxEventArray, portBASE_TYPE NumOfEvent, struct eventData * pxDataArray, portBASE_TYPE NumOfData) 
 {
-    vPrintString("Task 4 end *********************\n\r");
+    //vPrintString("Task 4 end *********************\n\r");
 }
 #endif
 

@@ -46,11 +46,11 @@ void link_fbw_init(void) {
 }
 
 void link_fbw_send(void) {
-    vPrintString("S_7 link_fbw_send start! \n\r"); //SunnyBeike
+    //vPrintString("S_7 link_fbw_send start! \n\r"); //SunnyBeike
 
     if (spi_cur_slave != SPI_NONE) {
         spi_nb_ovrn++;
-        vPrintString("S_7 link_fbw_send end! \n\r"); //SunnyBeike
+        //vPrintString("S_7 link_fbw_send end! \n\r"); //SunnyBeike
         return;
     }
 
@@ -64,7 +64,7 @@ void link_fbw_send(void) {
     SPDR = xor_out;
     link_fbw_receive_valid = FALSE;
     // Other bytes will follow SIG_SPI interrupts
-    vPrintString("S_7 link_fbw_send end! \n\r"); //SunnyBeike
+    //vPrintString("S_7 link_fbw_send end! \n\r"); //SunnyBeike
 }
 
 void link_fbw_on_spi_it( void ) {
