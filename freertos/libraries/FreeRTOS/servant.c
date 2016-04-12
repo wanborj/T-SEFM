@@ -335,7 +335,9 @@ void vActuator( void * pvParameter )
         //vEventCreate( xTaskOfHandle[dest], xData );
         //vTaskDelayLET();
 
+        /*
         xCurrentTime = xTaskGetTickCount();
+
         if( xCurrentTime > xData.xData )
         {
             // recording the times of missing deadline
@@ -356,6 +358,7 @@ void vActuator( void * pvParameter )
             xMileStone += 2000;
             xOutOfDeadlineCount = 0;
         }
+        */
         vPrintNumber( ( xMyFlag + 10 ) * 3 );
     }
 }
