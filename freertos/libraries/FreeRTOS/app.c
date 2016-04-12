@@ -94,27 +94,27 @@ portTickType xPeriodOfTask[NUMBEROFTASK] =
 // the LET of all S-Servant (ms)
 portTickType xLetOfServant[NUMBEROFSERVANT] = 
 { 
-    4,    // sensor_0
-    4,    // s_1
-    4,    // s_2
-    4,    // s_3 
-    4,    // actuator_4 
-    4,    // Sensor_5
-    4,    // s_6
-    4,    // s_7
-    4,    // s_8
-    4,    // s_9
-    4,    // s_10
-    4,    // Actuator_11
-    4,    // Sensor_12
-    4,    // s_13
-    4,    // Actuator_14
-    4,    // Sensor_15
-    4,    // s_16
-    4,    // s_17
-    4,    // s_18
-    4,    // s_19
-    4,    // actuator_20
+    2,    // sensor_0
+    2,    // s_1
+    2,    // s_2
+    2,    // s_3 
+    2,    // actuator_4 
+    2,    // Sensor_5
+    2,    // s_6
+    2,    // s_7
+    2,    // s_8
+    2,    // s_9
+    2,    // s_10
+    2,    // Actuator_11
+    2,    // Sensor_12
+    2,    // s_13
+    2,    // Actuator_14
+    2,    // Sensor_15
+    2,    // s_16
+    2,    // s_17
+    2,    // s_18
+    2,    // s_19
+    2,    // actuator_20
     2    // R-Servant 
 };
 

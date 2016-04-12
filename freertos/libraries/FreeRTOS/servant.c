@@ -275,7 +275,7 @@ void vSensor( void * pvParameter )
         xMyFun( NULL, 0, xDatas, NUM);
         //portENABLE_INTERRUPTS();
 
-        vTaskDelayLET();
+        //vTaskDelayLET();
         xCurrentTime = xTaskGetTickCount();
         //vPrintNumber(xCurrentTime);;
         //taskEXIT_CRITICAL();
@@ -340,7 +340,7 @@ void vActuator( void * pvParameter )
 
         // create event for physical equipments.
         //vEventCreate( xTaskOfHandle[dest], xData );
-        vTaskDelayLET();
+        //vTaskDelayLET();
 
         xCurrentTime = xTaskGetTickCount();
         if( xCurrentTime > xData.xData )
@@ -420,7 +420,7 @@ void vServant( void * pvParameter )
         vEventDeleteAll( pvMyParameter, pxEvent );        
 
         vEventCreateAll( pvMyParameter, xDatas );
-        vTaskDelayLET();
+        //vTaskDelayLET();
         xCurrentTime = xTaskGetTickCount();
         //vPrintNumber(xCurrentTime);;
         
@@ -518,7 +518,7 @@ void vR_Servant( void * pvParameter)
             }
         }
 
-        vTaskDelayLET();
+        //vTaskDelayLET();
         xCurrentTime = xTaskGetTickCount();
 
         // send semaphore to destinationtcb
