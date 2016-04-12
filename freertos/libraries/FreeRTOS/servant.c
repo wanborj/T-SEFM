@@ -251,9 +251,8 @@ void vSensor( void * pvParameter )
         // Tick hook function in main.c will give the semaphore at the right time
         xSemaphoreTake(xBinarySemaphore[xMyFlag], portMAX_DELAY);
 
-        //taskENTER_CRITICAL();
         xCurrentTime = xTaskGetTickCount();
-        //vPrintNumber(xCurrentTime);
+        vPrintNumber( xMyFlag );
         vTaskSetxStartTime( xTaskOfHandle[xMyFlag], xCurrentTime );
 
         xStartTime = xCount * xPeriodOfTask[xTaskOfServant[xMyFlag]];
@@ -271,14 +270,11 @@ void vSensor( void * pvParameter )
         // create events for all destination servants of this sensor.
         vEventCreateAll( pvMyParameter, xDatas );
 
-        //portDISABLE_INTERRUPTS();
         xMyFun( NULL, 0, xDatas, NUM);
-        //portENABLE_INTERRUPTS();
 
         //vTaskDelayLET();
         xCurrentTime = xTaskGetTickCount();
-        //vPrintNumber(xCurrentTime);;
-        //taskEXIT_CRITICAL();
+        vPrintNumber( ( xMyFlag + 10 ) * 3 );
     }
 }
 
@@ -318,10 +314,9 @@ void vActuator( void * pvParameter )
     {
         vEventReceiveAll( pvMyParameter, pxEvent );
         
-        //taskENTER_CRITICAL();
 
         xCurrentTime = xTaskGetTickCount();
-        //vPrintNumber(xCurrentTime);;
+        vPrintNumber( xMyFlag );;
         vTaskSetxStartTime( xTaskOfHandle[xMyFlag], xCurrentTime );
 
         xData = xEventGetxData(pxEvent[0]);
@@ -332,9 +327,7 @@ void vActuator( void * pvParameter )
         //vPrintString("'s deadline is ");
         //vPrintNumber(xData.xData);
 
-        //portDISABLE_INTERRUPTS();
         xMyFun( pxEvent, NUM, NULL, 0 );
-        //portENABLE_INTERRUPTS();
 
         vEventDeleteAll( pvMyParameter, pxEvent );
 
@@ -363,9 +356,7 @@ void vActuator( void * pvParameter )
             xMileStone += 2000;
             xOutOfDeadlineCount = 0;
         }
-        //vPrintNumber(xCurrentTime);;
-
-        //taskEXIT_CRITICAL();
+        vPrintNumber( ( xMyFlag + 10 ) * 3 );
     }
 }
 
@@ -399,10 +390,9 @@ void vServant( void * pvParameter )
     {
         vEventReceiveAll( pvMyParameter, pxEvent );
 
-        //taskENTER_CRITICAL();
 
         xCurrentTime = xTaskGetTickCount();
-        //vPrintNumber(xCurrentTime);;
+        vPrintNumber(xMyFlag);;
         
         vTaskSetxStartTime( xTaskOfHandle[xMyFlag], xCurrentTime );
 
@@ -413,18 +403,15 @@ void vServant( void * pvParameter )
             xDatas[i] = xEventGetxData(pxEvent[i]);
         }
 
-        //portDISABLE_INTERRUPTS();
         xMyFun(pxEvent, xNumOfIn, xDatas, xNumOfOut);
-        //portENABLE_INTERRUPTS();
         
         vEventDeleteAll( pvMyParameter, pxEvent );        
 
         vEventCreateAll( pvMyParameter, xDatas );
         //vTaskDelayLET();
         xCurrentTime = xTaskGetTickCount();
-        //vPrintNumber(xCurrentTime);;
+        vPrintNumber( (xMyFlag + 10) * 3 );
         
-        //taskEXIT_CRITICAL();
     }
 }
 
