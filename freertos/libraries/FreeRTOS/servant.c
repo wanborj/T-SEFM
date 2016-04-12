@@ -252,15 +252,11 @@ void vSensor( void * pvParameter )
         xSemaphoreTake(xBinarySemaphore[xMyFlag], portMAX_DELAY);
 
         xCurrentTime = xTaskGetTickCount();
-        vPrintNumber( xMyFlag );
+        //vPrintNumber( xMyFlag );
         vTaskSetxStartTime( xTaskOfHandle[xMyFlag], xCurrentTime );
 
         xStartTime = xCount * xPeriodOfTask[xTaskOfServant[xMyFlag]];
         xCount ++;
-        //vPrintString("Task ");
-        //send_byte(xTaskOfServant[xMyFlag] + '0');
-        //vPrintString("'s start time is ");
-        //vPrintNumber(xStartTime);
 
         for( i = 0; i < NUM; i ++ )
         {
@@ -274,7 +270,7 @@ void vSensor( void * pvParameter )
 
         //vTaskDelayLET();
         xCurrentTime = xTaskGetTickCount();
-        vPrintNumber( ( xMyFlag + 10 ) * 3 );
+        //vPrintNumber( ( xMyFlag + 10 ) * 3 );
     }
 }
 
@@ -293,7 +289,7 @@ void vActuator( void * pvParameter )
     xLastWakeTime = xTaskGetTickCount();
     portTickType xCurrentTime;
     portBASE_TYPE xOutOfDeadlineCount = 0;
-    portTickType xMileStone = 2000;
+    portTickType xMileStone = 4000;
 
     void * pvMyParameter = pvParameter;
     portBASE_TYPE NUM = ((struct xParam *) pvMyParameter)->xNumOfIn;
@@ -313,53 +309,42 @@ void vActuator( void * pvParameter )
     while(1)
     {
         vEventReceiveAll( pvMyParameter, pxEvent );
-        
+
+        //vPrintNumber( xMyFlag );
 
         xCurrentTime = xTaskGetTickCount();
-        vPrintNumber( xMyFlag );;
         vTaskSetxStartTime( xTaskOfHandle[xMyFlag], xCurrentTime );
 
         xData = xEventGetxData(pxEvent[0]);
         xData.xData  = xData.xData + xPeriod; 
 
-        //vPrintString("Task ");
-        //send_byte(xTaskOfServant[xMyFlag] + '0');
-        //vPrintString("'s deadline is ");
-        //vPrintNumber(xData.xData);
-
         xMyFun( pxEvent, NUM, NULL, 0 );
 
         vEventDeleteAll( pvMyParameter, pxEvent );
-
-        // create event for physical equipments.
-        //vEventCreate( xTaskOfHandle[dest], xData );
-        //vTaskDelayLET();
-
-        /*
+        
         xCurrentTime = xTaskGetTickCount();
-
-        if( xCurrentTime > xData.xData )
+        if(xCurrentTime > xData.xData)
         {
-            // recording the times of missing deadline
             xOutOfDeadlineCount ++;
-            //vPrintString("Task: ");
-            //send_byte(xTaskOfServant[xMyFlag] + '0');
-            //vPrintString(" miss deadline \n\r");
+            vPrintString("Task: ");
+            vPrintNumber(xMyFlag);
+            vPrintNumber(xCurrentTime);
+            vPrintNumber(xData.xData);
         }
-
-        // if the current Time bigger then the LCD of tasks' periods,
-        // then the Count refresh.
-        if( xCurrentTime > xMileStone)
+        
+        if( xCurrentTime > xMileStone )
         {
             vPrintString("Task: ");
             send_byte(xTaskOfServant[xMyFlag] + '0');
             vPrintString(" miss deadline for ");
             vPrintNumber(xOutOfDeadlineCount);
-            xMileStone += 2000;
+            xMileStone += 4000;
             xOutOfDeadlineCount = 0;
         }
-        */
-        vPrintNumber( ( xMyFlag + 10 ) * 3 );
+        // create event for physical equipments.
+        //vEventCreate( xTaskOfHandle[dest], xData );
+        //vTaskDelayLET();
+        //vPrintNumber( ( xMyFlag + 10 ) * 3 );
     }
 }
 
@@ -395,7 +380,7 @@ void vServant( void * pvParameter )
 
 
         xCurrentTime = xTaskGetTickCount();
-        vPrintNumber(xMyFlag);;
+        //vPrintNumber(xMyFlag);;
         
         vTaskSetxStartTime( xTaskOfHandle[xMyFlag], xCurrentTime );
 
@@ -413,7 +398,7 @@ void vServant( void * pvParameter )
         vEventCreateAll( pvMyParameter, xDatas );
         //vTaskDelayLET();
         xCurrentTime = xTaskGetTickCount();
-        vPrintNumber( (xMyFlag + 10) * 3 );
+        //vPrintNumber( (xMyFlag + 10) * 3 );
         
     }
 }

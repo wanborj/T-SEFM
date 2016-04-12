@@ -11,7 +11,7 @@ int main()
 {
     int id1, id2;
     long long int start_time, end_time;
-    freopen("../executionTimeOfServant.data", "r", stdin);
+    freopen("../execution_time_of_servant.data", "r", stdin);
     freopen("data_process.data", "w", stdout);
     
     while( scanf("%d", &id1) != EOF )
