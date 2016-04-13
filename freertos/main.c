@@ -56,7 +56,7 @@ int main(void)
     vSemaphoreInitialise();
     vParameterInitialise();
 
-    xTaskCreate( vR_Servant, "R-Servant", SERVANT_STACK_SIZE, NULL,tskIDLE_PRIORITY + 1, &xTaskOfHandle[NUMBEROFSERVANT-1]);
+    xTaskCreate( vR_Servant, "R-Servant", SERVANT_STACK_SIZE, (void *)&pvParameters[NUMBEROFSERVANT-1],tskIDLE_PRIORITY + 1, &xTaskOfHandle[NUMBEROFSERVANT-1]);
 
     // task 1, 25ms,
     xTaskCreate( vSensor, "Sensor Of Task 1", SERVANT_STACK_SIZE, (void *)&pvParameters[0], tskIDLE_PRIORITY + 10, &xTaskOfHandle[0]);
@@ -130,8 +130,8 @@ inline unsigned long myTraceGetTimeMillisecond(){
  * */
 void vApplicationTickHook( void )
 {
-    portTickType xCurrentTime = xTaskGetTickCountFromISR();
-    if( xCurrentTime == 0 )
+    portTickType xCurrentTime = xTaskGetTickCount();
+    if( xCurrentTime < 200 )
     {
         return;
     }
@@ -140,18 +140,18 @@ void vApplicationTickHook( void )
     // back to 1 after actuator complete execution.
     if(xTaskComplete[0] == 1 && xCurrentTime % xPeriodOfTask[0] == 0)
     {
-        xSemaphoreGiveFromISR(xBinarySemaphore[0]);
+        xSemaphoreGive(xBinarySemaphore[0]);
     }
     if(xTaskComplete[1] == 1 && xCurrentTime % xPeriodOfTask[1] == 0)
     {
-        xSemaphoreGiveFromISR(xBinarySemaphore[5]);
+        xSemaphoreGive(xBinarySemaphore[5]);
     }
     if(xTaskComplete[2] == 1 && xCurrentTime % xPeriodOfTask[2] == 0)
     {
-        xSemaphoreGiveFromISR(xBinarySemaphore[12]);
+        xSemaphoreGive(xBinarySemaphore[12]);
     }
     if(xTaskComplete[3] == 1 && xCurrentTime % xPeriodOfTask[3] == 0)
     {
-        xSemaphoreGiveFromISR(xBinarySemaphore[15]);
+        xSemaphoreGive(xBinarySemaphore[15]);
     }
 }

@@ -378,14 +378,19 @@ void vEventListGenericTransit( xListItem ** pxEventListItem, xList ** pxCurrentR
 {
     //if( listLIST_IS_EMPTY(&xEventList) )
     // if there is only End Flag Event in xEventList, then return NULL.
+
     if( listCURRENT_LIST_LENGTH(&xEventList) == 1 )
     {
+    vPrintString("hello,world\n\r");
         *pxEventListItem  = NULL;
         *pxCurrentReadyList = NULL;
+        vPrintString("in transit function and no event now\n\r");
+    vPrintString("hello,world1\n\r");
         return;
     }
         
     taskENTER_CRITICAL();
+
 
     // get the first event of the xEventList.  
     *pxEventListItem = (xListItem *)xEventList.xListEnd.pxNext;
