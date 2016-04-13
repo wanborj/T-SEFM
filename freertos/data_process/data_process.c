@@ -11,7 +11,7 @@ int main()
 {
     int id1, id2;
     long long int start_time, end_time;
-    freopen("../executionTimeOfServant.data", "r", stdin);
+    freopen("../execution_time_of_servant.data", "r", stdin);
     freopen("data_process.data", "w", stdout);
     
     while( scanf("%d", &id1) != EOF )
@@ -26,7 +26,10 @@ int main()
         }
         else
         {
-            fprintf(stdout, "Servant %d had been preempted\n", id1);
+            printf("Servant %d had been preempted\n", id1);
+            printf("id: %d ; start_time %lld\n", id1, start_time);
+            printf("id: %d ; end_time   %lld\n", id2, end_time);
+            
         }
     }
 

@@ -77,6 +77,7 @@
 #include "eventlist.h"
 #include "servant.h"
 #include "app.h"
+//#define xFunctionTimes 100
 
 xList * pxCurrentReadyList;         // record the xEventReadyList that R-Servant transit event just now
 struct xParam pvParameters[NUMBEROFSERVANT];
@@ -100,6 +101,23 @@ extern portBASE_TYPE xTaskOfServant[NUMBEROFSERVANT];
 // record the period of Task
 extern portTickType xPeriodOfTask[NUMBEROFTASK];
 
+/* These flags are used to judge whether the task completes execution. 
+ * if not, then it will not be triggered again even the current time 
+ * is the start time of the period of the task, which will be a bug 
+ * when other servant's execution time less than 1ms. 
+ * And now, this bug will be fixed by add this flags of every task.
+ */
+extern portBASE_TYPE xTaskComplete[NUMBEROFTASK];
+
+void vTaskCompleteInitialise()
+{
+    portBASE_TYPE i;
+
+    for( i = 0; i < NUMBEROFTASK; ++ i )
+    {
+        xTaskComplete[i] = 1;
+    }
+}
 
 /* create all semaphores which are used to triggered s-servant */
 void vSemaphoreInitialise()
@@ -223,12 +241,10 @@ void vEventCreateAll( void * pvParameter, struct eventData *xDatas )
 * */
 void vSensor( void * pvParameter )
 {
-    portTickType xLastWakeTime;
-    xLastWakeTime = xTaskGetTickCount();
     portTickType xCurrentTime;
     portTickType xStartTime;
     portBASE_TYPE i;
-    portBASE_TYPE xCount = 0;
+    portBASE_TYPE xCount = 2;
 
     /* store the paramter into stack of servant */
     void * pvMyParameter = pvParameter;
@@ -251,16 +267,16 @@ void vSensor( void * pvParameter )
         // Tick hook function in main.c will give the semaphore at the right time
         xSemaphoreTake(xBinarySemaphore[xMyFlag], portMAX_DELAY);
 
-        xCurrentTime = xTaskGetTickCount();
+        xTaskComplete[ xTaskOfServant[xMyFlag] ] = 0;
+
         vPrintNumber( xMyFlag );
+
+        xCurrentTime = xTaskGetTickCount();
+        vPrintNumber( xCurrentTime );
         vTaskSetxStartTime( xTaskOfHandle[xMyFlag], xCurrentTime );
 
         xStartTime = xCount * xPeriodOfTask[xTaskOfServant[xMyFlag]];
         xCount ++;
-        //vPrintString("Task ");
-        //send_byte(xTaskOfServant[xMyFlag] + '0');
-        //vPrintString("'s start time is ");
-        //vPrintNumber(xStartTime);
 
         for( i = 0; i < NUM; i ++ )
         {
@@ -270,10 +286,12 @@ void vSensor( void * pvParameter )
         // create events for all destination servants of this sensor.
         vEventCreateAll( pvMyParameter, xDatas );
 
-        xMyFun( NULL, 0, xDatas, NUM);
+        //for( i = 0; i < xFunctionTimes; ++ i )
+            xMyFun( NULL, 0, xDatas, NUM);
 
         //vTaskDelayLET();
         xCurrentTime = xTaskGetTickCount();
+        vPrintNumber( xCurrentTime );
         vPrintNumber( ( xMyFlag + 10 ) * 3 );
     }
 }
@@ -294,6 +312,7 @@ void vActuator( void * pvParameter )
     portTickType xCurrentTime;
     portBASE_TYPE xOutOfDeadlineCount = 0;
     portTickType xMileStone = 2000;
+    portBASE_TYPE i;
 
     void * pvMyParameter = pvParameter;
     portBASE_TYPE NUM = ((struct xParam *) pvMyParameter)->xNumOfIn;
@@ -313,53 +332,55 @@ void vActuator( void * pvParameter )
     while(1)
     {
         vEventReceiveAll( pvMyParameter, pxEvent );
-        
+
+        vPrintNumber( xMyFlag );
 
         xCurrentTime = xTaskGetTickCount();
-        vPrintNumber( xMyFlag );;
+        vPrintNumber( xCurrentTime );
         vTaskSetxStartTime( xTaskOfHandle[xMyFlag], xCurrentTime );
 
         xData = xEventGetxData(pxEvent[0]);
         xData.xData  = xData.xData + xPeriod; 
 
-        //vPrintString("Task ");
-        //send_byte(xTaskOfServant[xMyFlag] + '0');
-        //vPrintString("'s deadline is ");
-        //vPrintNumber(xData.xData);
-
-        xMyFun( pxEvent, NUM, NULL, 0 );
+        //for( i = 0; i < xFunctionTimes; ++ i )
+            xMyFun( pxEvent, NUM, NULL, 0 );
 
         vEventDeleteAll( pvMyParameter, pxEvent );
-
-        // create event for physical equipments.
-        //vEventCreate( xTaskOfHandle[dest], xData );
-        //vTaskDelayLET();
-
-        /*
+        
         xCurrentTime = xTaskGetTickCount();
-
-        if( xCurrentTime > xData.xData )
+        if(xCurrentTime > xData.xData)
         {
-            // recording the times of missing deadline
             xOutOfDeadlineCount ++;
+            vPrintString("Task: ");
+            vPrintNumber(xMyFlag);
+            vPrintNumber(xCurrentTime);
+            vPrintNumber(xData.xData);
+        }
+        
+        if( xCurrentTime > xMileStone )
+        {
+            if( xOutOfDeadlineCount > 0 )
+            {
+                vPrintString("Task: ");
+                send_byte(xTaskOfServant[xMyFlag] + '0');
+                vPrintString(" miss deadline for ");
+                vPrintNumber(xOutOfDeadlineCount);
+            }
             //vPrintString("Task: ");
             //send_byte(xTaskOfServant[xMyFlag] + '0');
-            //vPrintString(" miss deadline \n\r");
-        }
-
-        // if the current Time bigger then the LCD of tasks' periods,
-        // then the Count refresh.
-        if( xCurrentTime > xMileStone)
-        {
-            vPrintString("Task: ");
-            send_byte(xTaskOfServant[xMyFlag] + '0');
-            vPrintString(" miss deadline for ");
-            vPrintNumber(xOutOfDeadlineCount);
+            //vPrintString(" miss deadline for ");
+            //vPrintNumber(xOutOfDeadlineCount);
             xMileStone += 2000;
             xOutOfDeadlineCount = 0;
         }
-        */
+        // create event for physical equipments.
+        //vEventCreate( xTaskOfHandle[dest], xData );
+        //vTaskDelayLET();
+        xCurrentTime = xTaskGetTickCount();
+        vPrintNumber( xCurrentTime );
         vPrintNumber( ( xMyFlag + 10 ) * 3 );
+
+        xTaskComplete[ xTaskOfServant[xMyFlag] ] = 1;
     }
 }
 
@@ -393,10 +414,10 @@ void vServant( void * pvParameter )
     {
         vEventReceiveAll( pvMyParameter, pxEvent );
 
+        vPrintNumber(xMyFlag);
 
         xCurrentTime = xTaskGetTickCount();
-        vPrintNumber(xMyFlag);;
-        
+        vPrintNumber( xCurrentTime );
         vTaskSetxStartTime( xTaskOfHandle[xMyFlag], xCurrentTime );
 
         /* Here are coding for processing data of events */
@@ -405,14 +426,15 @@ void vServant( void * pvParameter )
         {
             xDatas[i] = xEventGetxData(pxEvent[i]);
         }
-
-        xMyFun(pxEvent, xNumOfIn, xDatas, xNumOfOut);
+        //for( i = 0; i < xFunctionTimes; ++ i )
+            xMyFun(pxEvent, xNumOfIn, xDatas, xNumOfOut);
         
         vEventDeleteAll( pvMyParameter, pxEvent );        
 
         vEventCreateAll( pvMyParameter, xDatas );
         //vTaskDelayLET();
         xCurrentTime = xTaskGetTickCount();
+        vPrintNumber( xCurrentTime );
         vPrintNumber( (xMyFlag + 10) * 3 );
         
     }
@@ -439,7 +461,9 @@ void vR_Servant( void * pvParameter)
         // init to zero
         HAVE_TO_SEND_SEMAPHORE = 0;
 
+        vPrintNumber( xMyFlag );
         xCurrentTime = xTaskGetTickCount();
+        vPrintNumber( xCurrentTime );
         vTaskSetxStartTime( xTaskOfHandle[xMyFlag], xCurrentTime );
 
         // to see whether there is a servant need to be triggered.
@@ -510,6 +534,8 @@ void vR_Servant( void * pvParameter)
 
         //vTaskDelayLET();
         xCurrentTime = xTaskGetTickCount();
+        vPrintNumber( xCurrentTime );
+        vPrintNumber( (xMyFlag + 10) * 3 );
 
         // send semaphore to destinationtcb
         xSemaphoreGive( xBinarySemaphore[j] );

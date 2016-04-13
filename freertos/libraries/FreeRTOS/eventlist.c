@@ -378,6 +378,7 @@ void vEventListGenericTransit( xListItem ** pxEventListItem, xList ** pxCurrentR
 {
     //if( listLIST_IS_EMPTY(&xEventList) )
     // if there is only End Flag Event in xEventList, then return NULL.
+
     if( listCURRENT_LIST_LENGTH(&xEventList) == 1 )
     {
         *pxEventListItem  = NULL;
@@ -386,6 +387,7 @@ void vEventListGenericTransit( xListItem ** pxEventListItem, xList ** pxCurrentR
     }
         
     taskENTER_CRITICAL();
+
 
     // get the first event of the xEventList.  
     *pxEventListItem = (xListItem *)xEventList.xListEnd.pxNext;

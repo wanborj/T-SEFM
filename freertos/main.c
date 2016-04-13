@@ -28,8 +28,8 @@ extern xSemaphoreHandle xBinarySemaphore[NUMBEROFSERVANT];  // the network topol
 extern xTaskHandle xTaskOfHandle[NUMBEROFSERVANT];         // record the handle of all S-Servant, the last one is for debugging R-Servant
 
 extern portTickType xPeriodOfTask[NUMBEROFTASK];
-//extern portBASE_TYPE xRelation[NUMBEROFSERVANT][NUMBEROFSERVANT]; // record the relationship among servants excluding R-Servant
-//extern portTickType xLetOfServant[NUMBEROFSERVANT];  // ms
+
+extern xTaskComplete[NUMBEROFTASK];
 
 
 /*
@@ -52,10 +52,11 @@ int main(void)
     enable_rs232_interrupts();
     enable_rs232();
 
+    vTaskCompleteInitialise();
     vSemaphoreInitialise();
     vParameterInitialise();
 
-    xTaskCreate( vR_Servant, "R-Servant", SERVANT_STACK_SIZE, NULL,tskIDLE_PRIORITY + 1, &xTaskOfHandle[NUMBEROFSERVANT-1]);
+    xTaskCreate( vR_Servant, "R-Servant", SERVANT_STACK_SIZE, (void *)&pvParameters[NUMBEROFSERVANT-1],tskIDLE_PRIORITY + 1, &xTaskOfHandle[NUMBEROFSERVANT-1]);
 
     // task 1, 25ms,
     xTaskCreate( vSensor, "Sensor Of Task 1", SERVANT_STACK_SIZE, (void *)&pvParameters[0], tskIDLE_PRIORITY + 10, &xTaskOfHandle[0]);
@@ -129,48 +130,28 @@ inline unsigned long myTraceGetTimeMillisecond(){
  * */
 void vApplicationTickHook( void )
 {
-    portTickType xCurrentTime = xTaskGetTickCountFromISR();
-    portBASE_TYPE i;
+    portTickType xCurrentTime = xTaskGetTickCount();
+    if( xCurrentTime < 200 )
+    {
+        return;
+    }
 
-    if(xCurrentTime % xPeriodOfTask[0] == 0)
+    // xTaskComplete initialise to 1, and it will be set to 0 after sensor start executing and set
+    // back to 1 after actuator complete execution.
+    if(xTaskComplete[0] == 1 && xCurrentTime % xPeriodOfTask[0] == 0)
     {
         xSemaphoreGive(xBinarySemaphore[0]);
     }
-    if(xCurrentTime % xPeriodOfTask[1] == 0)
+    if(xTaskComplete[1] == 1 && xCurrentTime % xPeriodOfTask[1] == 0)
     {
         xSemaphoreGive(xBinarySemaphore[5]);
     }
-    if(xCurrentTime % xPeriodOfTask[2] == 0)
+    if(xTaskComplete[2] == 1 && xCurrentTime % xPeriodOfTask[2] == 0)
     {
         xSemaphoreGive(xBinarySemaphore[12]);
     }
-    if(xCurrentTime % xPeriodOfTask[3] == 0)
+    if(xTaskComplete[3] == 1 && xCurrentTime % xPeriodOfTask[3] == 0)
     {
         xSemaphoreGive(xBinarySemaphore[15]);
     }
-    
-    /*
-    for( i = 0; i < NUMBEROFTASK; ++ i )
-    {
-        if(xCurrentTime % xPeriodOfTask[i] == 0)
-        {
-           switch(i)
-           {
-               case 0: 
-                    xSemaphoreGive(xBinarySemaphore[0]);                   
-                    break;
-               case 1:
-                    xSemaphoreGive(xBinarySemaphore[5]);
-                    break;
-               case 2:
-                    xSemaphoreGive(xBinarySemaphore[12]);
-                    break;
-               case 3:
-                    xSemaphoreGive(xBinarySemaphore[15]);
-                    break;
-           }
-        }
-    }
-    */
 }
-

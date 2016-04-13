@@ -83,6 +83,7 @@
 
 xSemaphoreHandle xBinarySemaphore[NUMBEROFSERVANT];  // the semaphores which are used to trigger new servant to execute
 xTaskHandle xTaskOfHandle[NUMBEROFSERVANT];         // record the handle of all S-Servant, the last one is for debugging R-Servant 
+portBASE_TYPE xTaskComplete[NUMBEROFTASK];  // record whether specified task completes execution
 portTickType xPeriodOfTask[NUMBEROFTASK] =
 {
     100,
@@ -232,10 +233,10 @@ void s_3(xEventHandle * pxEventArray, portBASE_TYPE NumOfEvent, struct eventData
     //vPrintString("s_3\n\r");
     //if( link_fbw_receive_complete ) // link_fbw.h
     {
+        //vPrintString("hello,world s_3 \n\r");
         //link_fbw_receive_complete = FALSE;
         radio_control_task(); //autopilot.h
     }
-    //servo_transmit();  // servo.h
 }
 void s_4(xEventHandle * pxEventArray, portBASE_TYPE NumOfEvent, struct eventData * pxDataArray, portBASE_TYPE NumOfData) 
 {
