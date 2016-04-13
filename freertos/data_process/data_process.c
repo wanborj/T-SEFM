@@ -26,7 +26,10 @@ int main()
         }
         else
         {
-            fprintf(stdout, "Servant %d had been preempted\n", id1);
+            printf("Servant %d had been preempted\n", id1);
+            printf("id: %d ; start_time %lld\n", id1, start_time);
+            printf("id: %d ; end_time   %lld\n", id2, end_time);
+            
         }
     }
 

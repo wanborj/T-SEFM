@@ -48,7 +48,7 @@ main.bin: main.c
 		-I$(PAPA_VAR_INC) \
 		-I$(PAPA_AUTO_INC) \
 		-I$(PAPA_FBW_INC) \
-		-fno-common -O0 \
+		-fno-common \
 		-gdwarf-2 -g3 \
 		-mcpu=cortex-m3 -mthumb \
 		-o main.elf \
@@ -117,9 +117,7 @@ qemu: main.bin $(QEMU_STM32)
 #	$(QEMU_STM32) -M stm32-p103 -kernel main.bin
 
 qemudbg: main.bin $(QEMU_STM32)
-	$(QEMU_STM32) -M stm32-p103 \
-		-gdb tcp::3333 -S \
-		-kernel main.bin
+	$(QEMU_STM32) -M stm32-p103 -gdb tcp::3333 -S -nographic -kernel main.bin -serial pty
 
 qemuauto: main.bin
 	bash emulate.sh main.bin

@@ -83,12 +83,13 @@
 
 xSemaphoreHandle xBinarySemaphore[NUMBEROFSERVANT];  // the semaphores which are used to trigger new servant to execute
 xTaskHandle xTaskOfHandle[NUMBEROFSERVANT];         // record the handle of all S-Servant, the last one is for debugging R-Servant 
+portBASE_TYPE xTaskComplete[NUMBEROFTASK];
 portTickType xPeriodOfTask[NUMBEROFTASK] =
 {
+    100,
     200,
     400,
-    800,
-    2000
+    1000
 };
 
 // the LET of all S-Servant (ms)
