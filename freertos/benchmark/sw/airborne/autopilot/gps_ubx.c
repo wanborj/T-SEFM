@@ -96,8 +96,10 @@ void gps_init( void ) {
 void parse_gps_msg( void ) {
   //vPrintString("S_16 receive_gps_data_task start!\n\r");
     //added by SunnyBeike
+    /*
     ubx_class = 1;
     ubx_id = (ubx_id + 1)%0x40;
+    */
     //end
 
   if (ubx_class == UBX_NAV_ID) {
@@ -106,9 +108,11 @@ void parse_gps_msg( void ) {
       gps_utm_north = UBX_NAV_POSUTM_NORTH(ubx_msg_buf);
       gps_falt = (float)UBX_NAV_POSUTM_ALT(ubx_msg_buf) / 100.;
         // added by Sunnybeike
+        /*
         gps_utm_east = gps_utm_east + 0.5;
         gps_utm_north = gps_utm_north + 0.4;
         gps_falt = gps_falt + 0.6;
+        */
         // end
     } else if (ubx_id == UBX_NAV_STATUS_ID) {
       gps_mode = UBX_NAV_STATUS_GPSfix(ubx_msg_buf);
@@ -118,10 +122,12 @@ void parse_gps_msg( void ) {
       gps_fcourse = RadianOfDeg(((float)UBX_NAV_VELNED_Heading(ubx_msg_buf)) / 1e5);
       gps_ftow = ((float)UBX_NAV_VELNED_ITOW(ubx_msg_buf)) / 1e3;
         // added by Sunnybeike
+        /*
         gps_fspeed = gps_fspeed + 5.1;
         gps_fclimb = gps_fclimb + 0.4;
         gps_fcourse = gps_fcourse + 0.2;
         gps_ftow = gps_ftow + 0.1;
+        */
         // end
       
       gps_east = gps_utm_east / 100 - NAV_UTM_EAST0;

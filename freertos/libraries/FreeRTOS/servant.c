@@ -476,16 +476,11 @@ void vR_Servant( void * pvParameter)
              *
              * */
             vEventListTransit( &pxEventListItem, &pxCurrentReadyList);
-            vPrintString("hello,world2\n\r");
             if( pxEventListItem == NULL && pxCurrentReadyList == NULL )
             {
-                //vPrintString("there is no event\n\r");
-                xCurrentTime = xTaskGetTickCount();
-                vPrintNumber( xCurrentTime );
                 continue;
             }
 
-            //vPrintString("hello,world\n\r");
             destinationTCB = xEventGetpxDestination( pxEventListItem->pvOwner);
             sourceTCB = xEventGetpxSource( pxEventListItem->pvOwner );
             HAVE_TO_SEND_SEMAPHORE = 1;  // set default 1

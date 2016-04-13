@@ -381,11 +381,8 @@ void vEventListGenericTransit( xListItem ** pxEventListItem, xList ** pxCurrentR
 
     if( listCURRENT_LIST_LENGTH(&xEventList) == 1 )
     {
-    vPrintString("hello,world\n\r");
         *pxEventListItem  = NULL;
         *pxCurrentReadyList = NULL;
-        vPrintString("in transit function and no event now\n\r");
-    vPrintString("hello,world1\n\r");
         return;
     }
         

@@ -47,8 +47,10 @@ void ir_init(void) {
   adc_buf_channel(ADC_CHANNEL_IR2, &buf_ir2);
 }
 // added by SunnyBeike 
+/*
 int16_t x1 = 1;
 int16_t x2 = 2;
+*/
 // end
 
 void ir_update(void) {
@@ -56,11 +58,13 @@ void ir_update(void) {
   int16_t x1_mean = buf_ir1.sum/AV_NB_SAMPLE;
   int16_t x2_mean = buf_ir2.sum/AV_NB_SAMPLE;
     // add by Sunnybeike
+    /*
     int i = 0;
     x1_mean = x1 --;
     if( x1 < -900 ) x1 = x2 % x1;
     x2_mean = x2 ++;
     if( x2 > 110 ) x2 = x1 % x2;
+    */
     // end
   ir_roll = IR_RollOfIrs(x1_mean, x2_mean) - ir_roll_neutral;
   ir_pitch = IR_PitchOfIrs(x1_mean, x2_mean) - ir_pitch_neutral;
