@@ -95,28 +95,28 @@ portTickType xPeriodOfTask[NUMBEROFTASK] =
 // the LET of all S-Servant (ms)
 portTickType xLetOfServant[NUMBEROFSERVANT] = 
 { 
-    2,    // sensor_0
-    2,    // s_1
-    2,    // s_2
-    2,    // s_3 
+    3,    // sensor_0
+    14,    // s_1
+    4,    // s_2
+    7,    // s_3 
     2,    // actuator_4 
-    2,    // Sensor_5
-    2,    // s_6
+    1,    // Sensor_5
+    9,    // s_6
     2,    // s_7
     2,    // s_8
-    2,    // s_9
-    2,    // s_10
+    6,    // s_9
+    6,    // s_10
     2,    // Actuator_11
-    2,    // Sensor_12
-    2,    // s_13
+    1,    // Sensor_12
+    4,    // s_13
     2,    // Actuator_14
-    2,    // Sensor_15
+    1,    // Sensor_15
     2,    // s_16
-    2,    // s_17
+    4,    // s_17
     2,    // s_18
     2,    // s_19
-    2,    // actuator_20
-    2    // R-Servant 
+    1,    // actuator_20
+    1    // R-Servant 
 };
 
 portBASE_TYPE xTaskOfServant[NUMBEROFSERVANT] =
@@ -142,7 +142,7 @@ portBASE_TYPE xTaskOfServant[NUMBEROFSERVANT] =
     3,
     3,
     3,
-    0
+    0, 
 };
 
 // record the relationship among servants excluding R-Servant

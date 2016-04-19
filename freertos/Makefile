@@ -113,7 +113,7 @@ if_calib.o : $(PAPA_VAR_INC)/inflight_calib.h
 
 
 qemu: main.bin $(QEMU_STM32)
-	$(QEMU_STM32) -monitor stdio -M stm32-p103 -nographic -kernel main.bin -serial pty
+	$(QEMU_STM32) -monitor stdio -M stm32-p103 -nographic -kernel main.bin -serial pty -icount  4  
 #	$(QEMU_STM32) -M stm32-p103 -kernel main.bin
 
 qemudbg: main.bin $(QEMU_STM32)

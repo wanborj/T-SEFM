@@ -28,9 +28,9 @@ void init()
 void get_average_and_max()
 {
     int id, i;
-    double duration;
+    int duration;
     freopen("data_process.data", "r",stdin);
-    while(scanf("%d %lf\n", &id, &duration) != EOF)
+    while(scanf("%d %d\n", &id, &duration) != EOF)
     {
         count[id] ++; 
         if( max[id] < duration )
@@ -54,7 +54,7 @@ void get_average_and_max()
 void get_variation()
 {
     int id, i;
-    double duration; 
+    int duration; 
     double temp[21];
     for( i = 0; i < 21; ++ i )
     {
@@ -63,7 +63,7 @@ void get_variation()
 
     freopen("data_process.data", "r",stdin);
 
-    while(scanf("%d %lf", &id, &duration) != EOF )
+    while(scanf("%d %d", &id, &duration) != EOF )
     {
         variation[id] += (duration - average[id]) * (duration - average[id]);         
     }
@@ -79,13 +79,13 @@ void get_variation()
 void output()
 {
     int i;
+    printf("%5s %5s %10s %10s %10s %10s\n", "id","Count", "Max", "Min", "Average", "Variation");
 
     freopen("data_analysis.data", "w",stdout);
-    
-    printf("%5s %10s %10s %10s %10s %10s\n", "id", "Max", "Min", "Count", "Average", "Variation");
+
     for( i = 0; i < 21; ++ i )
     {
-        printf("%5d %10lf %10lf %10d %10lf %10lf\n", i, max[i], min[i], count[i], average[i], variation[i]);
+        printf("%5d %5d %10lf %10lf %10lf %10lf\n", i, count[i], max[i], min[i], average[i], variation[i]);
     }
 
     fclose(stdout);

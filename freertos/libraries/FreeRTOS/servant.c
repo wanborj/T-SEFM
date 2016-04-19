@@ -77,7 +77,7 @@
 #include "eventlist.h"
 #include "servant.h"
 #include "app.h"
-//#define xFunctionTimes 100
+#define xFunctionTimes 500
 
 xList * pxCurrentReadyList;         // record the xEventReadyList that R-Servant transit event just now
 struct xParam pvParameters[NUMBEROFSERVANT];
@@ -289,7 +289,7 @@ void vSensor( void * pvParameter )
         //for( i = 0; i < xFunctionTimes; ++ i )
             xMyFun( NULL, 0, xDatas, NUM);
 
-        //vTaskDelayLET();
+        vTaskDelayLET();
         xCurrentTime = xTaskGetTickCount();
         vPrintNumber( xCurrentTime );
         vPrintNumber( ( xMyFlag + 10 ) * 3 );
@@ -375,7 +375,7 @@ void vActuator( void * pvParameter )
         }
         // create event for physical equipments.
         //vEventCreate( xTaskOfHandle[dest], xData );
-        //vTaskDelayLET();
+        vTaskDelayLET();
         xCurrentTime = xTaskGetTickCount();
         vPrintNumber( xCurrentTime );
         vPrintNumber( ( xMyFlag + 10 ) * 3 );
@@ -426,13 +426,13 @@ void vServant( void * pvParameter )
         {
             xDatas[i] = xEventGetxData(pxEvent[i]);
         }
-        //for( i = 0; i < xFunctionTimes; ++ i )
+        for( i = 0; i < xFunctionTimes; ++ i )
             xMyFun(pxEvent, xNumOfIn, xDatas, xNumOfOut);
         
         vEventDeleteAll( pvMyParameter, pxEvent );        
 
         vEventCreateAll( pvMyParameter, xDatas );
-        //vTaskDelayLET();
+        vTaskDelayLET();
         xCurrentTime = xTaskGetTickCount();
         vPrintNumber( xCurrentTime );
         vPrintNumber( (xMyFlag + 10) * 3 );
@@ -461,9 +461,9 @@ void vR_Servant( void * pvParameter)
         // init to zero
         HAVE_TO_SEND_SEMAPHORE = 0;
 
-        vPrintNumber( xMyFlag );
+        //vPrintNumber( xMyFlag );
         xCurrentTime = xTaskGetTickCount();
-        vPrintNumber( xCurrentTime );
+        //vPrintNumber( xCurrentTime );
         vTaskSetxStartTime( xTaskOfHandle[xMyFlag], xCurrentTime );
 
         // to see whether there is a servant need to be triggered.
@@ -471,7 +471,7 @@ void vR_Servant( void * pvParameter)
         while(! HAVE_TO_SEND_SEMAPHORE)
         {
             /*
-             * transit the event item, whose timestamp equals to current Tick Count, 
+             * transit the event item, whose timestamp bigger or equal to current Tick Count, 
              * from xEventList to the idlest xEvestReadyList
              *
              * */
@@ -533,9 +533,9 @@ void vR_Servant( void * pvParameter)
         }
 
         //vTaskDelayLET();
-        xCurrentTime = xTaskGetTickCount();
-        vPrintNumber( xCurrentTime );
-        vPrintNumber( (xMyFlag + 10) * 3 );
+        //xCurrentTime = xTaskGetTickCount();
+        //vPrintNumber( xCurrentTime );
+        //vPrintNumber( (xMyFlag + 10) * 3 );
 
         // send semaphore to destinationtcb
         xSemaphoreGive( xBinarySemaphore[j] );
