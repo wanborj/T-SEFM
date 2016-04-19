@@ -26,9 +26,9 @@ int main()
         }
         else
         {
-            //printf("Servant %d had been preempted\n", id1);
-            //printf("id: %d ; start_time %d\n", id1, start_time);
-            //printf("id: %d ; end_time   %d\n", id2, end_time);
+            fprintf(stderr,"Servant %d had been preempted\n", id1);
+            fprintf(stderr,"id: %d ; start_time %d\n", id1, start_time);
+            fprintf(stderr,"id: %d ; end_time   %d\n", id2, end_time);
         }
     }
 
