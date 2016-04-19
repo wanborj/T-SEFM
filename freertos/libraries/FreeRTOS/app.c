@@ -79,7 +79,7 @@
 #include "ppm.h"
 #include "servo.h"
 #include "spi_fbw.h"
-#include "inflight_calib.h"
+//#include "inflight_calib.h"
 #include "infrared.h"
 #include "estimator.h"
 #include "pid.h"
@@ -138,7 +138,7 @@ portTickType xLetOfServant[NUMBEROFSERVANT] =
 
 portBASE_TYPE xTaskOfServant[NUMBEROFSERVANT] =
 {
-    0, // task 0 consist of 5 servant
+    0, 
     0,
     1,
     1,
@@ -147,12 +147,12 @@ portBASE_TYPE xTaskOfServant[NUMBEROFSERVANT] =
     4,
     5,
     5,
-    6
     6,
-    6, // task 2 consist of 3 servant
+    6,
+    6, 
     7,
     8,
-    8, // task 3 consist of 5 servant
+    8, 
     9,
     9,
     9,
@@ -199,7 +199,7 @@ struct xRelationship xRelations =
         {16,17,1},
         {17,15,1},
         {18,18,1},
-        {19,19,1}
+        {19,19,1},
         {20,20,1}
     }
 };
@@ -208,7 +208,12 @@ struct xRelationship xRelations =
 extern void to_autopilot_from_last_radio();
 extern void check_mega128_values_task();
 extern void check_failsafe_task();
-       
+//extern void inflight_calib(portBASE_TYPE mode_changed); // main_auto.c , we transfer this function into main.c because of bugs if not 
+extern void radio_control_task(); 
+extern void send_gps_pos();
+extern void send_radIR();
+extern void send_takeOff();
+
 extern void  send_boot();
 extern void  send_attitude();
 extern void  send_adc();
@@ -238,7 +243,8 @@ void s_0(xEventHandle * pxEventArray, portBASE_TYPE NumOfEvent, struct eventData
 void s_1(xEventHandle * pxEventArray, portBASE_TYPE NumOfEvent, struct eventData * pxDataArray, portBASE_TYPE NumOfData) 
 {
     //vPrintString("s_0\n\r");
-    servo_set();  // servo.h
+    //servo_set();  // servo.h, this function is used by multitask which in terms of multiuse of Servant. And this
+                    // is not implemented now. So cancel.
 }
 void s_2(xEventHandle * pxEventArray, portBASE_TYPE NumOfEvent, struct eventData * pxDataArray, portBASE_TYPE NumOfData) 
 {
@@ -273,7 +279,9 @@ void s_7(xEventHandle * pxEventArray, portBASE_TYPE NumOfEvent, struct eventData
 {
 
     //vPrintString("s_7\n\r");
-     inflight_calib(pdTRUE); // inflight_calib.h
+     //inflight_calib(pdTRUE); // inflight_calib.h
+     //inflight_calib(pdTRUE); // main_auto.c , we transfer this function into main.c because of bugs if not 
+     radio_control_task();
 }
 void s_8(xEventHandle * pxEventArray, portBASE_TYPE NumOfEvent, struct eventData * pxDataArray, portBASE_TYPE NumOfData) 
 {
@@ -313,7 +321,10 @@ void s_13(xEventHandle * pxEventArray, portBASE_TYPE NumOfEvent, struct eventDat
 void s_14(xEventHandle * pxEventArray, portBASE_TYPE NumOfEvent, struct eventData * pxDataArray, portBASE_TYPE NumOfData) 
 {
     //vPrintString("Task 3 end ----------------------\n\r");
-    use_gps_pos(); // autopilot.h
+    //use_gps_pos(); // autopilot.h  is not implemeted.
+    send_gps_pos();
+    send_radIR();
+    send_takeOff();
 }
 
 
@@ -326,7 +337,7 @@ void s_16(xEventHandle * pxEventArray, portBASE_TYPE NumOfEvent, struct eventDat
 {
     
     //vPrintString("s_8\n\r");
-    nv_update(); // nav.h
+    nav_update(); // nav.h
 }
 
 void s_17(xEventHandle * pxEventArray, portBASE_TYPE NumOfEvent, struct eventData * pxDataArray, portBASE_TYPE NumOfData) 

@@ -128,7 +128,7 @@ static void vListIntialiseEventItem( xEventHandle pvOwner, xListItem * pxNewEven
 
 static void vEventSetxData( xEventHandle pxEvent, struct eventData xData);
 
-static void vEventSetxTimeStamp( xEventHandle pxNewEvent );
+static void vEventSetxTimeStamp( xEventHandle pxNewEvent, portTickType xTime );
 
 static xList * pxGetReadyList( void );
 
@@ -352,6 +352,10 @@ void vEventGenericCreate( xTaskHandle pxDestination, struct eventData pdData)
 
     xTaskHandle pxCurrentTCBLocal = xTaskGetCurrentTaskHandle();
     pxNewEvent = (eveECB *)pvPortMalloc( sizeof( eveECB ));
+    if( pxNewEvent == NULL )
+    {
+        vPrintString("malloc for event stack failed\n\r");
+    }
     if ( pxNewEvent != NULL )
     {
         pxNewEvent->pxSource = pxCurrentTCBLocal;
@@ -393,9 +397,6 @@ portBASE_TYPE xEventListGenericTransit( xListItem ** pxEventListItem, xList ** p
         return -1;
     }
         
-
-
-
     // get the first event of the xEventList.  
     *pxEventListItem = (xListItem *)xEventList.xListEnd.pxNext;
     *pxCurrentReadyList = pxGetReadyList();

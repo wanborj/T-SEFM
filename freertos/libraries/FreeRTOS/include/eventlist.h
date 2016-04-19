@@ -169,7 +169,7 @@ void vEventGenericDelete ( xEventHandle xEvent);
 
 #define vEventDelete( pxEvent )     vEventGenericDelete( pxEvent )
 
-void vEventSetxTimeStamp( xEventHandle xEvent, portTickType xTime );
+//void vEventSetxTimeStamp( xEventHandle xEvent, portTickType xTime );
 
 #ifdef __cplusplus
 }

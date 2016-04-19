@@ -161,7 +161,7 @@
 
 //uint8_t sfr_offset[128];
 //#define __SFR_OFFSET sfr_offset // Added by SunnyBeike
-#define __SFR_OFFSET 0x20001000 // Added by SunnyBeike
+#define __SFR_OFFSET 0x20002000 // Added by SunnyBeike
 
 
 #define _SFR_MEM8(mem_addr) _MMIO_BYTE(mem_addr + __SFR_OFFSET)	//SunnyBeike

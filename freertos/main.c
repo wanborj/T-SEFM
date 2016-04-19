@@ -20,6 +20,7 @@
 #include "servant.h"
 #include "app.h"
 
+static portBASE_TYPE IS_INIT = 1;
 static void setup_hardware( void );
 
 extern struct xParam pvParameters[NUMBEROFSERVANT];
@@ -141,30 +142,35 @@ inline unsigned long myTraceGetTimeMillisecond(){
  * */
 void vApplicationTickHook( void )
 {
-    /*
     portTickType xCurrentTime = xTaskGetTickCount();
-    if( xCurrentTime < 200 )
+    if( IS_INIT == 1 && xCurrentTime == 100 )
     {
-        return;
+        xSemaphoreGive( xBinarySemaphore[0] );
+        xSemaphoreGive( xBinarySemaphore[2] );
+        xSemaphoreGive( xBinarySemaphore[7] );
+        xSemaphoreGive( xBinarySemaphore[4] );
+        xSemaphoreGive( xBinarySemaphore[5] );
+        xSemaphoreGive( xBinarySemaphore[6] );
+        xSemaphoreGive( xBinarySemaphore[9] );
+        xSemaphoreGive( xBinarySemaphore[12] );
+        xSemaphoreGive( xBinarySemaphore[13] );
+        xSemaphoreGive( xBinarySemaphore[15] );
+        xSemaphoreGive( xBinarySemaphore[18] );
+        xSemaphoreGive( xBinarySemaphore[19] );
+        xSemaphoreGive( xBinarySemaphore[20] );
+        IS_INIT = 0;
     }
-
-    // xTaskComplete initialise to 1, and it will be set to 0 after sensor start executing and set
-    // back to 1 after actuator complete execution.
-    if(xCurrentTime % xPeriodOfTask[0] == 0)
+    
+    // send semaphore to R-Servant to triggered it to cope with events 
+    // when time meeting the start time of task period
+    if( xCurrentTime >= xPeriodOfTask[0] * 2 )
     {
-        xSemaphoreGive(xBinarySemaphore[0]);
+        if( xCurrentTime % xPeriodOfTask[0] == 0 || 
+            xCurrentTime % xPeriodOfTask[2] == 0 ||
+            xCurrentTime % xPeriodOfTask[12] == 0 ||
+            xCurrentTime % xPeriodOfTask[8] == 0)
+        {
+           xSemaphoreGive( xBinarySemaphore[21] ); 
+        }
     }
-    if( xCurrentTime % xPeriodOfTask[1] == 0)
-    {
-        xSemaphoreGive(xBinarySemaphore[5]);
-    }
-    if( xCurrentTime % xPeriodOfTask[2] == 0)
-    {
-        xSemaphoreGive(xBinarySemaphore[12]);
-    }
-    if(xCurrentTime % xPeriodOfTask[3] == 0)
-    {
-        xSemaphoreGive(xBinarySemaphore[15]);
-    }
-    */
 }

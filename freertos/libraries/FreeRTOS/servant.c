@@ -132,20 +132,6 @@ void vSemaphoreInitialise()
         /* when created, it is initialised to 1. So, we take it away.*/
         xSemaphoreTake(xBinarySemaphore[i], portMAX_DELAY);
     }
-    /* give sempaphore to sensor of all tasks for only one time */
-    xSemaphoreGive( xBinarySemaphore[0] );
-    xSemaphoreGive( xBinarySemaphore[2] );
-    xSemaphoreGive( xBinarySemaphore[4] );
-    xSemaphoreGive( xBinarySemaphore[5] );
-    xSemaphoreGive( xBinarySemaphore[6] );
-    xSemaphoreGive( xBinarySemaphore[7] );
-    xSemaphoreGive( xBinarySemaphore[9] );
-    xSemaphoreGive( xBinarySemaphore[12] );
-    xSemaphoreGive( xBinarySemaphore[13] );
-    xSemaphoreGive( xBinarySemaphore[15] );
-    xSemaphoreGive( xBinarySemaphore[18] );
-    xSemaphoreGive( xBinarySemaphore[19] );
-    xSemaphoreGive( xBinarySemaphore[20] );
 }
 
 /*
@@ -246,9 +232,13 @@ void vEventCreateAll( void * pvParameter, struct eventData *xDatas )
         // get all flags of destination servants
         xFlags[i] = ((struct xParam *) pvParameter)->xOutFlag[i]; 
 
-        if( xFlags[i] < xMyFlag )
+        if( xFlags[i] <= xMyFlag )
         {
             xDatas[i].IS_LAST_SERVANT = 1;
+        }
+        else
+        {
+            xDatas[i].IS_LAST_SERVANT = 0;
         }
         // create events which would be sent to destination servants.
         vEventCreate(xTaskOfHandle[xFlags[i]], xDatas[i]) ;
@@ -288,7 +278,7 @@ void vSensor( void * pvParameter )
     portTickType xStartTime;
     portBASE_TYPE i;
     portBASE_TYPE IS_FIRST_TIME_TO_EXE = 1;
-    portBASE_TYPE xCount = 2;
+    portBASE_TYPE xCount = 1;
 
     /* store the paramter into stack of servant */
     void * pvMyParameter = pvParameter;
@@ -326,7 +316,7 @@ void vSensor( void * pvParameter )
             * */
             vEventReceiveAll( pvMyParameter, pxEvent );
             // deal with the output things and seeing whether current task misses deadline
-            vDoActuator(xPeriod, pvEvent);
+            vDoActuator(xPeriod, pxEvent);
             vEventDeleteAll(pvMyParameter, pxEvent);
         }
 
@@ -349,7 +339,6 @@ void vSensor( void * pvParameter )
         {
             xDatas[i].xNextPeriod = xStartTime;
             xDatas[i].xTime = xCurrentTime + xLet;
-            xDatas[i].IS_LAST_SERVANT = 0;
         }
 
         // create events for all destination servants of this servant. 
@@ -357,7 +346,9 @@ void vSensor( void * pvParameter )
 
         // this is the first s-servant
         for( i = 0; i < xFunctionTimes; ++ i )
+        {
             xMyFun( NULL, 0, xDatas, NUM);
+        }
 
         //vTaskDelayLET();
         xCurrentTime = xTaskGetTickCount();
@@ -408,11 +399,14 @@ void vServant( void * pvParameter )
         for( i = 0; i < xNumOfOut; i ++ )
         {
             xDatas[i] = xEventGetxData(pxEvent[i]);
+            xDatas[i].xTime = xCurrentTime + xLet;
         }
 
         for( i = 0; i < xFunctionTimes; ++ i )
+        {
             xMyFun(pxEvent, xNumOfIn, xDatas, xNumOfOut);
-        
+        }
+
         vEventDeleteAll( pvMyParameter, pxEvent );        
 
         vEventCreateAll( pvMyParameter, xDatas );
@@ -520,9 +514,13 @@ void vR_Servant( void * pvParameter)
         } //  end inner while(1)
 
         // not time yet, R-Servant should be sleep until next period of any task
-        if( HAVE_TO_SEND_SEMAPHORE == 0 )
+        if( xResult == -1 )
         {
             continue; 
+        }
+        else if ( xResult == 0 )
+        {
+            continue;
         }
         else
         {
@@ -539,7 +537,7 @@ void vR_Servant( void * pvParameter)
             }
 
             //vTaskDelayLET();
-            //xCurrentTime = xTaskGetTickCount();
+            xCurrentTime = xTaskGetTickCount();
             //vPrintNumber( xCurrentTime );
             //vPrintNumber( (xMyFlag + 10) * 3 );
 

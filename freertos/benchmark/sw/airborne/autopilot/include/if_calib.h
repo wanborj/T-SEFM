@@ -6,6 +6,8 @@ extern uint8_t  inflight_calib_mode;
 void inflight_calib(bool_t calib_mode_changed);
 
 
+
+
 #define IF_CALIB_MODE_NONE      0
 #define IF_CALIB_MODE_DOWN      1
 #define IF_CALIB_MODE_UP        2
