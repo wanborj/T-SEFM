@@ -74,22 +74,39 @@
 #include "queue.h"
 #include "semphr.h"
 #include "app.h"
+
 /* the include file of PapaBench */
-#include "link_autopilot.h"
+#include "ppm.h"
 #include "servo.h"
+#include "spi_fbw.h"
+//#include "inflight_calib.h"
+#include "infrared.h"
+#include "estimator.h"
+#include "pid.h"
 #include "link_fbw.h"
 #include "gps.h"
 #include "autopilot.h"
+#include "nav.h"
+
 
 xSemaphoreHandle xBinarySemaphore[NUMBEROFSERVANT];  // the semaphores which are used to trigger new servant to execute
 xTaskHandle xTaskOfHandle[NUMBEROFSERVANT];         // record the handle of all S-Servant, the last one is for debugging R-Servant 
-portBASE_TYPE xTaskComplete[NUMBEROFTASK];  // record whether specified task completes execution
+//portBASE_TYPE xTaskComplete[NUMBEROFTASK];  // record whether specified task completes execution
 portTickType xPeriodOfTask[NUMBEROFTASK] =
 {
     100,
+    100,
     200,
-    400,
-    1000
+    200,
+    200,
+    100,
+    200,
+    200,
+    1000,
+    1000,
+    1000,
+    1000,
+    400
 };
 
 // the LET of all S-Servant (ms)
@@ -121,28 +138,28 @@ portTickType xLetOfServant[NUMBEROFSERVANT] =
 
 portBASE_TYPE xTaskOfServant[NUMBEROFSERVANT] =
 {
-    0, // task 0 consist of 5 servant
-    0,
-    0,
-    0,
-    0,
-    1, // task 1 consist of 7 servant 
-    1,
-    1,
-    1,
-    1,
-    1,
-    1,
-    2, // task 2 consist of 3 servant
-    2,
-    2,
-    3, // task 3 consist of 5 servant
-    3,
-    3,
-    3,
-    3,
-    3,
     0, 
+    0,
+    1,
+    1,
+    2,
+    3,
+    4,
+    5,
+    5,
+    6,
+    6,
+    6, 
+    7,
+    8,
+    8, 
+    9,
+    9,
+    9,
+    10,
+    11,
+    12, 
+    -1
 };
 
 // record the relationship among servants excluding R-Servant
@@ -161,35 +178,42 @@ struct xRelationship
 */
 struct xRelationship xRelations = 
 {
-    17,
+    21,
     {
         {0, 1, 1}, // task 1
-        {1, 2, 1},
+        {1, 0, 1},
         {2, 3, 1},
-        {3, 4, 1},
-        {5, 6, 1}, // task 2
-        {6, 7, 1},
+        {3, 2, 1},
+        {4, 4, 1}, // task 2
+        {5, 5, 1},
+        {6, 6, 1},
         {7, 8, 1},
-        {8, 9, 1},
+        {8, 7, 1},
         {9,10, 1},
-        {10,11,1}, 
-        {12,13,1}, // task 3
+        {10,11,1},
+        {11,9, 1}, 
+        {12,12,1}, // task 3
         {13,14,1},
+        {14,13,1},
         {15,16,1}, // task 4
         {16,17,1},
-        {17,18,1},
-        {18,19,1},
-        {19,20,1}
+        {17,15,1},
+        {18,18,1},
+        {19,19,1},
+        {20,20,1}
     }
 };
 
-/* the extern function of PapaBench */
-extern void  navigation_update();
-extern void  send_nav_values();
-extern void  course_run();
-extern void  altitude_control_task();
-extern void  climb_control_task();
-       
+/* explemented in main.c */
+extern void to_autopilot_from_last_radio();
+extern void check_mega128_values_task();
+extern void check_failsafe_task();
+//extern void inflight_calib(portBASE_TYPE mode_changed); // main_auto.c , we transfer this function into main.c because of bugs if not 
+extern void radio_control_task(); 
+extern void send_gps_pos();
+extern void send_radIR();
+extern void send_takeOff();
+
 extern void  send_boot();
 extern void  send_attitude();
 extern void  send_adc();
@@ -214,97 +238,123 @@ extern void  send_nav_ref();
 void s_0(xEventHandle * pxEventArray, portBASE_TYPE NumOfEvent, struct eventData * pxDataArray, portBASE_TYPE NumOfData) 
 {
     //vPrintString("Task 1 start ###############\n\r");
+    last_radio_from_ppm(); // ppm.h
 }
 void s_1(xEventHandle * pxEventArray, portBASE_TYPE NumOfEvent, struct eventData * pxDataArray, portBASE_TYPE NumOfData) 
 {
     //vPrintString("s_0\n\r");
-    test_ppm_task(); // link_autopilot.h
+    //servo_set();  // servo.h, this function is used by multitask which in terms of multiuse of Servant. And this
+                    // is not implemented now. So cancel.
 }
 void s_2(xEventHandle * pxEventArray, portBASE_TYPE NumOfEvent, struct eventData * pxDataArray, portBASE_TYPE NumOfData) 
 {
 
     //vPrintString("s_1\n\r");
-    send_data_to_autopilot_task(); // link_autopilot.h
+    to_autopilot_from_last_radio(); // main.c
 }
 
 void s_3(xEventHandle * pxEventArray, portBASE_TYPE NumOfEvent, struct eventData * pxDataArray, portBASE_TYPE NumOfData) 
 {
 
-    //vPrintString("s_3\n\r");
-    //if( link_fbw_receive_complete ) // link_fbw.h
-    {
-        //vPrintString("hello,world s_3 \n\r");
-        //link_fbw_receive_complete = FALSE;
-        radio_control_task(); //autopilot.h
-    }
+    spi_reset(); // spi_fbw.h
 }
 void s_4(xEventHandle * pxEventArray, portBASE_TYPE NumOfEvent, struct eventData * pxDataArray, portBASE_TYPE NumOfData) 
 {
     //vPrintString("Task 1 end ###############\n\r");
+    check_mega128_values_task(); // main.c
 }
 
-/*
- * Task 2, including:
- * 1) sensor 5
- * 2) s_6
- * 3) s_7
- * 4) s_8
- * 5) s_9
- * 6) s_10
- * 7) actuator 11
- * */
 void s_5(xEventHandle * pxEventArray, portBASE_TYPE NumOfEvent, struct eventData * pxDataArray, portBASE_TYPE NumOfData) 
 {
     //vPrintString("Task 2 start+++++++++++++++++++\n\r");
+    servo_transmit(); //servo.h
 }
+
 void s_6(xEventHandle * pxEventArray, portBASE_TYPE NumOfEvent, struct eventData * pxDataArray, portBASE_TYPE NumOfData) 
 {
     //vPrintString("s_2\n\r");
-    stabilisation_task(); //autopilot.h
+    check_failsafe_task(); // main.c
 }
 void s_7(xEventHandle * pxEventArray, portBASE_TYPE NumOfEvent, struct eventData * pxDataArray, portBASE_TYPE NumOfData) 
 {
 
     //vPrintString("s_7\n\r");
-    link_fbw_send(); // link_fbw.h
+     //inflight_calib(pdTRUE); // inflight_calib.h
+     //inflight_calib(pdTRUE); // main_auto.c , we transfer this function into main.c because of bugs if not 
+     radio_control_task();
 }
 void s_8(xEventHandle * pxEventArray, portBASE_TYPE NumOfEvent, struct eventData * pxDataArray, portBASE_TYPE NumOfData) 
 {
-    check_mega128_values_task(); // link_autopilot.h
+    //check_mega128_values_task(); // link_autopilot.h
+    ir_gain_calib(); //infrared.h
 }
 void s_9(xEventHandle * pxEventArray, portBASE_TYPE NumOfEvent, struct eventData * pxDataArray, portBASE_TYPE NumOfData)
 {
     
-    //vPrintString("s_4\n\r");
-    check_failsafe_task(); // link_autopilot.h
+    ir_update(); // infrared.h
 }
 void s_10(xEventHandle * pxEventArray, portBASE_TYPE NumOfEvent, struct eventData * pxDataArray, portBASE_TYPE NumOfData) 
 {
 
     //vPrintString("s_3\n\r");
-    servo_transmit();  // servo.h
+    //servo_transmit();  // servo.h
+    estimator_update_state_infrared(); //estimator.h
 }
 void s_11(xEventHandle * pxEventArray, portBASE_TYPE NumOfEvent, struct eventData * pxDataArray, portBASE_TYPE NumOfData) 
 {
     //vPrintString("Task 2 end +++++++++++++++++++\n\r");
+    roll_pitch_pid_run(); // pid.h
 }
 
-
-/*
- * Task 3, including:
- * 1) sensor 12
- * 2) s_13
- * 3) actuator 14
- * */
 void s_12(xEventHandle * pxEventArray, portBASE_TYPE NumOfEvent, struct eventData * pxDataArray, portBASE_TYPE NumOfData) 
 {
     //vPrintString("Task 3 start---------------------\n\r");
+    link_fbw_send(); //link_fbw.h
 }
 void s_13(xEventHandle * pxEventArray, portBASE_TYPE NumOfEvent, struct eventData * pxDataArray, portBASE_TYPE NumOfData) 
 {
     
     //vPrintString("s_12\n\r");
- // main.c
+    parse_gps_msg(); //gps.h
+}
+
+void s_14(xEventHandle * pxEventArray, portBASE_TYPE NumOfEvent, struct eventData * pxDataArray, portBASE_TYPE NumOfData) 
+{
+    //vPrintString("Task 3 end ----------------------\n\r");
+    //use_gps_pos(); // autopilot.h  is not implemeted.
+    send_gps_pos();
+    send_radIR();
+    send_takeOff();
+}
+
+
+void s_15(xEventHandle * pxEventArray, portBASE_TYPE NumOfEvent, struct eventData * pxDataArray, portBASE_TYPE NumOfData) 
+{
+    //vPrintString("Task 4 start********************\n\r");
+    nav_home(); // nav.h
+}
+void s_16(xEventHandle * pxEventArray, portBASE_TYPE NumOfEvent, struct eventData * pxDataArray, portBASE_TYPE NumOfData) 
+{
+    
+    //vPrintString("s_8\n\r");
+    nav_update(); // nav.h
+}
+
+void s_17(xEventHandle * pxEventArray, portBASE_TYPE NumOfEvent, struct eventData * pxDataArray, portBASE_TYPE NumOfData) 
+{
+    course_pid_run(); // pid.h
+}
+void s_18(xEventHandle * pxEventArray, portBASE_TYPE NumOfEvent, struct eventData * pxDataArray, portBASE_TYPE NumOfData) 
+{
+    altitude_pid_run(); // pid.h
+}
+void s_19(xEventHandle * pxEventArray, portBASE_TYPE NumOfEvent, struct eventData * pxDataArray, portBASE_TYPE NumOfData)
+{
+    climb_pid_run(); // pid.h
+}
+void s_20(xEventHandle * pxEventArray, portBASE_TYPE NumOfEvent, struct eventData * pxDataArray, portBASE_TYPE NumOfData) 
+{
+    // main.c
     send_boot();
     send_attitude();
     send_adc();
@@ -315,59 +365,6 @@ void s_13(xEventHandle * pxEventArray, portBASE_TYPE NumOfEvent, struct eventDat
     send_mode();
     send_debug();
     send_nav_ref();
-}
-void s_14(xEventHandle * pxEventArray, portBASE_TYPE NumOfEvent, struct eventData * pxDataArray, portBASE_TYPE NumOfData) 
-{
-    //vPrintString("Task 3 end ----------------------\n\r");
-}
-
-
-/*
- * Task 4, including:
- * 1) sensor 15
- * 2) s_16
- * 3) s_17
- * 4) s_18
- * 5) s_19
- * 6) actuator 20
- * */
-void s_15(xEventHandle * pxEventArray, portBASE_TYPE NumOfEvent, struct eventData * pxDataArray, portBASE_TYPE NumOfData) 
-{
-    //vPrintString("Task 4 start********************\n\r");
-}
-void s_16(xEventHandle * pxEventArray, portBASE_TYPE NumOfEvent, struct eventData * pxDataArray, portBASE_TYPE NumOfData) 
-{
-    
-    //vPrintString("s_8\n\r");
-    //if ( gps_msg_received )  // gps.h
-    {
-        parse_gps_msg(); // gps.h
-        send_gps_pos(); // autopilot.h
-        send_radIR(); // autopilot.h
-        send_takeOff(); // autopilot.h
-    }
-}
-void s_17(xEventHandle * pxEventArray, portBASE_TYPE NumOfEvent, struct eventData * pxDataArray, portBASE_TYPE NumOfData) 
-{
-    //vPrintString("s_9\n\r");
-    // have to create a file whose name is main.h
-    navigation_update(); // main.c 
-    send_nav_values(); // main.c
-    course_run();  // main.c
-}
-void s_18(xEventHandle * pxEventArray, portBASE_TYPE NumOfEvent, struct eventData * pxDataArray, portBASE_TYPE NumOfData) 
-{
-    //vPrintString("s_10\n\r");
-    altitude_control_task(); // main.c
-}
-void s_19(xEventHandle * pxEventArray, portBASE_TYPE NumOfEvent, struct eventData * pxDataArray, portBASE_TYPE NumOfData)
-{
-    //vPrintString("s_11\n\r");
-    climb_control_task(); // main.c
-}
-void s_20(xEventHandle * pxEventArray, portBASE_TYPE NumOfEvent, struct eventData * pxDataArray, portBASE_TYPE NumOfData) 
-{
-    //vPrintString("Task 4 end *********************\n\r");
 }
 #endif
 

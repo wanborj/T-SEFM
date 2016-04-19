@@ -128,7 +128,7 @@ static void vListIntialiseEventItem( xEventHandle pvOwner, xListItem * pxNewEven
 
 static void vEventSetxData( xEventHandle pxEvent, struct eventData xData);
 
-static void vEventSetxTimeStamp( xEventHandle pxNewEvent );
+static void vEventSetxTimeStamp( xEventHandle pxNewEvent, portTickType xTime );
 
 static xList * pxGetReadyList( void );
 
@@ -191,14 +191,14 @@ struct eventData xEventGetxData( xEventHandle pxEvent)
     return ((eveECB *) pxEvent)->xData;
 }
 
-static void vEventSetxTimeStamp( xEventHandle pxNewEvent )
+void vEventSetxTimeStamp( xEventHandle pxNewEvent, portTickType xTime )
 {
     eveECB * pxEvent =(eveECB *) pxNewEvent;
     /* get the current task TCB handler*/
     xTaskHandle pxCurrentTCBLocal = xTaskGetCurrentTaskHandle();
 
     /*set the time of this event to be processed */
-    pxEvent->xTimeStamp.xTime = xTaskGetxStartTime(pxCurrentTCBLocal) + xTaskGetxLet(pxCurrentTCBLocal) ;
+    pxEvent->xTimeStamp.xTime = xTime ;
 
     /*the microstep is not used now*/
     pxEvent->xTimeStamp.xMicroStep = 0;
@@ -352,13 +352,24 @@ void vEventGenericCreate( xTaskHandle pxDestination, struct eventData pdData)
 
     xTaskHandle pxCurrentTCBLocal = xTaskGetCurrentTaskHandle();
     pxNewEvent = (eveECB *)pvPortMalloc( sizeof( eveECB ));
+    if( pxNewEvent == NULL )
+    {
+        vPrintString("malloc for event stack failed\n\r");
+    }
     if ( pxNewEvent != NULL )
     {
         pxNewEvent->pxSource = pxCurrentTCBLocal;
         pxNewEvent->pxDestination = pxDestination;
 
         /* initialise the time stamp of an event item according to the sort algorithm.*/
-        vEventSetxTimeStamp( pxNewEvent );
+        if( pdData.IS_LAST_SERVANT == 1 )
+        {
+            vEventSetxTimeStamp( pxNewEvent, pdData.xNextPeriod);
+        }
+        else
+        {
+            vEventSetxTimeStamp( pxNewEvent, pdData.xTime );
+        }
 
         vListIntialiseEventItem( pxNewEvent, (xListItem *) &pxNewEvent->xEventListItem );
 
@@ -374,7 +385,7 @@ void vEventGenericCreate( xTaskHandle pxDestination, struct eventData pdData)
 
 
 /* An API to transfer the Event Item from xEventList to one of the xEventReadyList*/
-void vEventListGenericTransit( xListItem ** pxEventListItem, xList ** pxCurrentReadyList)
+portBASE_TYPE xEventListGenericTransit( xListItem ** pxEventListItem, xList ** pxCurrentReadyList)
 {
     //if( listLIST_IS_EMPTY(&xEventList) )
     // if there is only End Flag Event in xEventList, then return NULL.
@@ -383,12 +394,9 @@ void vEventListGenericTransit( xListItem ** pxEventListItem, xList ** pxCurrentR
     {
         *pxEventListItem  = NULL;
         *pxCurrentReadyList = NULL;
-        return;
+        return -1;
     }
         
-    taskENTER_CRITICAL();
-
-
     // get the first event of the xEventList.  
     *pxEventListItem = (xListItem *)xEventList.xListEnd.pxNext;
     *pxCurrentReadyList = pxGetReadyList();
@@ -403,16 +411,18 @@ void vEventListGenericTransit( xListItem ** pxEventListItem, xList ** pxCurrentR
         // not time yet
         *pxEventListItem  = NULL;
         *pxCurrentReadyList = NULL;
+        return 0;
     }
     else
     {
+        taskENTER_CRITICAL();
         /* remove pxListItem from xEventList */ 
         vListRemove(*pxEventListItem);
         /* insert the pxListItem into the specified pxList */
         vListInsertEnd(*pxCurrentReadyList, *pxEventListItem);
+        taskEXIT_CRITICAL();
+        return 1;
     }
-
-    taskEXIT_CRITICAL();
 }
 
 void vEventGenericReceive( xEventHandle * pxEvent, xTaskHandle pxSource, xList * pxList )

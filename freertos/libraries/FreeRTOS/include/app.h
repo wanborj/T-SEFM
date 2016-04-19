@@ -72,11 +72,11 @@
 
 
 #define NUMBEROFSERVANT 22 
-#define NUMBEROFTASK 4
+#define NUMBEROFTASK 13
 #define MAXRELATION NUMBEROFSERVANT 
 
-#define MAXOUTDEGREE 10   // network max in degree of every S-servant
-#define MAXINDEGREE 10  // network max out degree of every s-servant
+#define MAXOUTDEGREE 2   // network max in degree of every S-servant
+#define MAXINDEGREE 2  // network max out degree of every s-servant
 
 struct sparseRelation
 {

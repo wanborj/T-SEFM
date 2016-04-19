@@ -172,7 +172,7 @@ static inline void compute_dist2_to_home(void) {
 }
 
 void nav_home(void) {
-  Circle(WP_HOME, 50); /* FIXME: radius should be defined elsewhere */
+  //Circle(WP_HOME, 50); /* FIXME: radius should be defined elsewhere */
   nav_pitch = 0.; /* Nominal speed */ 
   vertical_mode = VERTICAL_MODE_AUTO_ALT;
   desired_altitude = GROUND_ALT+50;

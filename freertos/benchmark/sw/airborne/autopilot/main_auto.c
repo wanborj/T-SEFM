@@ -85,6 +85,7 @@ static uint8_t count;
 /** Maximal delay for calibration */
 #define MAX_DELAY_FOR_CALIBRATION 10
 
+
 /** \fn inline void ground_calibrate( void )
  *  \brief Calibrate contrast if paparazzi mode is
  * set to auto1 before MAX_DELAY_FOR_CALIBRATION secondes */

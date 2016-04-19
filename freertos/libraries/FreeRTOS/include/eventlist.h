@@ -96,8 +96,11 @@ struct timeStamp
 
 struct eventData
 {
+    portTickType xNextPeriod;
+    portTickType xTime;
+    portBASE_TYPE IS_LAST_SERVANT;
     /* data type can be changed here. Data type including portCHAR, portFLOAT, portLONG, portSHORT, portBASE_TYPE*/
-    portTickType xData;
+    portBASE_TYPE xData;
 };
 
 typedef void * xEventHandle;
@@ -136,8 +139,10 @@ void vEventGenericCreate( xTaskHandle pxDestination, struct eventData pvData);
  *
  * @param pxEvent will record the event which is transited.
  * @param  pxList will record the target xEventReadyList where the pxEvent will be sent to.
+ *
+ * return: 1 transmit success; -1 no event; 0 not time yet
  * */
-void vEventListGenericTransit( xListItem ** pxEvent, xList ** pxList);
+portBASE_TYPE xEventListGenericTransit( xListItem ** pxEvent, xList ** pxList);
 
 /*
  * servant receive event whose source is the pxSource and destination is current servant from specified xEventReadyList.
@@ -158,12 +163,13 @@ void vEventGenericDelete ( xEventHandle xEvent);
 
 #define vEventCreate( pxDestination, pvData)  vEventGenericCreate(pxDestination, pvData)
 
-#define vEventListTransit( pxEventListItem, pxCurrentReadyList)     vEventListGenericTransit( pxEventListItem, pxCurrentReadyList)
+#define xEventListTransit( pxEventListItem, pxCurrentReadyList)     xEventListGenericTransit( pxEventListItem, pxCurrentReadyList)
 
 #define vEventReceive( pxEvent, pxSource, pxList )  vEventGenericReceive( pxEvent, pxSource, pxList )
 
 #define vEventDelete( pxEvent )     vEventGenericDelete( pxEvent )
 
+//void vEventSetxTimeStamp( xEventHandle xEvent, portTickType xTime );
 
 #ifdef __cplusplus
 }
