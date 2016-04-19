@@ -191,14 +191,14 @@ struct eventData xEventGetxData( xEventHandle pxEvent)
     return ((eveECB *) pxEvent)->xData;
 }
 
-static void vEventSetxTimeStamp( xEventHandle pxNewEvent )
+void vEventSetxTimeStamp( xEventHandle pxNewEvent, portTickType xTime )
 {
     eveECB * pxEvent =(eveECB *) pxNewEvent;
     /* get the current task TCB handler*/
     xTaskHandle pxCurrentTCBLocal = xTaskGetCurrentTaskHandle();
 
     /*set the time of this event to be processed */
-    pxEvent->xTimeStamp.xTime = xTaskGetxStartTime(pxCurrentTCBLocal) + xTaskGetxLet(pxCurrentTCBLocal) ;
+    pxEvent->xTimeStamp.xTime = xTime ;
 
     /*the microstep is not used now*/
     pxEvent->xTimeStamp.xMicroStep = 0;
@@ -358,7 +358,14 @@ void vEventGenericCreate( xTaskHandle pxDestination, struct eventData pdData)
         pxNewEvent->pxDestination = pxDestination;
 
         /* initialise the time stamp of an event item according to the sort algorithm.*/
-        vEventSetxTimeStamp( pxNewEvent );
+        if( pdData.IS_LAST_SERVANT == 1 )
+        {
+            vEventSetxTimeStamp( pxNewEvent, pdData.xNextPeriod);
+        }
+        else
+        {
+            vEventSetxTimeStamp( pxNewEvent, pdData.xTime );
+        }
 
         vListIntialiseEventItem( pxNewEvent, (xListItem *) &pxNewEvent->xEventListItem );
 

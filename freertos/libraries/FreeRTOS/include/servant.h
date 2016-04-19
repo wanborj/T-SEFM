@@ -140,8 +140,6 @@ void vEventCreateAll( void * pvParameter, struct eventData * xDatas );
 
 void vSensor( void * pvParameter );
 
-void vActuator( void * pvParameter );
-
 void vServant( void * pvParameter );
 
 void vR_Servant( void * pvParameter );

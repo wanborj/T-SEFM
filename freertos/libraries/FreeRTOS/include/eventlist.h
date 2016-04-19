@@ -96,8 +96,11 @@ struct timeStamp
 
 struct eventData
 {
+    portTickType xNextPeriod;
+    portTickType xTime;
+    portBASE_TYPE IS_LAST_SERVANT;
     /* data type can be changed here. Data type including portCHAR, portFLOAT, portLONG, portSHORT, portBASE_TYPE*/
-    portTickType xData;
+    portBASE_TYPE xData;
 };
 
 typedef void * xEventHandle;
@@ -164,6 +167,7 @@ void vEventGenericDelete ( xEventHandle xEvent);
 
 #define vEventDelete( pxEvent )     vEventGenericDelete( pxEvent )
 
+void vEventSetxTimeStamp( xEventHandle xEvent, portTickType xTime );
 
 #ifdef __cplusplus
 }

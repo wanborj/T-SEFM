@@ -138,19 +138,19 @@ void vApplicationTickHook( void )
 
     // xTaskComplete initialise to 1, and it will be set to 0 after sensor start executing and set
     // back to 1 after actuator complete execution.
-    if(xTaskComplete[0] == 1 && xCurrentTime % xPeriodOfTask[0] == 0)
+    if(xCurrentTime % xPeriodOfTask[0] == 0)
     {
         xSemaphoreGive(xBinarySemaphore[0]);
     }
-    if(xTaskComplete[1] == 1 && xCurrentTime % xPeriodOfTask[1] == 0)
+    if( xCurrentTime % xPeriodOfTask[1] == 0)
     {
         xSemaphoreGive(xBinarySemaphore[5]);
     }
-    if(xTaskComplete[2] == 1 && xCurrentTime % xPeriodOfTask[2] == 0)
+    if( xCurrentTime % xPeriodOfTask[2] == 0)
     {
         xSemaphoreGive(xBinarySemaphore[12]);
     }
-    if(xTaskComplete[3] == 1 && xCurrentTime % xPeriodOfTask[3] == 0)
+    if(xCurrentTime % xPeriodOfTask[3] == 0)
     {
         xSemaphoreGive(xBinarySemaphore[15]);
     }
