@@ -288,14 +288,18 @@ extern const int32_t utm_north0;
 void send_boot(void){
   /** initialisation phase during boot */
   //vPrintString("S_13 reporting_task start!\n\r");
-  if (boot) {
+  //add by wanbo
+  //if (boot) 
+  {
       DOWNLINK_SEND_BOOT(&version);
       DOWNLINK_SEND_RAD_OF_IR(&estimator_ir, &estimator_rad, &estimator_rad_of_ir, &ir_roll_neutral, &ir_pitch_neutral);
       boot = FALSE;
   }
 }
-void send_attitude(void){ //500ms
-  if(!boot){
+void send_attitude(void){ //499ms
+    // add by wanbo
+  //if(!boot)
+  {
     count++;
     if (count == 250) count = 0;
     if (count % 5 == 0) 
@@ -304,28 +308,36 @@ void send_attitude(void){ //500ms
 }
   
 void send_adc(void){  //500ms
-  if(!boot){ if (count % 5 == 1) PERIODIC_SEND_ADC();}
+  //if(!boot)
+  { if (count % 5 == 1) PERIODIC_SEND_ADC();}
 }
 void send_settings(void){ //500ms
-  if(!boot){if (count % 5 == 2) PERIODIC_SEND_SETTINGS();}
+  //if(!boot)
+  {if (count % 5 == 2) PERIODIC_SEND_SETTINGS();}
 }
 void send_desired(void){  //1000ms
-  if(!boot){ if (count % 10 == 3) PERIODIC_SEND_DESIRED();}
+  //if(!boot)
+  { if (count % 10 == 3) PERIODIC_SEND_DESIRED();}
 }
 void send_bat(void){  //2000ms
-  if(!boot){ if (count % 20 == 8) PERIODIC_SEND_BAT();}
+  //if(!boot)
+  { if (count % 20 == 8) PERIODIC_SEND_BAT();}
 }
 void send_climb(void){  //2000ms
-  if(!boot){ if (count % 20 == 18) PERIODIC_SEND_CLIMB_PID();}
+  //if(!boot)
+  { if (count % 20 == 18) PERIODIC_SEND_CLIMB_PID();}
 }
 void send_mode(void){  //5000ms
-  if(!boot){ if (count % 50 == 9) PERIODIC_SEND_PPRZ_MODE();}
+  //if(!boot)
+  { if (count % 50 == 9) PERIODIC_SEND_PPRZ_MODE();}
 }
 void send_debug(void){  //5000ms
-  if(!boot){ if (count % 50 == 29) PERIODIC_SEND_DEBUG();}
+  //if(!boot)
+  { if (count % 50 == 29) PERIODIC_SEND_DEBUG();}
 }
 void send_nav_ref(void){  //10000ms
-  if(!boot){ if (count % 100 == 49) PERIODIC_SEND_NAVIGATION_REF();}
+  //if(!boot)
+  { if (count % 100 == 49) PERIODIC_SEND_NAVIGATION_REF();}
   //vPrintString("S_13 reporting_task end!\n\r");
 }
 
@@ -343,6 +355,8 @@ inline uint8_t inflight_calib_mode_update ( void ) {
 void radio_control_task( void ) {
   bool_t calib_mode_changed;
 	//vPrintString("S_3 radio_control_task start! \n\r"); //SunnyBeike
+    //add by wanbo
+    link_fbw_receive_valid = 1;
   if (link_fbw_receive_valid) {
     uint8_t mode_changed = FALSE;
     copy_from_to_fbw();
@@ -350,7 +364,9 @@ void radio_control_task( void ) {
       pprz_mode = PPRZ_MODE_HOME;
       mode_changed = TRUE;
     }
-    if (bit_is_set(from_fbw.status, AVERAGED_CHANNELS_SENT)) {
+    // modified by wanbo
+    //if (bit_is_set(from_fbw.status, AVERAGED_CHANNELS_SENT)) 
+    {
       bool_t pprz_mode_changed = pprz_mode_update();
       mode_changed |= pprz_mode_changed;
 #ifdef RADIO_LLS
@@ -363,14 +379,21 @@ void radio_control_task( void ) {
 #endif
     }
     mode_changed |= mcu1_status_update();
+    // add by wanbo
+    mode_changed = 1;
     if ( mode_changed )
       DOWNLINK_SEND_PPRZ_MODE(&pprz_mode, &vertical_mode, &inflight_calib_mode, &mcu1_status, &ir_estim_mode);
       
-    if (pprz_mode == PPRZ_MODE_AUTO1) {
+    // add by wanbo
+    //if (pprz_mode == PPRZ_MODE_AUTO1) 
+    {
       desired_roll = FLOAT_OF_PPRZ(from_fbw.channels[RADIO_ROLL], 0., -0.6);
       desired_pitch = FLOAT_OF_PPRZ(from_fbw.channels[RADIO_PITCH], 0., 0.5);
     } // else asynchronously set by course_pid_run()
-    if (pprz_mode == PPRZ_MODE_MANUAL || pprz_mode == PPRZ_MODE_AUTO1) {
+
+    // add by wanbo
+   // if (pprz_mode == PPRZ_MODE_MANUAL || pprz_mode == PPRZ_MODE_AUTO1) 
+    {
       desired_gaz = from_fbw.channels[RADIO_THROTTLE];
 #ifdef ANTON_MAGICAL_MISTERY_GAINS     
       roll_pgain = ROLL_PGAIN * (1 - 5. / 7. * from_fbw.channels[RADIO_THROTTLE] / MAX_PPRZ);
@@ -384,7 +407,9 @@ void radio_control_task( void ) {
 
     events_update();
 
-    if (!estimator_flight_time) {
+    // add by wanbo
+    //if (!estimator_flight_time) 
+    {
       ground_calibrate();
       if (pprz_mode == PPRZ_MODE_AUTO2 && from_fbw.channels[RADIO_THROTTLE] > GAZ_THRESHOLD_TAKEOFF) {
 	launch = TRUE;

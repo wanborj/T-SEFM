@@ -48,7 +48,8 @@ void link_fbw_init(void) {
 void link_fbw_send(void) {
     //vPrintString("S_7 link_fbw_send start! \n\r"); //SunnyBeike
 
-    if (spi_cur_slave != SPI_NONE) {
+    if (spi_cur_slave != SPI_NONE) 
+    {
         spi_nb_ovrn++;
         //vPrintString("S_7 link_fbw_send end! \n\r"); //SunnyBeike
         return;
