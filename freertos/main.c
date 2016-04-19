@@ -52,7 +52,7 @@ int main(void)
     enable_rs232_interrupts();
     enable_rs232();
 
-    vTaskCompleteInitialise();
+    //vTaskCompleteInitialise();
     vSemaphoreInitialise();
     vParameterInitialise();
 
@@ -130,6 +130,7 @@ inline unsigned long myTraceGetTimeMillisecond(){
  * */
 void vApplicationTickHook( void )
 {
+    /*
     portTickType xCurrentTime = xTaskGetTickCount();
     if( xCurrentTime < 200 )
     {
@@ -154,4 +155,5 @@ void vApplicationTickHook( void )
     {
         xSemaphoreGive(xBinarySemaphore[15]);
     }
+    */
 }

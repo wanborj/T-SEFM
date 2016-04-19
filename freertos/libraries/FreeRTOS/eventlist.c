@@ -381,7 +381,7 @@ void vEventGenericCreate( xTaskHandle pxDestination, struct eventData pdData)
 
 
 /* An API to transfer the Event Item from xEventList to one of the xEventReadyList*/
-void vEventListGenericTransit( xListItem ** pxEventListItem, xList ** pxCurrentReadyList)
+portBASE_TYPE xEventListGenericTransit( xListItem ** pxEventListItem, xList ** pxCurrentReadyList)
 {
     //if( listLIST_IS_EMPTY(&xEventList) )
     // if there is only End Flag Event in xEventList, then return NULL.
@@ -390,10 +390,10 @@ void vEventListGenericTransit( xListItem ** pxEventListItem, xList ** pxCurrentR
     {
         *pxEventListItem  = NULL;
         *pxCurrentReadyList = NULL;
-        return;
+        return -1;
     }
         
-    taskENTER_CRITICAL();
+
 
 
     // get the first event of the xEventList.  
@@ -410,16 +410,18 @@ void vEventListGenericTransit( xListItem ** pxEventListItem, xList ** pxCurrentR
         // not time yet
         *pxEventListItem  = NULL;
         *pxCurrentReadyList = NULL;
+        return 0;
     }
     else
     {
+        taskENTER_CRITICAL();
         /* remove pxListItem from xEventList */ 
         vListRemove(*pxEventListItem);
         /* insert the pxListItem into the specified pxList */
         vListInsertEnd(*pxCurrentReadyList, *pxEventListItem);
+        taskEXIT_CRITICAL();
+        return 1;
     }
-
-    taskEXIT_CRITICAL();
 }
 
 void vEventGenericReceive( xEventHandle * pxEvent, xTaskHandle pxSource, xList * pxList )

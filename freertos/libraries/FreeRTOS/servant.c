@@ -132,6 +132,20 @@ void vSemaphoreInitialise()
         /* when created, it is initialised to 1. So, we take it away.*/
         xSemaphoreTake(xBinarySemaphore[i], portMAX_DELAY);
     }
+    /* give sempaphore to sensor of all tasks for only one time */
+    xSemaphoreGive( xBinarySemaphore[0] );
+    xSemaphoreGive( xBinarySemaphore[2] );
+    xSemaphoreGive( xBinarySemaphore[4] );
+    xSemaphoreGive( xBinarySemaphore[5] );
+    xSemaphoreGive( xBinarySemaphore[6] );
+    xSemaphoreGive( xBinarySemaphore[7] );
+    xSemaphoreGive( xBinarySemaphore[9] );
+    xSemaphoreGive( xBinarySemaphore[12] );
+    xSemaphoreGive( xBinarySemaphore[13] );
+    xSemaphoreGive( xBinarySemaphore[15] );
+    xSemaphoreGive( xBinarySemaphore[18] );
+    xSemaphoreGive( xBinarySemaphore[19] );
+    xSemaphoreGive( xBinarySemaphore[20] );
 }
 
 /*
@@ -273,6 +287,7 @@ void vSensor( void * pvParameter )
     portTickType xCurrentTime;
     portTickType xStartTime;
     portBASE_TYPE i;
+    portBASE_TYPE IS_FIRST_TIME_TO_EXE = 1;
     portBASE_TYPE xCount = 2;
 
     /* store the paramter into stack of servant */
@@ -296,18 +311,24 @@ void vSensor( void * pvParameter )
 
     while(1)
     {
-        /* Waiting for the start time of task period */
-        xSemaphoreTake(xBinarySemaphore[xMyFlag], portMAX_DELAY);
 
-        /* When system started, the first servant of every task is triggered to
-         * execute by the init events created by tick hook. After that, the first
-         * servant of every task is triggered by the last servant of corresponding task.
-        * */
-        vEventReceiveAll( pvMyParameter, pxEvent );
-
-        // deal with the output things and seeing whether current task misses deadline
-        vDoActuator(xPeriod, pvEvent);
-        vEventDeleteAll(pvMyParameter, pxEvent);
+        if( IS_FIRST_TIME_TO_EXE == 1 )
+        {
+            /* Waiting for the start time of task period */
+            xSemaphoreTake(xBinarySemaphore[xMyFlag], portMAX_DELAY);
+            IS_FIRST_TIME_TO_EXE = 0;
+        }
+        else
+        {
+            /* When system started, the first servant of every task is triggered to
+             * execute by the init events created by tick hook. After that, the first
+             * servant of every task is triggered by the last servant of corresponding task.
+            * */
+            vEventReceiveAll( pvMyParameter, pxEvent );
+            // deal with the output things and seeing whether current task misses deadline
+            vDoActuator(xPeriod, pvEvent);
+            vEventDeleteAll(pvMyParameter, pxEvent);
+        }
 
         //xTaskComplete[ xTaskOfServant[xMyFlag] ] = 0;
 
@@ -342,6 +363,8 @@ void vSensor( void * pvParameter )
         xCurrentTime = xTaskGetTickCount();
         vPrintNumber( xCurrentTime );
         vPrintNumber( ( xMyFlag + 10 ) * 3 );
+        // triggered R-Servant to execute 
+        xSemaphoreGive( xBinarySemaphore[NUMBEROFSERVANT-1] );
     }
 }
 
@@ -397,6 +420,8 @@ void vServant( void * pvParameter )
         xCurrentTime = xTaskGetTickCount();
         vPrintNumber( xCurrentTime );
         vPrintNumber( (xMyFlag + 10) * 3 );
+        // triggered R-Servant to execute 
+        xSemaphoreGive( xBinarySemaphore[NUMBEROFSERVANT-1] );
         
     }
 }
@@ -406,6 +431,7 @@ void vR_Servant( void * pvParameter)
     portBASE_TYPE i, j;
     portBASE_TYPE xSource, xDest;
     portBASE_TYPE HAVE_TO_SEND_SEMAPHORE; // could the semaphore be sent? 1 means yes , 0 means no
+    portBASE_TYPE xResult;
 
     portTickType xCurrentTime;
     void * pvMyParameter = pvParameter;
@@ -419,13 +445,16 @@ void vR_Servant( void * pvParameter)
 
     while(1)
     {
-        // init to zero
-        HAVE_TO_SEND_SEMAPHORE = 0;
+        // waiting for events created by tick hook or S-Servant
+        xSemaphoreTake( xBinarySemaphore[xMyFlag], portMAX_DELAY );
 
         //vPrintNumber( xMyFlag );
         xCurrentTime = xTaskGetTickCount();
         //vPrintNumber( xCurrentTime );
         vTaskSetxStartTime( xTaskOfHandle[xMyFlag], xCurrentTime );
+
+        // init to zero
+        HAVE_TO_SEND_SEMAPHORE = 0;
 
         // to see whether there is a servant need to be triggered.
         // This process could be preempted by Sensor servant.
@@ -436,10 +465,20 @@ void vR_Servant( void * pvParameter)
              * from xEventList to the idlest xEvestReadyList
              *
              * */
-            vEventListTransit( &pxEventListItem, &pxCurrentReadyList);
-            if( pxEventListItem == NULL && pxCurrentReadyList == NULL )
+            xResult = xEventListTransit( &pxEventListItem, &pxCurrentReadyList);
+            if( xResult == -1 )
             {
-                continue;
+                // no event
+                break;
+            }
+            else if( xResult == 0 )
+            {
+                // not time yet
+                break;
+            }
+            else
+            {
+                // transmit success
             }
 
             destinationTCB = xEventGetpxDestination( pxEventListItem->pvOwner);
@@ -480,25 +519,32 @@ void vR_Servant( void * pvParameter)
             }
         } //  end inner while(1)
 
-
-        // set all the relations whose destination S-Servant is xTaskOfHandle[i] to 1.
-        for( i = 0; i < xRelations.xNumOfRelation; ++ i )
+        // not time yet, R-Servant should be sleep until next period of any task
+        if( HAVE_TO_SEND_SEMAPHORE == 0 )
         {
-            xDest = xRelations.xRelation[i].xOutFlag;
-            if( destinationTCB == xTaskOfHandle[xDest] )
-            {
-                xRelations.xRelation[i].xFlag = 1;
-                // record the number of destinationtcb in xTaskOfHandle array.
-                j = xDest;
-            }
+            continue; 
         }
+        else
+        {
+            // set all the relations whose destination S-Servant is xTaskOfHandle[i] to 1.
+            for( i = 0; i < xRelations.xNumOfRelation; ++ i )
+            {
+                xDest = xRelations.xRelation[i].xOutFlag;
+                if( destinationTCB == xTaskOfHandle[xDest] )
+                {
+                    xRelations.xRelation[i].xFlag = 1;
+                    // record the number of destinationtcb in xTaskOfHandle array.
+                    j = xDest;
+                }
+            }
 
-        //vTaskDelayLET();
-        //xCurrentTime = xTaskGetTickCount();
-        //vPrintNumber( xCurrentTime );
-        //vPrintNumber( (xMyFlag + 10) * 3 );
+            //vTaskDelayLET();
+            //xCurrentTime = xTaskGetTickCount();
+            //vPrintNumber( xCurrentTime );
+            //vPrintNumber( (xMyFlag + 10) * 3 );
 
-        // send semaphore to destinationtcb
-        xSemaphoreGive( xBinarySemaphore[j] );
+            // send semaphore to destinationtcb
+            xSemaphoreGive( xBinarySemaphore[j] );
+        }
     }
 }
