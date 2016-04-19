@@ -78,7 +78,7 @@ static uint8_t ppm_cpt, last_ppm_cpt;
 
 
 /* Prepare data to be sent to mcu0 */
-static void to_autopilot_from_last_radio (void) {
+void to_autopilot_from_last_radio (void) {
   uint8_t i;
   for(i = 0; i < RADIO_CTL_NB; i++)
      to_mega128.channels[i] = last_radio[i];
