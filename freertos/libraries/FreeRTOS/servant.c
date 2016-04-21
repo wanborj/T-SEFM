@@ -232,6 +232,7 @@ void vEventCreateAll( void * pvParameter, struct eventData *xDatas )
         // get all flags of destination servants
         xFlags[i] = ((struct xParam *) pvParameter)->xOutFlag[i]; 
 
+        // if current servant is the last one of task, then the event will be proceeded at the deadline
         if( xFlags[i] <= xMyFlag )
         {
             xDatas[i].IS_LAST_SERVANT = 1;
@@ -332,7 +333,7 @@ void vSensor( void * pvParameter )
         vPrintNumber( xCurrentTime );
         vTaskSetxStartTime( xTaskOfHandle[xMyFlag], xCurrentTime );
 
-        // record the start time of this period.
+        // xStartTime is the start time of next period which is also the deadline of current period
         xCount ++;
         xStartTime = xCount * xPeriod; 
 
@@ -538,6 +539,7 @@ void vR_Servant( void * pvParameter)
         else if ( xResult == 0 )
         {
             //vTaskDelayLET();
+            //vPrintString("not time yet\n\r");
             continue;
         }
         else
